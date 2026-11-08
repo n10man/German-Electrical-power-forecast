@@ -1,0 +1,52 @@
+{
+ "val_start": "2024-10-25 00:00:00+00:00",
+ "test_start": "2025-10-25 00:00:00+00:00",
+ "first_full_local_day": "2024-10-26",
+ "last_full_local_day": "2026-10-24",
+ "test_coverage_cqr_mean": {
+  "80": 72.5,
+  "95": 90.8
+ },
+ "test_coverage_cqr_by_zone": {
+  "50Hertz": {
+   "80": 78.9,
+   "95": 94.4
+  },
+  "Amprion": {
+   "80": 71.5,
+   "95": 90.7
+  },
+  "TenneT": {
+   "80": 66.9,
+   "95": 87.1
+  },
+  "TransnetBW": {
+   "80": 72.5,
+   "95": 91.1
+  }
+ },
+ "hours": {
+  "50Hertz": {
+   "hours_exported": 17514,
+   "hours_in_period": 17520,
+   "hours_left_out": 6
+  },
+  "Amprion": {
+   "hours_exported": 17520,
+   "hours_in_period": 17520,
+   "hours_left_out": 0
+  },
+  "TenneT": {
+   "hours_exported": 17520,
+   "hours_in_period": 17520,
+   "hours_left_out": 0
+  },
+  "TransnetBW": {
+   "hours_exported": 17520,
+   "hours_in_period": 17520,
+   "hours_left_out": 0
+  }
+ },
+ "git_head": "85732f6faaf866a05417db02f6772627fb81ebc0",
+ "model_lock_file_sha256": "2066825e5aee73f6d4e260bc108942320a62f778dbf8720d402d472c52828766"
+}

@@ -1,6 +1,6 @@
 # Germany electricity demand forecasting (4 grid zones)
 
-A portfolio baseline that forecasts **hourly grid load** for Germany's four TSO control areas (50Hertz, Amprion, TenneT, TransnetBW), with prediction intervals, stress tests and one sealed final test. It is not production-grade; see *Limitations*. **Status: data, models, uncertainty, stress tests and final evaluation are done. The interactive map (Phase 7) is not built yet.**
+A portfolio baseline that forecasts **hourly grid load** for Germany's four TSO control areas (50Hertz, Amprion, TenneT, TransnetBW), with prediction intervals, stress tests and one sealed final test. It is not production-grade; see *Limitations*. **Status: data, models, uncertainty, stress tests, final evaluation and the interactive map are done.**
 
 ## Problem
 Predict hourly load per zone, treating every load-based input as known at least 24 h before the target hour (lags of 24 h and more), so it mimics a day-ahead forecast. One important shortcut: the weather inputs are **observed/reanalysis values at the target hour**, not weather forecasts (see *Stress tests* for what weather error does).
@@ -10,7 +10,7 @@ Details, series IDs, URLs and the reasoning for the series choice: [`data/DATA_S
 - **Load**: SMARD (Bundesnetzagentur) "Grid load", filter 410, quarter-hourly per control area (values are MWh per 15 min; the hourly value is the sum of the four). Downloaded 2026-11-08. Series 410 reproduces the three SMARD website reference values exactly (60,003 / 59,180 / 56,841 MWh at 2022-06-01 16:00-18:00 UTC; the brief had labelled them in the owner's UTC+8 time). The sum of the four zones matches SMARD's national total (median difference 0.000% on train+validation, 99% of hours within 2.4%).
 - **Weather**: Open-Meteo historical archive (no key), hourly, three cities per zone averaged: temperature, humidity, wind speed, shortwave radiation, cloud cover.
 - **Holidays**: Python `holidays` package per German state; the zone feature is the equal-weight share of the zone's states that have a holiday that Berlin-local day. The state-to-zone mapping in `src/gepf/data.py` is an approximation (TSO areas do not follow state borders).
-- **Licences**: I recorded SMARD and Open-Meteo as CC BY 4.0 from memory and have **not verified** the current terms; check them before publishing. State shapes for the map: not chosen yet.
+- **Licences**: I recorded SMARD and Open-Meteo as CC BY 4.0 from memory and have **not verified** the current terms; check them before publishing. **State shapes** for the map: BKG VG250 state boundaries (official WFS), licence *Datenlizenz Deutschland – Namensnennung 2.0* (dl-de/by-2-0, stated in the service's own capabilities document), attribution "© GeoBasis-DE / BKG"; simplified for the web (`scripts/build_site_geo.py`).
 - Data checks (all automated in `tests/test_data_sanity.py`): no duplicate hours, regular hourly UTC index, no gaps inside train+validation (the 72-75 missing hours per zone in the raw range are almost all the empty days before 2015-01-01, plus a few unpublished newest hours), 23/25-hour daylight-saving days, plausible magnitudes (2019: 56.8 GW mean, 497 TWh), weekday > Sunday, winter > summer.
 
 ## Method
@@ -50,6 +50,19 @@ So the intervals are **too narrow on new data**: calibration on one period does 
 - **Weather error** (noise levels are my assumptions, not measured forecast errors): +2-9% MAE at level 1, +15-32% at level 4 for three zones; TransnetBW is much more sensitive (+25% at level 1, +60% at level 4).
 - **Missing data** (no imputation): 30% missing weather hours cost about +12% (TransnetBW +31%). **Missing load history is the real weak spot**: 10% missing lags cost about +35-41%, 30% about +125-136%, and the model becomes worse than B1 in some zones.
 
+## Interactive map (`site/`)
+Plain HTML/JS/SVG, no libraries, no map tiles, no API keys. Serve and open:
+```bash
+python3 -m http.server -d site 8000   # then open http://localhost:8000  (file:// does not work: the page loads JSON)
+```
+Hover a state: its name and grid zone. Click: a popup with a date picker (2024-10-26 to 2026-10-24, Berlin local days), an hour picker or full-day chart, and actual, forecast, 80% and 95% ranges and the error for the chosen hour. The popup always states "Forecast is for the [zone] grid zone, not the state", shows a badge per date ("Unseen test period", or "Validation period (used for tuning and calibration)", or a mixed-day note for 2025-10-25), the measured test coverage of the ranges next to them (72.5% and 90.8% on average over the zones, plus the zone's own value; read from `results/final_test_coverage.csv`), and "Backtest using observed weather, not a live forecast". Deep links work, e.g. `http://localhost:8000/#state=BY&date=2026-01-14&hour=12`.
+
+Screenshots: ![overview](docs/screenshots/01_map_overview.png) ![test hour in a split state](docs/screenshots/02_popup_test_hour_split_state.png) ![validation day](docs/screenshots/03_popup_validation_full_day.png) ![phone width](docs/screenshots/04_popup_mobile_375px.jpg)
+
+- **Data**: `scripts/export_site_data.py` runs the *locked* models (SHA-256 verified, refuses unless the final evaluation was already run) to write `site/data/{zone}.json` for validation and test hours. It computes no metrics; the test period was not re-evaluated, retuned or recalibrated for the map, and the headline numbers above are unchanged. Forecast = the mean model; ranges = quantile models plus the validation-calibrated conformal offsets (the same ones evaluated on the test period). The forecast lies inside the 95% range in 99.9% of hours.
+- **Which hours have missing inputs (test year 2025-10-25..2026-10-24, counted from the sealed file)**: Amprion, TenneT and TransnetBW: none. 50Hertz: 6 of 8,760 hours (2 with a missing actual load value, and the 2 hours exactly one week and the 2 exactly two weeks later whose lag_168h / lag_336h partner is missing). **Handling**: these 6 hours are excluded from the final evaluation (that is why 50Hertz has n = 8,754 there) and are left out of the map, which shows them as missing; four of the remaining 50Hertz hours have a missing lag_24h or lag_48h, which LightGBM handles natively (no imputation). No weather input is missing in any zone. Validation has no missing hours.
+- **Zone assignment**: each state is assigned its *dominant* grid zone (`src/gepf/zones.py`, the same mapping used for the holiday feature). Sources, all qualitative: SMARD, [Control area](https://www.smard.de/page/en/wiki-article/5884/205642) (50Hertz north and east, Amprion west and south-west, TransnetBW a large part of Baden-Württemberg, TenneT from Denmark to the Alps); Deutscher Bundestag, Wissenschaftliche Dienste, [WD 5 - 3000 - 117/16 (2017)](https://www.bundestag.de/resource/blob/494452/29f6a6424b8d97b6aad95ff22cfa6577/WD-5-117-16-pdf.pdf), section 2, which lists the states per operator and quotes the ewi study, which names more than one operator for Niedersachsen, Nordrhein-Westfalen, Hessen, Baden-Württemberg and Bayern. Those five states are flagged "split" (striped on the map and with a warning in the popup). **No source gives area or load shares**, so "dominant" is my judgement from the wording (e.g. TenneT for Hessen and Bayern, Amprion for Nordrhein-Westfalen) and could be wrong for Hessen in particular; I did not find the TSOs' own maps in a machine-readable form, and the sources are from 2012-2017.
+
 ## Limitations
 - Weather inputs are observed values, so the headline numbers are optimistic for a real day-ahead setting (weather forecast error would add to them; see weather-noise results).
 - Grid load is the SMARD "Grid load" series, not total electricity consumption; zones are TSO control areas, not states; the holiday-to-zone mapping is approximate.
@@ -57,7 +70,8 @@ So the intervals are **too narrow on new data**: calibration on one period does 
 - Patterns shift over time (the test year was harder than validation); the model is retrained only once, on data before 2024-10-25.
 - Holiday/bridge-day/heat statistics rest on few days; the stress-test noise levels are assumptions.
 - The model has not been compared with the TSOs' own forecasts, and nothing here shows that it beats them.
-- Licence terms of the data sources are not verified (see above). Not production-grade.
+- Map: a state is not a forecast target. The forecast is for the TSO grid zone, which does not follow state borders; five states are split between zones, and the dominant-zone choice rests on qualitative sources. The map is a backtest with observed weather and cannot show future dates.
+- Licence terms of the load and weather sources are not verified (see above); the BKG state-shape licence is the one stated by the service itself. Not production-grade.
 
 ## How to run
 ```bash
@@ -67,7 +81,7 @@ python scripts/download_load.py            # slow: roughly 25-40 min per zone
 python scripts/download_reference.py       # SMARD national series, used only for checks
 python scripts/download_weather.py
 python scripts/build_dataset.py            # writes data/processed/{trainval,sealed_test}.parquet
-PYTHONPATH=src pytest                      # 20 tests
+PYTHONPATH=src pytest                      # 29 tests
 python scripts/data_card.py                # sanity numbers and plots (train+validation only)
 python scripts/baselines.py
 python scripts/run_models.py M1 M2 M3 M4
@@ -75,4 +89,7 @@ python scripts/run_quantiles.py && python scripts/run_quantiles_hourly.py
 python scripts/stress_tests.py
 python scripts/train_final.py              # train-only models, SHA-256 lock in results/model_lock.json
 python scripts/final_eval.py --confirm-final    # sealed test; refuses to run twice (results/FINAL_EVAL_DONE)
+python scripts/download_states.py && python scripts/build_site_geo.py   # state shapes (needs shapely, not in requirements.txt: pip install shapely)
+python scripts/export_site_data.py         # map data from the locked models
+python3 -m http.server -d site 8000        # the map
 ```
