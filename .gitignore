@@ -10,3 +10,4 @@ __pycache__/
 *.key
 models/
 *.joblib
+.claude/
