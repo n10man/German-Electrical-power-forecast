@@ -131,3 +131,17 @@ Eval-helper bug (not a rule change): the first run had empty hot/cold masks (tz-
 - Hypothesis: the test-period results resemble validation: per-zone MAE at least 5% below B1 (last week), and CQR coverage near nominal but imperfect.
 - Pass/fail definitions (the same as validated): rule v2 applied to the test period (overall MAE <= 0.95 x B1; not worse than B1 on public holidays, hottest 5% and coldest 5% of test days, ranked inside the test period); coverage targets 80 +/- 5 pp and 95 +/- 3 pp, averaged over zones.
 - Decision rule: NO retuning, refitting or re-running after seeing the numbers, whatever they are. Failures are reported in the README as they are. If the run crashes before writing FINAL_EVAL_DONE, only the code bug may be fixed and the run repeated; this will be stated.
+
+### F1 RESULTS — sealed test 2025-10-25 00:00 .. 2026-10-24 23:00 UTC, run ONCE on 2026-11-08 (git HEAD 6f21437088c6b896b2c2ceb8cd3e1689bd1b4c1a; files results/final_test_*.csv, FINAL_EVAL_DONE). No retuning, nothing re-run.
+MAE in MWh/h, M2 = per-zone LightGBM mean model, B1 = same hour last week:
+| zone | B1 | M2 | gain vs B1 | validation M2 | q50 median |
+|---|---|---|---|---|---|
+| 50Hertz | 931.7 | 555.8 | -40.3% | 531 | 561.5 |
+| Amprion | 1184.4 | 645.7 | -45.5% | 524 | 655.4 |
+| TenneT | 948.2 | 478.5 | -49.5% | 355 | 483.1 |
+| TransnetBW | 445.9 | 194.8 | -56.3% | 164 | 196.7 |
+(RMSE/MAPE for all models in results/final_test_metrics.csv; M2 MAPE 4.8 / 3.5 / 3.1 / 3.0 %. B0 yesterday: Amprion 1455, TenneT 1239, TransnetBW 632; 50Hertz B0 is NaN because some test hours have a missing lag_24h and the run's NaN handling for that reference was not masked; not re-run by rule; B0 is worse than B1 in every zone where it is available.)
+- Rule v2 on the test period: PASS in all four zones. Overall MAE is 40-56% below B1 (needs >= 5%); on public holidays model/B1 MAE ratio is 0.20-0.29, on hottest-5% days 0.42-0.65, on coldest-5% days 0.32-0.40. Holidays n = 240-288 hours per zone.
+- But the model is worse on test than on validation: MAE +5% (50Hertz), +23% (Amprion), +35% (TenneT), +19% (TransnetBW). B1 also got worse on test in Amprion (1184 vs 1003) and TenneT (948 vs 791), so part of the test year is simply harder; the cause was not investigated (no further analysis on test, to keep it a single look).
+- Coverage (bands = quantile models + CQR offsets calibrated on validation): 80% band: 78.9 / 71.5 / 66.9 / 72.5 % (mean 72.5); 95% band: 94.4 / 90.7 / 87.1 / 91.1 % (mean 90.8). Targets (80 +/- 5, 95 +/- 3 pp averaged over zones): BOTH FAILED. Raw quantile bands (no conformal): 58.0 % and 78.4 %, much worse. Only 50Hertz is close to nominal. Coverage by hour of day (mean over zones, CQR): worst around midday (80% band: 0.65-0.67 at 12-16 h vs 0.75-0.78 at night; 95% band: 0.85-0.87 vs 0.93-0.94), the same pattern as in validation. Average width of the CQR bands: 80% 1319, 95% 2189 MWh.
+- Conclusion: point forecasts generalise (well ahead of last-week and of holidays/heat/cold subsets); the prediction intervals do NOT hold their nominal coverage on new data, consistent with the Phase 4/4b/5 findings (calibration on validation does not transfer). Reported as is.

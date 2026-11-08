@@ -1,0 +1,9 @@
+{
+ "run_utc": "2026-11-08T09:53:12.829239+00:00",
+ "git_head": "6f21437088c6b896b2c2ceb8cd3e1689bd1b4c1a",
+ "dummy": false,
+ "n_rows": 35034,
+ "test_start": "2025-10-25 00:00:00+00:00",
+ "test_end": "2026-10-24 23:00:00+00:00",
+ "model_lock_sha256_of_lockfile": "2066825e5aee73f6d4e260bc108942320a62f778dbf8720d402d472c52828766"
+}
