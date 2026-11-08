@@ -1,0 +1,9 @@
+pandas
+numpy
+requests
+holidays
+lightgbm
+scikit-learn
+matplotlib
+pyarrow
+pytest
