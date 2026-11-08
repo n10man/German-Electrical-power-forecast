@@ -1,0 +1,13 @@
+ZONE ROWS (hourly, UTC): 95136 2015-01-01 00:00:00+00:00 -> 2025-11-07 23:00:00+00:00
+missing hours per zone: {'50Hertz': 0, 'Amprion': 0, 'TenneT': 0, 'TransnetBW': 0}
+zone-sum vs SMARD DE total: median 0.000%, mean -0.101%, p99 abs 2.374%
+2016: mean 57.3 GW, total 503 TWh (incl. NaN as 0)
+2019: mean 56.8 GW, total 497 TWh (incl. NaN as 0)
+2023: mean 52.3 GW, total 458 TWh (incl. NaN as 0)
+zone mean GW (all train+val): {'50Hertz': 11.76, 'Amprion': 20.29, 'TenneT': 16.79, 'TransnetBW': 6.88}
+weekday vs Sunday mean GW: 58.6 / 46.8
+winter vs summer mean GW: 59.9 / 52.4
+longest gap (hours, any zone): 0 ; gap clusters: 0
+2022-06-01 16:00:00+00:00 UTC / 2022-06-01 18:00:00+02:00 {'50Hertz': 12577.2, 'Amprion': 21462.2, 'TenneT': 18338.5, 'TransnetBW': 7625.2} sum 60003.2 SMARD DE 60003.0
+2019-01-15 08:00:00+00:00 UTC / 2019-01-15 09:00:00+01:00 {'50Hertz': 13958.8, 'Amprion': 27102.5, 'TenneT': 22787.8, 'TransnetBW': 9787.0} sum 73636.0 SMARD DE 73636.5
+2023-12-24 03:00:00+00:00 UTC / 2023-12-24 04:00:00+01:00 {'50Hertz': 8145.5, 'Amprion': 13259.8, 'TenneT': 11886.2, 'TransnetBW': 4213.0} sum 37504.5 SMARD DE 37504.0

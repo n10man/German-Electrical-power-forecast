@@ -25,3 +25,21 @@ Goal: a portfolio baseline that forecasts hourly electricity load for Germany's 
 8. (Only if the owner asks) future dates via a free weather-forecast API.
 
 ## Done = reproducible from README, all tests pass, local commits only, nothing pushed.
+
+## Data verification (mandatory, Phase 1)
+- Use SMARD "total load" / actual consumption (NOT residual load, NOT pumped-storage consumption, NOT generation, NOT prices). If several similar series exist, list them and say why you chose this one.
+- Write data/DATA_SOURCES.md (committed, but not the raw data): exact SMARD series/filter IDs, region names, resolution, download URLs, download date, date range, licence/terms.
+- Sanity checks, written as automated tests and reported at Checkpoint 1:
+  - Hourly timestamps: no duplicates; gaps counted per zone; daylight-saving days handled.
+  - Sum of the four zones is within a few percent of SMARD's national total load; report the difference.
+  - Magnitudes are plausible: national average load roughly 50-60 GW, yearly total roughly 450-500 TWh. Flag anything far outside.
+  - Clear daily and weekly cycles; Sundays/holidays lower than weekdays; winter higher than summer.
+  - Plot one week and one year per zone.
+- At Checkpoint 1 print a short "data card": series name, zones, period, units, row counts, gaps, the sanity-check results, and 3 specific timestamps with their values so the owner can compare them with the SMARD website.
+- Note: on the SMARD website the correct series is called "Grid load" under Electricity consumption > Actual consumption. It is NOT "Residual load" and NOT "Hydro pumped storage". State in data/DATA_SOURCES.md which series name and ID you used.
+
+## Known reference values (from the SMARD website, grid load, Germany total, hourly)
+- 2022-06-02 00:00-01:00 local time: 60,003 MWh
+- 2022-06-02 01:00-02:00 local time: 59,180 MWh
+- 2022-06-02 02:00-03:00 local time: 56,841 MWh
+Your hourly Germany-wide series must reproduce these (allowing for UTC vs local time, which you must state) or explain any difference. Use the "grid load" series (NOT "grid load incl. hydro pumped storage", NOT "residual load"), and say in data/DATA_SOURCES.md that the other variants exist and why you did not use them.
