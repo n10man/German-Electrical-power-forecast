@@ -40,3 +40,19 @@ Eval-helper bug (not a rule change): the first run had empty hot/cold masks (tz-
 - M4 = M2 with learning_rate 0.02, 1500 trees (ONE change). Mean MAE 391.9 (-0.4% vs M2), inside the 1% tie band -> simpler M2 stays. REVERT. (Amprion holiday MAE got worse, 606 vs 572.)
 - Final Phase 3 model: M2, per-zone LightGBM. Caveats: the weather is observed, not forecast (Phase 5 adds noise); holiday/hot/cold subsets are small (about 10-12 holidays, 19 hot and 19 cold days), so "not worse than B1" there is a weak test; B1 is a weak holiday baseline (it copies a normal day), so passing is easy.
 - Commit: see git log ("Phase 3").
+
+## Q1/Q2 — Phase 4 uncertainty (rules written BEFORE running)
+- Q1: per-zone LightGBM quantile models (alpha 0.025, 0.1, 0.5, 0.9, 0.975), M2 features and hyperparameters, trained on train only; quantiles sorted to avoid crossing. Evaluated on all of validation (the models never saw it, so this coverage is honest).
+- Q2 (ONE change on Q1): conformalized quantile regression (CQR) per zone and per band (80% = q10/q90, 95% = q2.5/q97.5). Calibration must not be scored on itself, so validation is split by TIME into halves A = first 6 months, B = last 6 months: calibrate on A, report coverage on B; calibrate on B, report coverage on A. (Halves cover different seasons, which is itself a test of shift.) The offsets used later on the test period are calibrated on all of validation.
+- Targets: nominal 80% and 95%. Coverage error = |empirical - nominal|.
+- Keep/revert: Q2 is kept over Q1 if its mean coverage error (over zones, both bands, both A/B cross-evaluations) is lower than Q1's on the same hours; else revert to raw Q1. Q1 as a whole is "acceptable" if the 80% band coverage is within 80 +/- 5 pp and the 95% band within 95 +/- 3 pp, on average over zones; if not, that is reported as a failure, not tuned away.
+- Also reported: median-model MAE vs M2 (L2 mean model), pinball loss, average band width, coverage per zone, per hour-of-day and by month. Plot: results/figures/coverage.png.
+- Caveat to state: CQR assumes exchangeable errors; load errors are autocorrelated and shift with season, so coverage is approximate.
+
+### Q1/Q2 results (command: `python scripts/run_quantiles.py`; files: results/quantiles_coverage.csv, coverage_by_hour.csv, coverage_by_month.csv, cqr_offsets_val.json, figures/coverage.png, figures/fan_example.png)
+- Q1 raw quantile bands (honest, never fit on validation): nominal 80% band covers 65.0%, nominal 95% band 84.0%; mean |coverage error| 13.0 pp. FAILS the pre-set acceptance (80 +/- 5, 95 +/- 3): bands far too narrow (quantile models trained on train years are over-confident out of sample).
+- Q2 CQR (calibrate on one validation half, score on the other): 80% -> 80.0%, 95% -> 94.2% on average; mean |error| 4.4 pp (vs 13.0) -> KEEP Q2 over Q1 per the rule. Bands are wider (80%: 1318 vs 945 MWh; 95%: 2168 vs 1547 MWh average width).
+- But per zone and half the coverage is uneven: 50Hertz 80% band 75.4% (A) vs 85.7% (B); Amprion 67.6% vs 90.8%; i.e. calibrating on one season-half does not transfer perfectly (TenneT is the most stable: 80.3/79.7%). Hour-of-day: coverage is lowest around midday (80% band about 72% in-sample after conformal; raw about 56-60%) and over-covered at night (the constant offset cannot follow the midday error growth, likely solar/PV and behind-the-meter effects). Month: raw 95% coverage ranges 80-90%.
+- Median model (q50) MAE: 50Hertz 543, Amprion 523, TenneT 359, TransnetBW 166, close to M2's mean-model MAE (531/524/355/164).
+- Decision: Phase 4 method = Q1 quantile models + Q2 CQR (offsets in results/cqr_offsets_val.json, calibrated on all validation, to be applied on the sealed test in Phase 6). Not tuned further (no hour-adaptive calibration tried; that would be a new experiment).
+- Commit: see git log ("Phase 4").
