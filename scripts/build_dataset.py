@@ -11,7 +11,7 @@ for z in ZONES:
 df = pd.concat(frames)
 # common end: last hour where every zone has a published value
 last = min(X["load_mw"].last_valid_index() for X in frames)
-end = last.floor("D") + pd.Timedelta(days=0)   # whole days only
+end = (last - pd.Timedelta(days=14)).floor("D")   # settle margin: drop the newest 14 days (weather/load still being revised)
 df = df[(df.index >= "2015-01-01") & (df.index < end)]
 b = split_bounds(end)
 df["split"] = split_name(df.index, b)

@@ -1,6 +1,6 @@
-ZONE ROWS (hourly, UTC): 95136 2015-01-01 00:00:00+00:00 -> 2025-11-07 23:00:00+00:00
+ZONE ROWS (hourly, UTC): 94800 2015-01-01 00:00:00+00:00 -> 2025-10-24 23:00:00+00:00
 missing hours per zone: {'50Hertz': 0, 'Amprion': 0, 'TenneT': 0, 'TransnetBW': 0}
-zone-sum vs SMARD DE total: median 0.000%, mean -0.101%, p99 abs 2.374%
+zone-sum vs SMARD DE total: median 0.000%, mean -0.102%, p99 abs 2.375%
 2016: mean 57.3 GW, total 503 TWh (incl. NaN as 0)
 2019: mean 56.8 GW, total 497 TWh (incl. NaN as 0)
 2023: mean 52.3 GW, total 458 TWh (incl. NaN as 0)
