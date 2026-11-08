@@ -11,3 +11,6 @@ Splits are by time only. Test period is sealed until Phase 6. Max 10 experiments
 - Metrics: see results/baselines_val.csv and the section below (filled after running).
 - Decision / commit: recorded below.
 
+**B0/B1 results (validation 2024-11-08..2025-11-07, MWh/h):** best baseline per zone is B1 (last week):
+50Hertz MAE 941 (MAPE 8.3%), Amprion 989 (5.2%), TenneT 798 (5.1%), TransnetBW 447 (7.1%). B0 (yesterday) is worse everywhere (MAE 634-1427). Full table: results/baselines_val.csv.
+Decision: both kept as references. Bar for Phase 3 per the rule above (MAE <= 0.95 x B1): 50Hertz 894, Amprion 940, TenneT 758, TransnetBW 425.
