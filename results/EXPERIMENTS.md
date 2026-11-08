@@ -56,3 +56,24 @@ Eval-helper bug (not a rule change): the first run had empty hot/cold masks (tz-
 - Median model (q50) MAE: 50Hertz 543, Amprion 523, TenneT 359, TransnetBW 166, close to M2's mean-model MAE (531/524/355/164).
 - Decision: Phase 4 method = Q1 quantile models + Q2 CQR (offsets in results/cqr_offsets_val.json, calibrated on all validation, to be applied on the sealed test in Phase 6). Not tuned further (no hour-adaptive calibration tried; that would be a new experiment).
 - Commit: see git log ("Phase 4").
+
+## Q3/Q4 — Phase 4b: conformal calibration by hour of day (rules written BEFORE running; max 2 experiments)
+- Hypothesis: Q2 (one global CQR offset per zone and band) leaves midday under-covered and night over-covered; an offset per hour of day fixes that.
+- Q3 (ONE change on Q2): CQR offset computed separately for each of the 24 Berlin local hours of day, per zone and band. Q4 (only if Q3 is rejected; ONE change on Q3): offsets per 6-hour block (00-05, 06-11, 12-17, 18-23) instead of per hour, to reduce noise. Same quantile models as Q1/Q2 (trained on train only).
+- Protocol: same swapped halves as Q2: calibrate on half A, score on half B, and the reverse.
+- ACCEPT only if BOTH: (i) every cell (zone x band {80,95} x swap {A->B, B->A} x hour-of-day group) has coverage within 5 percentage points of nominal (80% or 95%); (ii) average band width (mean over zones and swaps, per band) grows by no more than 15% relative to Q2's average width (80%: 1318 MWh, 95%: 2168 MWh, from the Q2 run above).
+- Otherwise REJECT and keep Q2 (global offsets). Logged either way. If both fail, both are reported as rejected.
+- Note written in advance: criterion (i) is strict. With ~180 hours per hour-group per half, the sampling error of a coverage estimate is about 3 pp (80% band) and 1.6 pp (95% band), so even a perfectly calibrated method may fail a few of the 384 cells by chance. I will report the number of failing cells and the worst cell, but the accept/reject decision follows the rule as written.
+
+### Q3/Q4 results (command: `python scripts/run_quantiles_hourly.py`; cells in results/quantiles_hourly_cells.csv). Cells = zone x band x swap x hour = 192 per band.
+| method | band | avg width (MWh) | vs Q2 | cells outside +/-5 pp | worst cell | mean abs err |
+|---|---|---|---|---|---|---|
+| Q2 global (reference, reproduces earlier widths) | 80 | 1318 | 0% | 122 / 192 | 27.0 pp | 8.0 pp |
+| Q2 global | 95 | 2168 | 0% | 40 / 192 | 20.7 pp | 4.1 pp |
+| Q3 per hour | 80 | 1360 | +3.1% | 141 / 192 | 23.4 pp | 8.4 pp |
+| Q3 per hour | 95 | 2233 | +3.0% | 39 / 192 | 15.3 pp | 3.8 pp |
+| Q4 per 6 h block | 80 | 1328 | +0.7% | 133 / 192 | 23.4 pp | 7.9 pp |
+| Q4 per 6 h block | 95 | 2164 | -0.2% | 42 / 192 | 16.4 pp | 3.9 pp |
+- Criterion (ii) (width <= +15%) is met by both; criterion (i) (every cell within 5 pp) is FAILED by both by a wide margin. Decision: Q3 REJECT, Q4 REJECT; keep Q2 (global offset per zone and band). Max 2 experiments used.
+- Interpretation: hour-specific offsets barely improve on global offsets (95% band mean abs error 3.8 vs 4.1 pp; 80% band no better). The dominant error is the difference between the two validation halves (calibrating on one season-half does not transfer to the other), not hour of day; per-hour sampling noise (about 3 pp at 80%) also contributes. Even Q2 fails 122 of 192 80%-band cells under this strict test.
+- Commit: see git log ("Phase 4b").
