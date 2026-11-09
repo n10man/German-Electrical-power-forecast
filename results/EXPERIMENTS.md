@@ -201,3 +201,16 @@ Per zone vs M2: L1 +3.2% / +10.9% / +10.6% / +15.8%; L2 +7.1% / +21.3% / +22.6% 
 - Interpretation rule applied as written: L2 is +18.1%, more than 15%, so the headline MAEs depend MATERIALLY on lag_24h/lag_48h and must not be read as day-ahead numbers. The variant valid for a single daily issue time (L1, lags >= 48 h) is +8.7% on average, up to +15.8% for TransnetBW. Even the conservative L2 is 41-51% below B1 in every zone, so the model still beats the baseline without the short lags.
 - Decision: report only. The locked models, the lock file and the final-test results are unchanged; no sealed data was read.
 - Commit: see the git log entry "Fix 1c".
+
+## R1 — Record of every read of the sealed test file (added after the audit; earlier entries unchanged)
+CLAUDE.md says the test period is touched once. Accurate record: ONE evaluation (scripts/final_eval.py --confirm-final, 2026-11-08, entry F1). The file data/processed/sealed_test.parquet was read in two further places, both after F1, neither computing an error metric nor changing any model, offset or result:
+1. scripts/export_site_data.py (Phase 7, on the owner's instruction) read it to compute the map's hourly forecasts with the locked models.
+2. A one-off snippet, run in the terminal and not saved as a script, counted NaN values per column and zone to document missing inputs. It is quoted here so it can be checked:
+```python
+t=pd.read_parquet("data/processed/sealed_test.parquet")
+cols=["load_mw","lag_24h","lag_168h","lag_336h","w_temperature_2m","w_relative_humidity_2m","w_wind_speed_10m","w_shortwave_radiation","w_cloud_cover"]
+t.groupby("zone")[cols].apply(lambda d: d.isna().sum())
+need=["lag_336h","lag_168h","load_mw"]   # rows excluded = any of these NaN; also printed: NaN dates (min/max/count per zone)
+```
+Result: 50Hertz 2 hours with missing load (and so 2 with missing lag_24h, lag_168h, lag_336h each), 6 rows excluded in total, no missing weather; the other zones none. The numbers agree with site/data/meta.json (hours_left_out = 6, 0, 0, 0).
+"Run once" is enforced only by the marker file results/FINAL_EVAL_DONE (a convention).
