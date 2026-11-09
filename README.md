@@ -1,5 +1,20 @@
 # Germany electricity demand forecasting (4 grid zones)
 
+## In plain English
+This project predicts how much electricity Germany's four grid zones (50Hertz, Amprion, TenneT, TransnetBW) draw from the grid, hour by hour, and shows the forecasts on an [interactive map](site/). It is a portfolio baseline, not a production system.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/results_chart_dark.png">
+  <img alt="Bar chart of the test-year mean absolute error per grid zone for last week's load, SMARD's official day-ahead forecast and this project's model. The model has the lowest error in every zone." src="docs/results_chart_light.png">
+</picture>
+
+- **Accuracy.** On a final year of data that was held back during development (2025-10-25 to 2026-10-24), the model's average hourly error is 40% to 56% lower than simply copying last week's load, and 24% to 58% lower than the official day-ahead forecast that the grid operators publish on SMARD (numbers in the chart and in the table under *Results*).
+- **That comparison favours this model.** The official forecast is a true day-ahead forecast, issued the day before. This model is a *rolling 24-hour-ahead* forecast: for every hour it already knows the load from 24 hours earlier, and it uses observed instead of forecast weather. In a validation-year experiment, taking away the 24-hour-old load made the model roughly **9% to 18% worse** (+8.7% without `lag_24h`, +18.1% without `lag_24h` and `lag_48h`); this is a validation estimate and was not re-run on the final year. So the model's accuracy is *not* day-ahead accuracy.
+- **The uncertainty ranges are too narrow.** Ranges labelled 80% and 95% contained only **72.5%** and **90.8%** of the real final-year values on average over the zones. Treat the ranges as optimistic.
+- **It got worse on new data.** The error on the final year was 5% to 35% higher than on the validation year the model was tuned on.
+- **Other limits** (see *Limitations*): missing recent load history hurts a lot, holidays are harder, the map assigns each state to one zone by judgement, and the licence terms of the data sources are summarised in [`data/DATA_SOURCES.md`](data/DATA_SOURCES.md).
+
+
 A portfolio baseline that forecasts **hourly grid load** for Germany's four TSO control areas (50Hertz, Amprion, TenneT, TransnetBW), with prediction intervals, stress tests and one sealed final test. It is not production-grade; see *Limitations*. **Status: data, models, uncertainty, stress tests, final evaluation and the interactive map are done.**
 
 ## Problem
@@ -85,7 +100,7 @@ Screenshots: ![overview](docs/screenshots/01_map_overview.png) ![test hour in a 
 ## How to run
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt            # exact versions (Python 3.14.5); on macOS LightGBM needs libomp: brew install libomp
+pip install -r requirements-dev.txt        # exact versions (Python 3.14.5), incl. shapely for the map shapes; on macOS LightGBM needs libomp: brew install libomp
 python scripts/download_load.py            # slow: roughly 25-40 min per zone
 python scripts/download_reference.py       # SMARD national series, used only for checks
 python scripts/download_weather.py
@@ -98,12 +113,13 @@ python scripts/run_lag_ablation.py         # validation-only lag ablation
 python scripts/download_official_forecast.py   # SMARD official day-ahead forecast (benchmark only)
 python scripts/stress_tests.py
 python scripts/train_final.py --force      # rebuilds models/ (gitignored) and OVERWRITES results/model_lock.json, see below
-PYTHONPATH=src pytest                      # run after the steps above; see the notes below on skipped tests
-python scripts/download_states.py && python scripts/build_site_geo.py   # state shapes (needs shapely: pip install -r requirements-dev.txt)
+python scripts/download_states.py && python scripts/build_site_geo.py   # state shapes
 python scripts/export_site_data.py         # map data from the locked models
-python3 -m http.server -d site 8000        # the map
 python scripts/compare_official_forecast.py     # benchmark table; needs site/data and the downloaded official forecast
 python scripts/check_official_forecast_sanity.py  # post-hoc sanity check of the official series
+python scripts/make_summary_chart.py       # the chart at the top of this README
+PYTHONPATH=src pytest                      # last, so that no test is skipped; see the notes below
+python3 -m http.server -d site 8000        # serve the map (keeps running; open http://localhost:8000)
 ```
 **Tests and what they need.** Run `PYTHONPATH=src pytest`. The data-sanity tests skip when `data/raw/` is absent, the site-data tests skip when `site/data/` is absent, and the model-dependent gate tests skip with the message "models/ is absent or empty" until `models/` exists (it is gitignored, so a fresh checkout has no models). Run `train_final.py` *before* `pytest` if you want all of them to run. On a fresh checkout without data or models some tests are therefore skipped, not passed.
 
