@@ -54,7 +54,7 @@ async function openPopup(p, date, hour) {
   $("pTitle").textContent = p.name;
   $("zoneStmt").textContent = `Forecast is for the ${zone} grid zone, not the state.`;
   const sp = $("splitStmt");
-  if (p.split) { sp.hidden = false; sp.textContent = `${p.name} is split between grid zones: most of it is in the ${zone} zone, but part belongs to ${p.also_served_by.join(" and ")}. The numbers below are for the whole ${zone} grid zone (which spans several states), not for ${p.name} alone.`; }
+  if (p.split) { sp.hidden = false; sp.textContent = `${p.name} is split between grid zones. The dominant zone used here is ${zone} (a judgement from qualitative sources, not a measured share); part of ${p.name} is also served by ${p.also_served_by.join(" and ")}. The numbers below are for the whole ${zone} grid zone (which spans several states), not for ${p.name} alone.`; }
   else sp.hidden = true;
   const d = $("date"); d.min = meta.first_full_local_day; d.max = meta.last_full_local_day;
   const want = date || d.value || "2026-01-14"; d.value = (want < d.min) ? d.min : (want > d.max ? d.max : want);

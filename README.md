@@ -41,14 +41,14 @@ Nominal vs observed coverage, mean over the four zones:
 | 80% | 58.0% | 80.0% | **72.5%** |
 | 95% | 78.4% | 94.2% | **90.8%** |
 
-So the intervals are **too narrow on new data**: calibration on one period does not transfer (only 50Hertz is near nominal on test: 78.9% / 94.4%). Coverage is worst around midday (80% band about 65-67% at 12-16 h on test) and over-covered at night. Plots: `results/figures/coverage.png`, example week `results/figures/fan_example.png`.
+So the intervals are **too narrow on new data**: calibration on one period does not transfer (only 50Hertz is near nominal on test: 78.9% / 94.4%). Coverage is worst around midday (80% band 64-67% at 12-16 h on test) and over-covered at night. Plots: `results/figures/coverage.png`, example week `results/figures/fan_example.png`.
 
 ## Stress tests (all inside train+validation; `scripts/stress_tests.py`, details in EXPERIMENTS.md)
 - **Rolling-origin backtest** (8 expanding-window folds: calendar years 2018-2023, 2024-01-01 to 2024-10-24, and the validation year): the model beats B1 in every window and zone.
 - **Holidays etc.**: lower error than B1 on every subset, but higher than its own average on Christmas-New Year (1.3-1.7x), public holidays (1.2-1.5x) and bridge days (1.2-1.8x). Heat waves are easier than average, cold snaps about average.
 - **Shift**: trained before 2020, evaluated 2020-22 without retraining: within 0-10% of the retrained model and far better than B1.
 - **Weather error** (noise levels are my assumptions, not measured forecast errors): +2-9% MAE at level 1, +15-32% at level 4 for three zones; TransnetBW is much more sensitive (+25% at level 1, +60% at level 4).
-- **Missing data** (no imputation): 30% missing weather hours cost about +12% (TransnetBW +31%). **Missing load history is the real weak spot**: 10% missing lags cost about +35-41%, 30% about +125-136%, and the model becomes worse than B1 in some zones.
+- **Missing data** (no imputation): 30% missing weather hours cost about +12% (TransnetBW +31%). **Missing load history is the real weak spot**: 10% missing lags cost about +35-41%, 30% about +125-136% (averages over the four zones; per zone the 10% case ranges from +19% for 50Hertz to +53% for Amprion), and the model becomes worse than B1 in some zones.
 
 ## Interactive map (`site/`)
 Plain HTML/JS/SVG, no libraries, no map tiles, no API keys. Serve and open:
@@ -71,6 +71,7 @@ Screenshots: ![overview](docs/screenshots/01_map_overview.png) ![test hour in a 
 - Patterns shift over time (the test year was harder than validation); the model is retrained only once, on data before 2024-10-25.
 - Holiday/bridge-day/heat statistics rest on few days; the stress-test noise levels are assumptions.
 - The model has not been compared with the TSOs' own forecasts, and nothing here shows that it beats them.
+- Hessen / Frankfurt mismatch: Hessen is assigned to TenneT (map and holiday share, `src/gepf/zones.py`, `src/gepf/data.py`), but one of Amprion's three weather points is Frankfurt, which lies in Hessen. So for Amprion the weather input includes a Hessen city while the holiday input does not include Hessen, and TenneT's holiday input includes Hessen while its weather points (Munich, Hannover, Nuremberg) do not. The holiday share also weights every state of a zone equally (Bayern counts as much as Bremen). Both are approximations, and I did not test their effect.
 - Map: a state is not a forecast target. The forecast is for the TSO grid zone, which does not follow state borders; five states are split between zones, and the dominant-zone choice rests on qualitative sources. The map is a backtest with observed weather and cannot show future dates.
 - Licence terms of the load and weather sources are not verified (see above); the BKG state-shape licence is the one stated by the service itself. Not production-grade.
 

@@ -240,3 +240,10 @@ CLAUDE.md asks for "keep/revert rules written BEFORE seeing results" and a commi
 | R1 sealed-file reads | - | 8177c3e | - |
 | Audit fix 2 (tests, train_final --force, README) | - | 52bf65c | - |
 | Audit fix 4 (pinned requirements) | - | 6d1e03c | - |
+
+## C1 — Corrections to numbers in earlier entries (appended after the audit; earlier entries are NOT edited)
+Recomputed from the CSV files in results/:
+- S3 (weather noise, level x1), three zones other than TransnetBW: MAE rises by 1.7-8.7% (all four zones: 1.7-25%), not "3-10%" as written in the S3 results above. The README already says +2-9%. Source: results/stress_s3_s4.csv.
+- F1 coverage by hour: the 80% band covers 64.0-67.4% of test values at 12-16 h (mean over zones: 67.4, 66.6, 64.8, 64.0, 65.9%), not "0.65-0.67" as written in the F1 results above. The README now says 64-67%. Source: results/final_test_coverage_by_hour.csv.
+- S4 missing load history: the "+35-41%" (10% missing) and "+125-136%" (30%) are averages over zones; per zone the 10% case is +19% (50Hertz) to +53% (Amprion), the 30% case +61% to +191%. Source: results/stress_s3_s4.csv.
+- Popup wording: the split-state text no longer says that "most" of a state lies in its dominant zone, since no source gives shares (see the zone-assignment note in P7).
