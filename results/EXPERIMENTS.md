@@ -155,3 +155,25 @@ MAE in MWh/h, M2 = per-zone LightGBM mean model, B1 = same hour last week:
 - Built: site/ (index.html, app.js, style.css), site/data/{50Hertz,Amprion,TenneT,TransnetBW}.json (17,514 / 17,520 / 17,520 / 17,520 hours), meta.json, states.geojson; scripts/export_site_data.py, download_states.py, build_site_geo.py; src/gepf/zones.py; tests/test_site_data.py. 29 tests pass. Tested in a browser: DST days (25 and 23 hours), the mixed validation/test day 2025-10-25, 50Hertz missing hours, a phone-width view; screenshots in docs/screenshots/.
 - No new metrics were computed on the test period; coverage figures in the popup are copied from results/final_test_coverage.csv (72.5% / 90.8%).
 - Zone assignment (dominant zone per state) is a judgement from qualitative sources; split states: NI, NW, HE, BW, BY.
+
+## H1 — Commit hash mapping after the history rewrite of 2026-11-09 (appended; earlier entries above are NOT edited)
+The history was rewritten on 2026-11-09: only the author/committer e-mail of every commit changed (to the GitHub noreply address), so every commit hash changed. Entries above that cite a commit hash (for example F1: b1b1906 and 6f21437) and the files results/FINAL_EVAL_DONE and results/final_test_meta.json (6f21437) and site/data/meta.json (85732f6) therefore name OLD hashes. They were left untouched on purpose (the model lock and the run record must not change). data/DATA_SOURCES.md cites no commit hash, so it needs no mapping.
+Method: the old tip 09ed0f77a554ee4e46564c8258c2146c820fea92 (still present locally) was listed with `git rev-list --reverse <old tip>` and paired, in order, with the first 15 commits of `git rev-list --reverse HEAD`. For all 15 pairs the tree hash (`git rev-parse <commit>^{tree}`) is identical and the commit subject is identical: no mismatch, so no file content changed in the rewrite. Commits made after the rewrite (the audit fixes) are not part of the mapping.
+
+| # | old commit | new commit | tree (first 12) | subject |
+|---|---|---|---|---|
+| 1 | 188aee8850a27c9b4e539cd6f356636db7679d68 | f789d4da0c5e3c0cee5bf99ad55f51cef5697b61 | f9abde2d8001 | Phase 0: project skeleton, gitignore, requirements, README s |
+| 2 | 170d4539f55f50444e4aa327d055f4fcdc4e89ba | 289bb2d4024081abe7682a4990bb627f8f2dfb97 | 8240ae470666 | Phase 1: data download, cleaning, features, time split, sani |
+| 3 | a7c6259820b9556efbb143985ffac454c193927c | 3b2ef626c150fb92d1ce877c6579c242943f7c66 | 1765129b2616 | Phase 2: seasonal-naive baselines on validation, log results |
+| 4 | a0693898a5994f1b1952448a752b0f19d69b65c3 | 16e970f6bd71017ede750431785970df10abb516 | 9e7d53778cd0 | D1: end dataset 14 days before last hour, rerun tests/baseli |
+| 5 | 567fd0c488423e11589fc5e909d077a99d75146b | c42dfd95df4e85d74a10217594f8a34b74d19577 | 0455f9d86723 | Phase 3: LightGBM per-zone models (M1-M4), rule v2 evaluatio |
+| 6 | b8f7d83918e2ce473d0f2f541c360967d878723c | bec36c8919a450b26f91e5b586a13d39610a8fbf | f04a64fba431 | Phase 4: quantile LightGBM + CQR conformal calibration, cove |
+| 7 | 5d78284b8f1cbb2d1094a9d4d3705a75e6698f97 | 9e2de3688a722b4e3036861ddf5a88964bf4a81b | 1a7fcdde27bd | Phase 4b: hour-of-day conformal calibration tried and reject |
+| 8 | be1242baa6c8d4cad2e6818652d37442500c9b9a | a42fc3f961ee394602a660ff1b833ac3b1ebcf7a | 77d3b67a52cf | Phase 5: rolling-origin backtests and stress tests (holidays |
+| 9 | 54942142a87de34e521d3e75fd5ba1c9496945fd | 4bc89336b591296893de3d1fb2d4caa8b97b0daa | ab1a122e2c0c | Phase 5: correct a count in the stress-test log |
+| 10 | b1b1906c8b4df6ffd370e4c8caaf2305920f3198 | 2a5f7158a2f079e9983ac584148f6cac1630bf2c | 7040cf5a2853 | Phase 6 prep: train_final (train-only models, SHA-256 lock), |
+| 11 | 6f21437088c6b896b2c2ceb8cd3e1689bd1b4c1a | 997c488cf5334f1da0cc348fdd20056ddfd45b5c | ff4e42089a5f | F1: lock model SHA-256 and commit hash, pre-register final e |
+| 12 | 2b1b9c6ee2c57dc7c7748ac317254a31cfa40edd | 58dc54a6a3bec84b78be250d4edc71b58014eec0 | 0da6599f486b | F1: final evaluation on sealed test period (run once), resul |
+| 13 | 055c1e7a2694a5792c7aec1ea311634cca1b5d10 | 4b4718045aa3fc1a43903c2602f3c7f0e9d9d982 | f03dd22953b6 | Phase 6: finish README with code-verified claims |
+| 14 | 85732f6faaf866a05417db02f6772627fb81ebc0 | 49b067555d5a9daf739c693d3386667e261a4d4e | 8b3dd7d550ae | gitignore .claude |
+| 15 | 09ed0f77a554ee4e46564c8258c2146c820fea92 | 574f3ddbb794fbd46b253c3e39546ff130f1b05f | b06b6818b9ad | Phase 7: static map (SVG, no tiles/keys), forecast JSON from |
