@@ -1,7 +1,11 @@
 """Train the FINAL models on TRAIN only (validation untouched by fitting), calibrate CQR offsets on VALIDATION, save to models/, write results/model_lock.json (SHA-256).
 Never reads data/processed/sealed_test.parquet."""
-import sys, json, hashlib, subprocess; sys.path.insert(0, "src")
+import sys, json, hashlib, subprocess, argparse; sys.path.insert(0, "src")
 from pathlib import Path
+ap = argparse.ArgumentParser(); ap.add_argument("--force", action="store_true", help="overwrite results/model_lock.json and models/")
+args = ap.parse_args()
+if Path("results/model_lock.json").exists() and not args.force:
+    sys.exit("REFUSED: results/model_lock.json already exists. Re-training can change the model hashes and break the lock recorded in results/EXPERIMENTS.md (F1) and checked by final_eval.py. Pass --force to overwrite it deliberately.")
 import numpy as np, pandas as pd
 from gepf.data import PROC, ZONES
 from gepf.models import feats, fit

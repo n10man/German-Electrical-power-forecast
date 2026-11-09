@@ -15,7 +15,8 @@ def fe(monkeypatch, tmp_path):
     monkeypatch.setattr(pd, "read_parquet", lambda p, *a, **k: (reads.append(str(p)), real(p, *a, **k))[1])
     monkeypatch.setattr(m, "DONE", tmp_path / "DONE"); m.reads = reads; return m
 
-needs_models = pytest.mark.skipif(not (ROOT / "results/model_lock.json").exists(), reason="models not trained")
+MODEL_FILES = list((ROOT / "models").glob("*.txt")) if (ROOT / "models").is_dir() else []
+needs_models = pytest.mark.skipif(not MODEL_FILES, reason="models/ is absent or empty (it is gitignored): run `python scripts/train_final.py --force` to rebuild the models, then re-run pytest")
 
 def test_refuses_without_confirm(fe):
     with pytest.raises(SystemExit) as e: fe.main([])
@@ -25,7 +26,6 @@ def test_dummy_without_confirm_refused(fe):
     with pytest.raises(SystemExit) as e: fe.main(["--dummy"])
     assert e.value.code == 2
 
-@needs_models
 def test_refuses_when_already_done(fe):
     fe.DONE.write_text("{}")
     with pytest.raises(SystemExit) as e: fe.main(["--confirm-final"])
@@ -50,3 +50,10 @@ def test_dummy_run_never_touches_sealed_or_results(fe, tmp_path):
 def test_dummy_requires_out_dir(fe):
     with pytest.raises(SystemExit) as e: fe.main(["--confirm-final", "--dummy"])
     assert e.value.code == 5
+
+def test_train_final_refuses_to_overwrite_lock_without_force():
+    import subprocess
+    lock = ROOT / "results/model_lock.json"; before = lock.read_bytes()
+    r = subprocess.run([sys.executable, str(ROOT / "scripts/train_final.py")], cwd=ROOT, capture_output=True, text=True, env={**__import__("os").environ, "PYTHONPATH": str(ROOT / "src")})
+    assert r.returncode != 0 and "--force" in r.stderr
+    assert lock.read_bytes() == before

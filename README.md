@@ -82,15 +82,20 @@ python scripts/download_load.py            # slow: roughly 25-40 min per zone
 python scripts/download_reference.py       # SMARD national series, used only for checks
 python scripts/download_weather.py
 python scripts/build_dataset.py            # writes data/processed/{trainval,sealed_test}.parquet
-PYTHONPATH=src pytest                      # 29 tests
 python scripts/data_card.py                # sanity numbers and plots (train+validation only)
 python scripts/baselines.py
 python scripts/run_models.py M1 M2 M3 M4
 python scripts/run_quantiles.py && python scripts/run_quantiles_hourly.py
+python scripts/run_lag_ablation.py         # validation-only lag ablation
 python scripts/stress_tests.py
-python scripts/train_final.py              # train-only models, SHA-256 lock in results/model_lock.json
-python scripts/final_eval.py --confirm-final    # sealed test; refuses to run twice (results/FINAL_EVAL_DONE)
-python scripts/download_states.py && python scripts/build_site_geo.py   # state shapes (needs shapely, not in requirements.txt: pip install shapely)
+python scripts/train_final.py --force      # rebuilds models/ (gitignored) and OVERWRITES results/model_lock.json, see below
+PYTHONPATH=src pytest                      # run after the steps above; see the notes below on skipped tests
+python scripts/download_states.py && python scripts/build_site_geo.py   # state shapes (needs shapely: pip install -r requirements-dev.txt)
 python scripts/export_site_data.py         # map data from the locked models
 python3 -m http.server -d site 8000        # the map
 ```
+**Tests and what they need.** Run `PYTHONPATH=src pytest`. The data-sanity tests skip when `data/raw/` is absent, the site-data tests skip when `site/data/` is absent, and the model-dependent gate tests skip with the message "models/ is absent or empty" until `models/` exists (it is gitignored, so a fresh checkout has no models). Run `train_final.py` *before* `pytest` if you want all of them to run. On a fresh checkout without data or models some tests are therefore skipped, not passed.
+
+**`train_final.py` and the committed lock.** `results/model_lock.json` is committed and its hashes are quoted in `results/EXPERIMENTS.md` (entry F1). The script now refuses to run when that file exists unless you pass `--force`, because re-training may produce different hashes and would overwrite the lock. To check whether your rebuild reproduces the committed hashes, run it with `--force`, then `git diff results/model_lock.json` (no diff means identical hashes); restore the committed lock with `git checkout results/model_lock.json` if they differ.
+
+**`final_eval.py` is one-shot.** `python scripts/final_eval.py --confirm-final` evaluated the sealed test period exactly once (2026-11-08) and cannot be run again: it exits with code 3 because `results/FINAL_EVAL_DONE` exists (exit 2 without `--confirm-final`, exit 4 if a model file does not match the lock). The results are stored in `results/final_test_metrics.csv`, `final_test_subsets.csv`, `final_test_coverage.csv`, `final_test_coverage_by_hour.csv` and `final_test_meta.json`, and are committed. The "once" is enforced only by the marker file (a convention: deleting it would allow a second run, which would break the protocol). `--dummy --out-dir <dir>` runs the pipeline on synthetic data without touching the sealed file or `results/`.
