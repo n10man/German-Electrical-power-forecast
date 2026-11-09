@@ -83,3 +83,14 @@ def test_site_files_reference_existing_assets():
     assert "api_key" not in js.lower() and "apikey" not in js.lower()
     for needle in ("Bundesnetzagentur | SMARD.de", "Weather data by Open-Meteo.com", "dl-de/by-2-0", "not the state", "Unseen test period", "Validation period (used for tuning and calibration)", "Backtest using observed weather, not a live forecast."):
         assert needle in js or needle in html, needle
+
+def test_site_is_deployable_under_a_subpath_and_has_a_pages_workflow():
+    # GitHub Pages serves a project site under /<repo>/, so every URL must be relative (no leading slash, no origin).
+    html = (SITE / "index.html").read_text(); js = (SITE / "app.js").read_text(); css = (SITE / "style.css").read_text()
+    assert not re.search(r'(?:src|href)="/(?!/)', html), "root-absolute URL in index.html"
+    assert not re.search(r"fetch\(\s*[`'\"]/", js) and not re.search(r"getJSON\(\s*[`'\"]/", js), "root-absolute fetch in app.js"
+    assert not re.search(r"url\(\s*['\"]?/", css)
+    wf = (SITE.parent / ".github/workflows/pages.yml").read_text()
+    assert "actions/upload-pages-artifact" in wf and "actions/deploy-pages" in wf and re.search(r"path:\s*site\s*$", wf, re.M)
+    assert "git push" not in wf
+    for needed in ("index.html", "app.js", "style.css", "data/meta.json", "data/states.geojson"): assert (SITE / needed).exists(), needed
