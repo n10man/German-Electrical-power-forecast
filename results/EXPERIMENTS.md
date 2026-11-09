@@ -214,3 +214,29 @@ need=["lag_336h","lag_168h","load_mw"]   # rows excluded = any of these NaN; als
 ```
 Result: 50Hertz 2 hours with missing load (and so 2 with missing lag_24h, lag_168h, lag_336h each), 6 rows excluded in total, no missing weather; the other zones none. The numbers agree with site/data/meta.json (hours_left_out = 6, 0, 0, 0).
 "Run once" is enforced only by the marker file results/FINAL_EVAL_DONE (a convention).
+
+## H2 — Process note: which rules were committed before their results, and real commit hashes (added after the audit; earlier entries are NOT edited)
+CLAUDE.md asks for "keep/revert rules written BEFORE seeing results" and a commit hash per experiment. Two honest corrections:
+1. **Rule-first ordering is provable from git only for some entries.** For B0/B1, Q1/Q2, Q3/Q4, S0-S4 and P7 the rule text and the results were committed together (one commit each, see the table). In the working session the rule text was appended to this file before the script was run, but git cannot show that, and the session transcript is not part of the repository. Provable from git, because the rule was committed in an earlier commit than the results: RULE v2 and the M1-M4 plan (16e970f before the results in c42dfd9), F1 (rules and model lock in 997c488 before the run and its results in 58dc54a) and L1/L2 (33e9d36 before 5fd6627). The owner's "continue" approvals at the checkpoints are likewise in the session transcript, not in git. From now on a rule is committed in its own commit before the experiment is run.
+2. **The entries that say "Commit: see git log (...)" are resolved here with real hashes** (the current hashes, after the history rewrite of 2026-11-09; the old hashes are in entry H1). A commit cannot contain its own hash, so a hash is recorded in the NEXT commit's log entry.
+
+| entry | rule committed in | results committed in | rule before results in git? |
+|---|---|---|---|
+| Phase 0 setup | - | f789d4d | - |
+| Phase 1 data / tests / data card | - | 289bb2d | - |
+| B0/B1 baselines | 3b2ef62 | 3b2ef62 | no (same commit) |
+| D1 dataset end moved 14 days | 16e970f | 16e970f | no (same commit) |
+| RULE v2 + M-plan | 16e970f | - | yes (before c42dfd9) |
+| M1-M4 models | 16e970f | c42dfd9 | yes |
+| Q1/Q2 quantiles + CQR | bec36c8 | bec36c8 | no (same commit) |
+| Q3/Q4 hour-of-day CQR (rejected) | 9e2de36 | 9e2de36 | no (same commit) |
+| S0-S4 stress tests | a42fc3f | a42fc3f (count fix 4bc8933) | no (same commit) |
+| Phase 6 prep (train_final, final_eval gate, tests) | - | 2a5f715 | - |
+| F1 final evaluation | 997c488 (rules + SHA-256 lock) | 58dc54a (run once + results), 4b47180 (README) | yes |
+| P7 map data and site | 574f3dd | 574f3dd | no (same commit) |
+| gitignore .claude | - | 49b0675 | - |
+| H1 hash mapping | - | 9aeab25 | - |
+| L1/L2 lag ablation | 33e9d36 | 5fd6627 (+ README rename b19ad9c) | yes |
+| R1 sealed-file reads | - | 8177c3e | - |
+| Audit fix 2 (tests, train_final --force, README) | - | 52bf65c | - |
+| Audit fix 4 (pinned requirements) | - | 6d1e03c | - |
