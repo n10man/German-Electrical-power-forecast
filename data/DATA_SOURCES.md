@@ -20,7 +20,7 @@
 ## Weather — Open-Meteo Historical Weather API (archive-api.open-meteo.com)
 - No key. Hourly, UTC: temperature_2m, relative_humidity_2m, wind_speed_10m, shortwave_radiation, cloud_cover. Three representative cities per zone (see `scripts/download_weather.py`), averaged per zone.
 - Licence: CC BY 4.0 (attribution to Open-Meteo; non-commercial free tier). Verify at https://open-meteo.com/en/terms.
-- Caveat: these are reanalysis/observed-style values, i.e. "perfect" weather. A real day-ahead forecast would use forecast weather (errors) — addressed by the noise stress test in Phase 5. The newest days may be model-filled.
+- Caveat: these are reanalysis/observed-style values, i.e. "perfect" weather. A real (rolling 24-hour-ahead) forecast would use forecast weather (errors) — addressed by the noise stress test in Phase 5. The newest days may be model-filled.
 
 ## Holidays
 - Python `holidays` package (`holidays.Germany(subdiv=state)`), state-level. Zone-level feature `holiday_share` = equal-weight share of the zone's states with a holiday that local day. State-to-zone assignment is an approximation (TSO areas do not follow state borders).

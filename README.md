@@ -3,7 +3,7 @@
 A portfolio baseline that forecasts **hourly grid load** for Germany's four TSO control areas (50Hertz, Amprion, TenneT, TransnetBW), with prediction intervals, stress tests and one sealed final test. It is not production-grade; see *Limitations*. **Status: data, models, uncertainty, stress tests, final evaluation and the interactive map are done.**
 
 ## Problem
-Predict hourly load per zone, treating every load-based input as known at least 24 h before the target hour (lags of 24 h and more), so it mimics a day-ahead forecast. One important shortcut: the weather inputs are **observed/reanalysis values at the target hour**, not weather forecasts (see *Stress tests* for what weather error does).
+Predict hourly load per zone, treating every load-based input as known at least 24 h before the target hour (lags of 24 h and more). This is a **rolling 24-hour-ahead** forecast, issued separately for every hour; it is *not* a day-ahead forecast issued once per day, because at a single daily issue time `lag_24h` would be unavailable for the later hours of the next day (see the lag ablation under *Limitations*). One important shortcut: the weather inputs are **observed/reanalysis values at the target hour**, not weather forecasts (see *Stress tests* for what weather error does).
 
 ## Data and licences
 Details, series IDs, URLs and the reasoning for the series choice: [`data/DATA_SOURCES.md`](data/DATA_SOURCES.md). Raw data is not committed.
@@ -64,7 +64,7 @@ Screenshots: ![overview](docs/screenshots/01_map_overview.png) ![test hour in a 
 - **Zone assignment**: each state is assigned its *dominant* grid zone (`src/gepf/zones.py`, the same mapping used for the holiday feature). Sources, all qualitative: SMARD, [Control area](https://www.smard.de/page/en/wiki-article/5884/205642) (50Hertz north and east, Amprion west and south-west, TransnetBW a large part of Baden-Württemberg, TenneT from Denmark to the Alps); Deutscher Bundestag, Wissenschaftliche Dienste, [WD 5 - 3000 - 117/16 (2017)](https://www.bundestag.de/resource/blob/494452/29f6a6424b8d97b6aad95ff22cfa6577/WD-5-117-16-pdf.pdf), section 2, which lists the states per operator and quotes the ewi study, which names more than one operator for Niedersachsen, Nordrhein-Westfalen, Hessen, Baden-Württemberg and Bayern. Those five states are flagged "split" (striped on the map and with a warning in the popup). **No source gives area or load shares**, so "dominant" is my judgement from the wording (e.g. TenneT for Hessen and Bayern, Amprion for Nordrhein-Westfalen) and could be wrong for Hessen in particular; I did not find the TSOs' own maps in a machine-readable form, and the sources are from 2012-2017.
 
 ## Limitations
-- Weather inputs are observed values, so the headline numbers are optimistic for a real day-ahead setting (weather forecast error would add to them; see weather-noise results).
+- Weather inputs are observed values, so the headline numbers are optimistic for a real forecasting setting (a rolling 24-hour-ahead forecast would use forecast weather, whose errors would add to them; see weather-noise results).
 - Grid load is the SMARD "Grid load" series, not total electricity consumption; zones are TSO control areas, not states; the holiday-to-zone mapping is approximate.
 - Prediction intervals do not hold their nominal coverage on the test year (above).
 - Patterns shift over time (the test year was harder than validation); the model is retrained only once, on data before 2024-10-25.
