@@ -24,14 +24,21 @@ Details, series IDs, URLs and the reasoning for the series choice: [`data/DATA_S
 ## Results
 **Final sealed test (2025-10-25..2026-10-24), MAE in MWh/h, run once (rolling 24-hour-ahead with observed weather; see Limitations):**
 
-| Zone | B1 last week | Model | Model vs B1 | Model MAPE | Validation MAE (model) |
-|---|---|---|---|---|---|
-| 50Hertz | 932 | 556 | -40% | 4.8% | 531 |
-| Amprion | 1184 | 646 | -45% | 3.5% | 524 |
-| TenneT | 948 | 479 | -50% | 3.1% | 355 |
-| TransnetBW | 446 | 195 | -56% | 3.0% | 164 |
+| Zone | B1 last week | SMARD official day-ahead forecast | Model | Model vs B1 | Model vs official | Model MAPE | Validation MAE (model) |
+|---|---|---|---|---|---|---|---|
+| 50Hertz | 932 | 952 | 556 | -40% | -42% | 4.8% | 531 |
+| Amprion | 1184 | 846 | 646 | -45% | -24% | 3.5% | 524 |
+| TenneT | 948 | 1011 | 478 | -50% | -53% | 3.1% | 355 |
+| TransnetBW | 446 | 459 | 195 | -56% | -58% | 3.0% | 164 |
 
 The model beat B1 in every zone, and also on public holidays, the hottest 5% and the coldest 5% of test days (model/B1 error ratio 0.20-0.29, 0.42-0.65 and 0.32-0.40). It was nevertheless worse on test than on validation (+5% to +35% MAE; part of that is a harder year, since B1 also got worse in Amprion and TenneT; I did not investigate further). B0 (yesterday) is worse than B1 wherever it is available; for 50Hertz it came out as NaN in the final run (missing lag_24h hours) and was not re-run. Full tables: `results/final_test_*.csv`.
+
+## Benchmark: SMARD's official day-ahead forecast
+SMARD publishes a "Forecasted consumption" series for each of the four control areas (filter 411, quarter-hourly, from 2015; also for Germany as a whole), submitted by the TSOs the day before. I downloaded it (`scripts/download_official_forecast.py`) and scored it on the same sealed test hours as our model (`scripts/compare_official_forecast.py`, `results/official_forecast_comparison.csv`; the comparison rule was committed before the series was downloaded, see `results/EXPERIMENTS.md`, entry O1). This is reporting only: our model, its lock and its logged numbers are unchanged, and no new model metric was computed.
+
+**Our model has the lower MAE in all four zones (24% to 58% lower), but this comparison favours us and is not like-for-like.** The official forecast is a true day-ahead forecast issued the day before (SMARD says the TSOs submit it the day before, based on day-ahead trading results, and that it may be updated afterwards if it changes by more than 10%; the downloaded series is the latest published one). Our model is a rolling 24-hour-ahead forecast that uses `lag_24h` and `lag_48h` and observed instead of forecast weather. To size the lag part of that difference, the validation-only ablation (see *Limitations*) shows +8.7% mean validation MAE without `lag_24h` and +18.1% without `lag_24h` and `lag_48h`; I did not compute any adjusted test number, and the advantage from using observed weather is not measured. The gap to the official forecast is larger than the lag effect, but the two are not comparable one-to-one.
+
+Other things to know about the official numbers: the per-zone official forecasts are no better than copying last week in three zones (MAE 952 vs 932 for 50Hertz, 1011 vs 948 for TenneT, 459 vs 446 for TransnetBW) and clearly better only in Amprion (846 vs 1184). As a sanity check of the series (a post-hoc check, labelled as such in the log), the national official forecast has MAPE 3.8% on the test year, a plausible size for a TSO forecast. TransnetBW's official forecast runs about 6% above actual load on both validation and test (a systematic offset I did not investigate); removing it would lower its MAE from 459 to 341, still well above our 195. The official series is missing 24 of TenneT's 8,760 test hours (0.27%), which are left out of the official TenneT score only.
 
 ## Prediction intervals
 Nominal vs observed coverage, mean over the four zones:
@@ -88,12 +95,15 @@ python scripts/baselines.py
 python scripts/run_models.py M1 M2 M3 M4
 python scripts/run_quantiles.py && python scripts/run_quantiles_hourly.py
 python scripts/run_lag_ablation.py         # validation-only lag ablation
+python scripts/download_official_forecast.py   # SMARD official day-ahead forecast (benchmark only)
 python scripts/stress_tests.py
 python scripts/train_final.py --force      # rebuilds models/ (gitignored) and OVERWRITES results/model_lock.json, see below
 PYTHONPATH=src pytest                      # run after the steps above; see the notes below on skipped tests
 python scripts/download_states.py && python scripts/build_site_geo.py   # state shapes (needs shapely: pip install -r requirements-dev.txt)
 python scripts/export_site_data.py         # map data from the locked models
 python3 -m http.server -d site 8000        # the map
+python scripts/compare_official_forecast.py     # benchmark table; needs site/data and the downloaded official forecast
+python scripts/check_official_forecast_sanity.py  # post-hoc sanity check of the official series
 ```
 **Tests and what they need.** Run `PYTHONPATH=src pytest`. The data-sanity tests skip when `data/raw/` is absent, the site-data tests skip when `site/data/` is absent, and the model-dependent gate tests skip with the message "models/ is absent or empty" until `models/` exists (it is gitignored, so a fresh checkout has no models). Run `train_final.py` *before* `pytest` if you want all of them to run. On a fresh checkout without data or models some tests are therefore skipped, not passed.
 

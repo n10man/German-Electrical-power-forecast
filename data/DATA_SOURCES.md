@@ -34,3 +34,8 @@
 - Deutscher Bundestag, Wissenschaftliche Dienste, WD 5 - 3000 - 117/16 (2017), section 2 (lists states per operator; quotes netztransparenz.de and the ewi Energy Research & Scenarios study): https://www.bundestag.de/resource/blob/494452/29f6a6424b8d97b6aad95ff22cfa6577/WD-5-117-16-pdf.pdf
 - Also read: netzentwicklungsplan.de "Basisinformationen Übertragungsnetzbetreiber und ihre Regelzonen" (2012), qualitative only. Amprion's own page states only that its network spans seven federal states.
 - Limits: no source gives area or load shares; the dominant zone per state is a judgement and five states are flagged as split (NI, NW, HE, BW, BY).
+
+## Official day-ahead forecast (benchmark only, added after Phase 7)
+- SMARD "Forecasted consumption", filter ID **411**, regions 50Hertz / Amprion / TenneT / TransnetBW (and DE for a sanity check), quarter-hourly, MWh per 15 min; URLs `https://www.smard.de/app/chart_data/411/{region}/411_{region}_quarterhour_{timestamp}.json`; downloaded 2026-11-09 for 2024-10-18 onwards (`scripts/download_official_forecast.py`). The API does not return a series name; I identified 411 from SMARD's documentation plus its scale (same size as grid load 410).
+- What it is (SMARD): the TSOs submit the predicted value the day before, based on day-ahead trading results and other empirical data, and it may be updated if the change exceeds 10% (https://www.smard.de/en/wiki-article/5884/6036); the forecast data is submitted by the four TSOs for their control areas and aggregated for Germany (https://www.smard.de/page/en/wiki-article/5884/206318/forecast-data).
+- Same licence/terms question as the load series (see above; not verified).
