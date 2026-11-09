@@ -22,7 +22,7 @@ Details, series IDs, URLs and the reasoning for the series choice: [`data/DATA_S
 - Every experiment, rule (written before results), decision and commit: [`results/EXPERIMENTS.md`](results/EXPERIMENTS.md).
 
 ## Results
-**Final sealed test (2025-10-25..2026-10-24), MAE in MWh/h, run once:**
+**Final sealed test (2025-10-25..2026-10-24), MAE in MWh/h, run once (rolling 24-hour-ahead with observed weather; see Limitations):**
 
 | Zone | B1 last week | Model | Model vs B1 | Model MAPE | Validation MAE (model) |
 |---|---|---|---|---|---|
@@ -64,6 +64,7 @@ Screenshots: ![overview](docs/screenshots/01_map_overview.png) ![test hour in a 
 - **Zone assignment**: each state is assigned its *dominant* grid zone (`src/gepf/zones.py`, the same mapping used for the holiday feature). Sources, all qualitative: SMARD, [Control area](https://www.smard.de/page/en/wiki-article/5884/205642) (50Hertz north and east, Amprion west and south-west, TransnetBW a large part of Baden-Württemberg, TenneT from Denmark to the Alps); Deutscher Bundestag, Wissenschaftliche Dienste, [WD 5 - 3000 - 117/16 (2017)](https://www.bundestag.de/resource/blob/494452/29f6a6424b8d97b6aad95ff22cfa6577/WD-5-117-16-pdf.pdf), section 2, which lists the states per operator and quotes the ewi study, which names more than one operator for Niedersachsen, Nordrhein-Westfalen, Hessen, Baden-Württemberg and Bayern. Those five states are flagged "split" (striped on the map and with a warning in the popup). **No source gives area or load shares**, so "dominant" is my judgement from the wording (e.g. TenneT for Hessen and Bayern, Amprion for Nordrhein-Westfalen) and could be wrong for Hessen in particular; I did not find the TSOs' own maps in a machine-readable form, and the sources are from 2012-2017.
 
 ## Limitations
+- Rolling 24-hour-ahead, not day-ahead. Every load input is known at least 24 h earlier, but a forecast issued once per day could not use `lag_24h` for the later hours of the next day. A validation-only ablation (`scripts/run_lag_ablation.py`, `results/lag_ablation_val.csv`; locked models unchanged) shows the dependence: without `lag_24h` the mean validation MAE rises by 8.7% (50Hertz +3.2%, Amprion +10.9%, TenneT +10.6%, TransnetBW +15.8%); without `lag_24h` and `lag_48h` it rises by 18.1% (+7.1%, +21.3%, +22.6%, +33.3%). Both variants still pass the keep rule and are far better than the last-week baseline, but by the threshold I set beforehand (15%) the headline MAEs depend materially on the short lags and **must not be read as day-ahead numbers**.
 - Weather inputs are observed values, so the headline numbers are optimistic for a real forecasting setting (a rolling 24-hour-ahead forecast would use forecast weather, whose errors would add to them; see weather-noise results).
 - Grid load is the SMARD "Grid load" series, not total electricity consumption; zones are TSO control areas, not states; the holiday-to-zone mapping is approximate.
 - Prediction intervals do not hold their nominal coverage on the test year (above).

@@ -188,3 +188,16 @@ Method: the old tip 09ed0f77a554ee4e46564c8258c2146c820fea92 (still present loca
 - This is a report-only experiment: it changes no model and nothing is "kept" or "reverted". I report per-zone and mean MAE, the change versus M2, and whether rule v2 (>= 5% below B1; not worse than B1 on holidays, hottest 5% and coldest 5% days) would still hold.
 - Interpretation rule: if L2's mean MAE is more than 15% above M2's, the README says the headline MAEs depend materially on lag_24h/lag_48h and must not be read as day-ahead numbers; if it is at most 15% above, the README says the dependence is modest. The README limitation quotes the measured numbers either way.
 - Command: `python scripts/run_lag_ablation.py`
+
+### L1/L2 results (command: `python scripts/run_lag_ablation.py`; file results/lag_ablation_val.csv; validation only; rule committed first in 33e9d36)
+MAE in MWh/h on the validation year, per-zone LightGBM, only the lag list changes. The reference row reproduces M2 exactly (mean 393.5), which checks the setup.
+| variant | 50Hertz | Amprion | TenneT | TransnetBW | mean | vs M2 |
+|---|---|---|---|---|---|---|
+| M2 (lags 24, 48, 168, 336) | 530.9 | 524.3 | 354.8 | 164.1 | 393.5 | - |
+| L1 (lags 48, 168, 336; drops lag_24h) | 548.0 | 581.4 | 392.3 | 190.0 | 427.9 | +8.7% |
+| L2 (lags 168, 336; drops lag_24h and lag_48h) | 568.8 | 636.1 | 435.1 | 218.7 | 464.7 | +18.1% |
+Per zone vs M2: L1 +3.2% / +10.9% / +10.6% / +15.8%; L2 +7.1% / +21.3% / +22.6% / +33.3% (50Hertz / Amprion / TenneT / TransnetBW). B1 (last week) for reference: 922.5 / 1003.1 / 791.0 / 449.9.
+- Rule v2 (>= 5% below B1, and not worse than B1 on holidays, hottest 5%, coldest 5% days): still passes in all four zones for both variants.
+- Interpretation rule applied as written: L2 is +18.1%, more than 15%, so the headline MAEs depend MATERIALLY on lag_24h/lag_48h and must not be read as day-ahead numbers. The variant valid for a single daily issue time (L1, lags >= 48 h) is +8.7% on average, up to +15.8% for TransnetBW. Even the conservative L2 is 41-51% below B1 in every zone, so the model still beats the baseline without the short lags.
+- Decision: report only. The locked models, the lock file and the final-test results are unchanged; no sealed data was read.
+- Commit: see the git log entry "Fix 1c".
