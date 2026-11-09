@@ -78,4 +78,4 @@ Flags (unclear or restricted):
 Terms as stated by the service itself (see the "State shapes" section above): Datenlizenz Deutschland - Namensnennung 2.0, with BKG's own credit line. Not re-fetched beyond the capabilities document.
 
 ### Not covered
-The Python `holidays` package (MIT licence, as I recall; not checked), the Bundestag paper (cited, not redistributed), and the repository's own licence: **the repository has no LICENSE file**, so by default nobody may reuse the code. Choose one before publishing.
+The Python `holidays` package (MIT licence, as I recall; not checked), the Bundestag paper (cited, not redistributed), and the repository's own licence: the code is MIT-licensed (see `LICENSE`, copyright 2026 n10man); that does not change the data terms above, which stay with the data and anything derived from it.
