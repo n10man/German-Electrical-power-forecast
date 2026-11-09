@@ -177,3 +177,14 @@ Method: the old tip 09ed0f77a554ee4e46564c8258c2146c820fea92 (still present loca
 | 13 | 055c1e7a2694a5792c7aec1ea311634cca1b5d10 | 4b4718045aa3fc1a43903c2602f3c7f0e9d9d982 | f03dd22953b6 | Phase 6: finish README with code-verified claims |
 | 14 | 85732f6faaf866a05417db02f6772627fb81ebc0 | 49b067555d5a9daf739c693d3386667e261a4d4e | 8b3dd7d550ae | gitignore .claude |
 | 15 | 09ed0f77a554ee4e46564c8258c2146c820fea92 | 574f3ddbb794fbd46b253c3e39546ff130f1b05f | b06b6818b9ad | Phase 7: static map (SVG, no tiles/keys), forecast JSON from |
+
+## L1/L2 — Lag ablation: how much do lag_24h / lag_48h carry? (audit finding 1.1; rules written BEFORE running)
+- Terminology: from now on the forecast is called **rolling 24-hour-ahead** (each hour forecast with inputs known >= 24 h earlier), not "day-ahead". Earlier log entries (for example S3, which speaks of "day-ahead errors") use "day-ahead" loosely in that sense; they are not rewritten.
+- Question: a day-ahead forecast issued once per day (say at 10:00 on day D for the 24 hours of D+1) cannot use lag_24h for the hours of D+1 after the issue time. Lags of 48 h or more are known for every hour of D+1. How much worse is the model without lag_24h / lag_48h?
+- Setup (VALIDATION ONLY, 2024-10-25..2025-10-24; train only on the train period; the sealed test file is not read; LOCKED models and the lock file are not touched): same per-zone LightGBM as M2 (same hyperparameters, seed 42, same weather and calendar features, same row filter), only the lag list changes.
+  - L1 = lags 48, 168, 336 h (drop lag_24h). Valid for a single daily issue time.
+  - L2 = lags 168, 336 h (drop lag_24h and lag_48h). The conservative "true day-ahead" variant, which does not use any load from the last 7 days.
+  - Reference = M2 (lags 24, 48, 168, 336 h): mean MAE 393.5 over zones (531 / 524 / 355 / 164).
+- This is a report-only experiment: it changes no model and nothing is "kept" or "reverted". I report per-zone and mean MAE, the change versus M2, and whether rule v2 (>= 5% below B1; not worse than B1 on holidays, hottest 5% and coldest 5% days) would still hold.
+- Interpretation rule: if L2's mean MAE is more than 15% above M2's, the README says the headline MAEs depend materially on lag_24h/lag_48h and must not be read as day-ahead numbers; if it is at most 15% above, the README says the dependence is modest. The README limitation quotes the measured numbers either way.
+- Command: `python scripts/run_lag_ablation.py`
