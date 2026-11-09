@@ -274,3 +274,6 @@ RMSE (official): 1219 / 1067 / 1352 / 580. On the validation year (context only,
 
 ### C2 — Correction found by the new README-vs-CSV test (appended; earlier entries are NOT edited)
 The README results table has shown TenneT's test MAE as 479 since Phase 6. The raw value in results/final_test_metrics.csv is 478.46, which rounds to 478 (479 came from rounding the one-decimal display 478.5). README fixed to 478; the F1 table above shows 478.5, which is correct as a one-decimal value. Nothing else changes: 556 / 646 / 478 / 195 are the rounded values of 555.82 / 645.70 / 478.46 / 194.79.
+
+### O1 commit hashes (recorded after the fact because a commit cannot contain its own hash)
+Rule committed first: 4131683. Download script, comparison, post-hoc sanity check, results, README, DATA_SOURCES and tests: 10a60d9. Earlier fix commits referenced above: lag ablation rule 33e9d36, results 5fd6627.
