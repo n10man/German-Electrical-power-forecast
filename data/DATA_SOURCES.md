@@ -8,7 +8,7 @@
 - Resolution: quarter-hourly (zones, `*_quarterhour_*`), hourly (DE reference). Values are **MWh per period**; hourly value = sum of the four quarter-hours (= average MW).
 - URLs: `https://www.smard.de/app/chart_data/410/{region}/index_quarterhour.json` then `.../410_{region}_quarterhour_{timestamp}.json` (weekly chunks); reference: `.../{id}/DE/{id}_DE_hour_{timestamp}.json`. Scripts: `scripts/download_load.py`, `scripts/download_reference.py`.
 - Download date: 2026-11-08. Data range: 2014-12-28 (empty before 2015-01-01) to 2026-11-08 (latest published quarter-hour 06:15 UTC).
-- Licence/terms: SMARD content is published under CC BY 4.0 ("Bundesnetzagentur | SMARD.de"). **Verify the current terms on https://www.smard.de before publishing.**
+- Licence/terms: checked on 2026-11-09, see "Terms of use" at the end of this file (CC BY 4.0, credit "Bundesnetzagentur | SMARD.de"; flags there).
 - Other similar series that exist and were NOT used:
   - **4359 Residual load** (load minus wind/solar) — not total consumption.
   - **4387 Hydro pumped-storage consumption** — only pumping demand (~1 GW avg), not total load.
@@ -19,7 +19,7 @@
 
 ## Weather — Open-Meteo Historical Weather API (archive-api.open-meteo.com)
 - No key. Hourly, UTC: temperature_2m, relative_humidity_2m, wind_speed_10m, shortwave_radiation, cloud_cover. Three representative cities per zone (see `scripts/download_weather.py`), averaged per zone.
-- Licence: CC BY 4.0 (attribution to Open-Meteo; non-commercial free tier). Verify at https://open-meteo.com/en/terms.
+- Licence/terms: checked on 2026-11-09, see "Terms of use" at the end of this file (CC BY 4.0, but the free API is **non-commercial only**; flags there).
 - Caveat: these are reanalysis/observed-style values, i.e. "perfect" weather. A real (rolling 24-hour-ahead) forecast would use forecast weather (errors) — addressed by the noise stress test in Phase 5. The newest days may be model-filled.
 
 ## Holidays
@@ -27,7 +27,7 @@
 
 ## State shapes (Phase 7 map)
 - BKG (Bundesamt für Kartographie und Geodäsie) VG250, layer `vg250_lan` (land areas, gf=4), downloaded 2026-11-08 from the official WFS `https://sgx.geodatenzentrum.de/wfs_vg250` as GeoJSON (`scripts/download_states.py`); 16 features.
-- Licence: Datenlizenz Deutschland – Namensnennung 2.0 (https://www.govdata.de/dl-de/by-2-0), as stated in the service's own capabilities document. Attribution: "© GeoBasis-DE / BKG". Our `site/data/states.geojson` is a simplified derivative (tiny islands dropped, coordinates rounded).
+- Licence: Datenlizenz Deutschland – Namensnennung 2.0 (https://www.govdata.de/dl-de/by-2-0), as stated in the service's own capabilities document. Required credit line (BKG's own wording): "© BKG (Jahr des letzten Datenbezugs) dl-de/by-2-0, Datenquellen: https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf", used with the year 2026 (download year). Our `site/data/states.geojson` is a simplified derivative (tiny islands dropped, coordinates rounded).
 
 ## Grid-zone assignment of states (Phase 7 map)
 - SMARD "Control area": https://www.smard.de/page/en/wiki-article/5884/205642 (qualitative description of the four areas).
@@ -38,4 +38,44 @@
 ## Official day-ahead forecast (benchmark only, added after Phase 7)
 - SMARD "Forecasted consumption", filter ID **411**, regions 50Hertz / Amprion / TenneT / TransnetBW (and DE for a sanity check), quarter-hourly, MWh per 15 min; URLs `https://www.smard.de/app/chart_data/411/{region}/411_{region}_quarterhour_{timestamp}.json`; downloaded 2026-11-09 for 2024-10-18 onwards (`scripts/download_official_forecast.py`). The API does not return a series name; I identified 411 from SMARD's documentation plus its scale (same size as grid load 410).
 - What it is (SMARD): the TSOs submit the predicted value the day before, based on day-ahead trading results and other empirical data, and it may be updated if the change exceeds 10% (https://www.smard.de/en/wiki-article/5884/6036); the forecast data is submitted by the four TSOs for their control areas and aggregated for Germany (https://www.smard.de/page/en/wiki-article/5884/206318/forecast-data).
-- Same licence/terms question as the load series (see above; not verified).
+- Same terms as the load series (see "Terms of use" below).
+
+## Terms of use: what the providers actually say (pages fetched 2026-11-09)
+Only short quotes; read the live pages before relying on them. This is a reading of public pages, not legal advice.
+
+### SMARD (Bundesnetzagentur): load and official forecast
+Page: https://www.smard.de/en/datennutzung ("Data use"). Wording:
+- "In accordance with section 111d of the Energy Industry Act (Energiewirtschaftsgesetz - EnWG), the data published on this platform has been made freely available for public use. Therefore, data from this website can be downloaded and saved free of charge."
+- "Data from the section Market data visuals, which can be downloaded showing longer periods of time from the Download section, is licensed under a Creative Commons Attribution 4.0 International Licence." (licence text: https://creativecommons.org/licenses/by/4.0/)
+- "Data under a CC BY 4.0 licence may be shared, redistributed and adapted as long as appropriate credit is given. Data from the website www.smard.de should be attributed to "Bundesnetzagentur | SMARD.de"."
+- "The Bundesnetzagentur does not assume any responsibility for the correctness and completeness of the data."
+- Imprint (https://smard.de/en/impressum): "Unless otherwise indicated, the content of this website is licensed under the Creative Commons Attribution-No Derivative 4.0 International Licence" and points to the Data use page for market data. This covers the website's text and layout, not the data; nothing of the site's text or layout is copied here.
+
+What this means here: CC BY 4.0 allows sharing and adapting, including commercial use (that is a property of CC BY 4.0; the Data use page adds no restriction), provided the credit is given and changes are indicated. The repository therefore credits "Bundesnetzagentur | SMARD.de" in the README and in the map footer, and states that the quarter-hourly values were summed to hourly and used to train and evaluate models (a change). The committed files that contain SMARD values are `site/data/{zone}.json` (hourly actual load) and the results tables.
+
+Flags (unclear or to watch):
+1. **Unofficial endpoint.** I downloaded the data from the JSON endpoints behind the SMARD charts (`https://www.smard.de/app/chart_data/...`), not from the "Download section" that the licence sentence names. They are undocumented, and the Data use page says nothing about automated access or rate limits. The data is the same as in the charts, but the terms for this access path are not stated.
+2. **The terms may change.** The page says: "We are currently conducting a thorough examination of legal licensing issues relating to wholesale prices as part of the ongoing HEDWIG determination proceedings." and "We are aiming to develop a new concept for the use of the data." This project does not use prices, but the data-use concept as a whole may change.
+3. The forecast series (filter 411) and the national totals are part of the same market-data visuals; the page does not single them out.
+
+### Open-Meteo: weather
+Pages: https://open-meteo.com/en/terms ("Terms & Privacy") and https://open-meteo.com/en/licence. Wording:
+- "By using the Free API for non-commercial use you agree to following terms: Less than 10'000 API calls per day, 5'000 per hour and 600 per minute. You may only use the free API services for non-commercial purposes. You accept to the CC-BY 4.0 licence, as specified in the licence conditions."
+- Examples that qualify as non-commercial: "Private or non-profit websites or apps that do not have subscriptions or advertising.", "Public research conducted at public institutions.", "Use in educational content."
+- Examples considered commercial: "Websites or apps that have subscriptions or display advertisements.", "Commercial products or promotional activities.", "Undisclosed research at commercial entities."
+- "If you plan to use our service for commercial purposes or require additional API calls, we kindly request you to consider subscribing to our API plans" (https://open-meteo.com/en/pricing).
+- Licence page: "API data are offered under Attribution 4.0 International (CC BY 4.0)" and "You must give appropriate credit, provide a link to the licence, and indicate if changes were made." and "You must include a link next to any location Open-Meteo data are displayed", for example "Weather data by Open-Meteo.com" linking to https://open-meteo.com/. The same page lists the underlying sources (for example "Weather reanalysis ... from Copernicus Climate Change Service C3S" and ECMWF forecasts under CC-BY) with their own licence links.
+
+What this means here: the weather download made 12 requests (one per city), far below the call limits. No Open-Meteo data is committed (`data/` is gitignored); only model outputs derived from it are. The README and the map footer carry the credit "Weather data by Open-Meteo.com" with the licence link, and say that the values were averaged over three cities per zone.
+
+Flags (unclear or restricted):
+1. **Commercial use is restricted.** The free API is for non-commercial use only. Anyone who re-runs `scripts/download_weather.py` for a commercial purpose (ads, subscriptions, a commercial product, undisclosed research at a company) needs a paid plan. The CC BY 4.0 licence on the data is a separate matter from this API restriction.
+2. **A public portfolio is a grey area.** A public, ad-free GitHub repository fits "private or non-profit ... apps that do not have subscriptions or advertising", but the terms also list "promotional activities" as commercial, and a portfolio used to promote its author's work could be read that way. The terms do not decide this. If that matters to you, ask Open-Meteo, or switch to a paid plan, before relying on the free API for this repository.
+3. **Underlying source terms not checked.** I read Open-Meteo's own pages, not the separate licence pages of the reanalysis and weather-service sources it lists. I did not pass a model selection to the archive API, so I do not know which underlying dataset produced each value.
+4. The terms say Open-Meteo "reserve[s] the right to block applications and IP addresses that misuse our service" and can change terms; I did not see a version or date on the pages.
+
+### BKG state boundaries
+Terms as stated by the service itself (see the "State shapes" section above): Datenlizenz Deutschland - Namensnennung 2.0, with BKG's own credit line. Not re-fetched beyond the capabilities document.
+
+### Not covered
+The Python `holidays` package (MIT licence, as I recall; not checked), the Bundestag paper (cited, not redistributed), and the repository's own licence: **the repository has no LICENSE file**, so by default nobody may reuse the code. Choose one before publishing.

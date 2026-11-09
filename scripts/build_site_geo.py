@@ -12,6 +12,6 @@ for f in g["features"]:
                   "geometry": json.loads(json.dumps(mapping(s), default=list))})
 def rnd(c): return [round(x, 3) for x in c] if isinstance(c[0], (int, float)) else [rnd(x) for x in c]
 for f in feats: f["geometry"]["coordinates"] = rnd(f["geometry"]["coordinates"])
-out = {"type": "FeatureCollection", "attribution": "© GeoBasis-DE / BKG, Datenlizenz Deutschland – Namensnennung 2.0 (dl-de/by-2-0); geometry simplified", "source_feature_start_dates": sorted(vintage), "features": feats}
+out = {"type": "FeatureCollection", "attribution": "© BKG (2026) dl-de/by-2-0, Datenquellen: https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf; geometry simplified", "source_feature_start_dates": sorted(vintage), "features": feats}
 json.dump(out, open("site/data/states.geojson", "w"), separators=(",", ":"), ensure_ascii=False)
 import os; print(os.path.getsize("site/data/states.geojson"), "bytes", len(feats), "states", sorted(vintage))

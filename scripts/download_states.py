@@ -1,5 +1,5 @@
 """Download the 16 German state boundaries (BKG VG250, land areas only, gf=4) as GeoJSON from the official BKG WFS.
-Licence: Datenlizenz Deutschland - Namensnennung 2.0 (dl-de/by-2-0), attribution: (c) GeoBasis-DE / BKG."""
+Licence: Datenlizenz Deutschland - Namensnennung 2.0 (dl-de/by-2-0), credit line: (c) BKG (year of last data retrieval) dl-de/by-2-0, Datenquellen: https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf"""
 from pathlib import Path
 import requests
 URL = ("https://sgx.geodatenzentrum.de/wfs_vg250?service=WFS&version=2.0.0&request=GetFeature&typeNames=vg250:vg250_lan"
