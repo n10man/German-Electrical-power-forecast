@@ -1,0 +1,3 @@
+# Extra tool needed only to rebuild the map's state shapes (scripts/build_site_geo.py).
+-r requirements.txt
+shapely==2.2.0

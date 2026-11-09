@@ -1,9 +1,9 @@
-pandas
-numpy
-requests
-holidays
-lightgbm
-scikit-learn
-matplotlib
-pyarrow
-pytest
+# Exact versions used for all results (Python 3.14.5). pandas, holidays and lightgbm can change results between releases.
+pandas==3.1.1
+numpy==2.5.4
+requests==2.34.2
+holidays==0.108
+lightgbm==4.7.0
+matplotlib==3.11.2
+pyarrow==26.0.1
+pytest==9.2.0

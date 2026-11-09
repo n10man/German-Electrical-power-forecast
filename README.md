@@ -77,7 +77,7 @@ Screenshots: ![overview](docs/screenshots/01_map_overview.png) ![test hour in a 
 ## How to run
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt            # on macOS LightGBM needs libomp: brew install libomp
+pip install -r requirements.txt            # exact versions (Python 3.14.5); on macOS LightGBM needs libomp: brew install libomp
 python scripts/download_load.py            # slow: roughly 25-40 min per zone
 python scripts/download_reference.py       # SMARD national series, used only for checks
 python scripts/download_weather.py
