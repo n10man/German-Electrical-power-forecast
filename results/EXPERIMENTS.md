@@ -277,3 +277,6 @@ The README results table has shown TenneT's test MAE as 479 since Phase 6. The r
 
 ### O1 commit hashes (recorded after the fact because a commit cannot contain its own hash)
 Rule committed first: 4131683. Download script, comparison, post-hoc sanity check, results, README, DATA_SOURCES and tests: 10a60d9. Earlier fix commits referenced above: lag ablation rule 33e9d36, results 5fd6627.
+
+### C3 — Correction: scikit-learn must stay in requirements.txt (appended; earlier entries are NOT edited)
+Audit fix 4 (commit 6d1e03c) removed scikit-learn from requirements.txt because no file imports it. That was wrong: LightGBM's scikit-learn API (LGBMRegressor, used by every model here) raises "scikit-learn is required for lightgbm.sklearn" without it. A clean-clone run of the README steps found it (6 of the README steps failed: run_models, run_quantiles*, run_lag_ablation, stress_tests, train_final, export_site_data); the tests did not catch it earlier because none of them trained a model. Fix: scikit-learn==1.9.1 restored with an explanatory comment, plus tests/test_requirements.py, which trains a tiny LightGBM model and checks that all requirements are pinned. No model, lock or result was affected (the committed models were trained in the environment that had scikit-learn).

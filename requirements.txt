@@ -4,6 +4,7 @@ numpy==2.5.4
 requests==2.34.2
 holidays==0.108
 lightgbm==4.7.0
+scikit-learn==1.9.1   # not imported by our code, but required by LightGBM's scikit-learn API (LGBMRegressor) that every model uses
 matplotlib==3.11.2
 pyarrow==26.0.1
 pytest==9.2.0
