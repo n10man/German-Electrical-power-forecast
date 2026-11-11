@@ -1,55 +1,82 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Germany grid-load forecast map</title>
+<title></title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <h1>Germany grid-load forecast map</h1>
-  <p class="sub">Hover a state to see its grid zone. Click it to explore hourly forecasts for that <strong>grid zone</strong> (not the state): past days from 2024-10-26 to 2026-10-24 (backtest, with the actual load) and a snapshot of future days.</p>
+  <div class="topbar">
+    <h1 data-i18n="h1"></h1>
+    <div class="topctl">
+      <button type="button" id="licBtn" class="linkbtn" data-i18n="licences_button" aria-haspopup="dialog"></button>
+      <div id="langs" class="langs" role="group" data-i18n-aria="lang_group"></div>
+    </div>
+  </div>
+  <p class="sub" data-i18n-html="intro" id="intro"></p>
   <p id="snapshot" class="snapshot" hidden></p>
 </header>
 <main>
-  <section class="mapwrap" aria-label="Map of the 16 German states coloured by grid zone">
-    <svg id="map" role="group" aria-label="Map of Germany"></svg>
-    <ul id="legend" class="legend"></ul>
-    <p class="attrib"><a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a> (CC BY 4.0)</p>
-    <p class="note">Zone colours show the <em>dominant</em> grid zone of each state. Striped states are split between zones (the other operator is shown on hover). Grid zones follow the transmission operators' control areas, not state borders.</p>
-    <div id="tip" class="tip" hidden></div>
-  </section>
+  <div class="layout">
+    <section class="mapwrap" data-i18n-aria="map_section_aria">
+      <svg id="map" role="group" data-i18n-aria="map_aria"></svg>
+      <ul id="legend" class="legend"></ul>
+      <p class="attrib"><a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a> <span data-i18n="attrib_suffix"></span></p>
+      <div id="tip" class="tip" hidden></div>
+    </section>
+    <aside class="howto" id="howto">
+      <h2 data-i18n="how_title"></h2>
+      <ol>
+        <li data-i18n="how_1"></li>
+        <li data-i18n="how_2"></li>
+        <li data-i18n="how_3"></li>
+        <li data-i18n="how_4"></li>
+        <li data-i18n="how_5"></li>
+      </ol>
+      <p class="note" data-i18n="how_zones"></p>
+    </aside>
+  </div>
   <p id="loaderr" class="err" hidden></p>
+  <section class="disclaimer" aria-labelledby="disTitle">
+    <h2 id="disTitle" data-i18n="disclaimer_title"></h2>
+    <ul>
+      <li data-i18n="disclaimer_1"></li>
+      <li data-i18n="disclaimer_2"></li>
+      <li data-i18n="disclaimer_3"></li>
+      <li data-i18n="disclaimer_4"></li>
+    </ul>
+  </section>
 </main>
 
 <dialog id="popup" aria-labelledby="pTitle">
-  <form method="dialog"><button class="close" aria-label="Close">&times;</button></form>
+  <form method="dialog"><button class="close" data-i18n-aria="close"></button></form>
   <h2 id="pTitle"></h2>
   <p id="zoneStmt" class="stmt"></p>
   <p id="splitStmt" class="splitwarn" hidden></p>
   <div class="controls">
-    <label>Date <input type="date" id="date"></label>
-    <span class="jump"><button type="button" id="jumpPast" hidden>Last past day</button><button type="button" id="jumpFuture" hidden>First forecast day</button></span>
-    <label>Hour (Berlin local time) <select id="hour"></select></label>
+    <label><span data-i18n="label_date"></span> <input type="date" id="date"></label>
+    <span class="jump"><button type="button" id="jumpPast" data-i18n="jump_past" hidden></button><button type="button" id="jumpFuture" data-i18n="jump_future" hidden></button></span>
+    <label><span data-i18n="label_hour"></span> <select id="hour"></select></label>
   </div>
   <p id="badge" class="badge"></p>
   <p id="dayInfo" class="small"></p>
-  <svg id="chart" role="img" aria-label="Actual and forecast load for the selected day with 80% and 95% ranges"></svg>
+  <svg id="chart" role="img" data-i18n-aria="chart_aria"></svg>
   <ul class="chartkey">
-    <li class="k-act-li"><i class="k-act"></i>Actual</li><li><i class="k-fc"></i>Forecast</li><li><i class="k-b80"></i>80% range</li><li><i class="k-b95"></i>95% range</li>
+    <li class="k-act-li"><i class="k-act"></i><span data-i18n="key_actual"></span></li><li><i class="k-fc"></i><span data-i18n="key_forecast"></span></li><li><i class="k-b80"></i><span data-i18n="key_80"></span></li><li><i class="k-b95"></i><span data-i18n="key_95"></span></li>
   </ul>
   <table id="hourTable" class="hourtable" aria-live="polite"></table>
   <div id="fcNote" class="fcnote" hidden></div>
   <p id="covStmt" class="cov"></p>
-  <p id="backtestNote" class="backtest">Backtest using observed weather, not a live forecast.</p>
+  <p id="backtestNote" class="backtest" data-i18n="backtest_note"></p>
 </dialog>
 
-<footer>
-  <p>Load and official forecast: <strong>Bundesnetzagentur | SMARD.de</strong>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; quarter-hourly values summed to hourly (changed), used to train and evaluate the models. Weather input: <a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, averaged over three cities per zone. The forecasts shown are from the locked LightGBM models of this project (see the repository README and results/EXPERIMENTS.md).
-  State boundaries: © BKG (2026) <a href="https://www.govdata.de/dl-de/by-2-0">dl-de/by-2-0</a>, <a href="https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf">Datenquellen</a>; simplified.
-  Zone sources: <a href="https://www.smard.de/page/en/wiki-article/5884/205642">SMARD "Control area"</a>; Deutscher Bundestag, Wissenschaftliche Dienste, WD 5 - 3000 - 117/16 (2017). Not production-grade.</p>
-</footer>
+<dialog id="licDialog" aria-labelledby="licTitle" class="licdlg">
+  <form method="dialog"><button class="close" data-i18n-aria="licences_close"></button></form>
+  <h2 id="licTitle" data-i18n="licences_title"></h2>
+  <div id="licBody" class="licbody"></div>
+</dialog>
 <script src="app.js"></script>
 </body>
 </html>

@@ -77,7 +77,7 @@ def test_states_geojson_and_zone_assignment():
     assert {s[0] for s in STATES.values()} == {x["properties"]["id"] for x in f}
 
 def test_site_files_reference_existing_assets():
-    html = (SITE / "index.html").read_text(); js = (SITE / "app.js").read_text()
+    html = (SITE / "index.html").read_text(); js = (SITE / "app.js").read_text() + (SITE / "i18n" / "en.json").read_text()   # prose lives in the English message file
     for ref in re.findall(r'(?:src|href)="([^"#]+\.(?:js|css))"', html): assert (SITE / ref).exists(), ref
     assert not re.search(r"https?://[^\"' ]+\.(?:js|png|json)\b", html + js)          # no external scripts/tiles
     assert "api_key" not in js.lower() and "apikey" not in js.lower()
