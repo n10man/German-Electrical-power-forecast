@@ -1,7 +1,7 @@
 # Germany electricity demand forecasting (4 grid zones)
 
 ## In 60 seconds
-This project predicts how much electricity Germany's four grid zones (50Hertz, Amprion, TenneT, TransnetBW) draw from the grid, hour by hour. A model learns from nine years of past data (calendar, recent load, and for the first days ahead sometimes weather), and the results are shown on an interactive map: click a state, pick a date, and see the forecast next to what really happened (for past days) or a forecast only (for future days). The numbers below come from a final year of data that was held back during development. It is a portfolio project, **not a production system**.
+This project predicts how much electricity Germany's four grid zones (50Hertz, Amprion, TenneT, TransnetBW) draw from the grid, hour by hour. A model learns from almost ten years of past data (calendar, recent load, and for the first days ahead sometimes weather), and the results are shown on an interactive map: click a state, pick a date, and see the forecast next to what really happened (for past days) or a forecast only (for future days). The numbers below come from a final year of data that was held back during development. It is a portfolio project, **not a production system**.
 
 **Live map:** `[URL to be added once hosting is decided]` (not published yet). Run it on your own computer in two lines, see *Run the map locally* below. Source of the page: [`site/`](site/); method: [`docs/METHODS.md`](docs/METHODS.md).
 
@@ -192,7 +192,7 @@ Question: could a ridge regression or a small neural network replace LightGBM? R
 | TransnetBW | 21 | 305 | 499 | 298 (285-306) |
 | **Pooled (sum of 12 cells)** | | 6,365 | 7,919 | 6,380 |
 
-Ridge was clearly worse in all 12 cells. The small neural network was **statistically indistinguishable in a pooled sense** (0.2% higher pooled error) and beat LightGBM by more than 1% in 6 of 12 cells, lost in 3 and tied in 3, so LightGBM is not clearly better here; I kept it because the models are locked and the comparison is validation-only (LightGBM's per-zone configuration was itself picked on this validation year, which slightly favours it). The test year was not used. The map models are unchanged.
+Ridge was clearly worse in all 12 cells. The small neural network was **practically indistinguishable in a pooled sense** (0.2% higher pooled error) and beat LightGBM by more than 1% in 6 of 12 cells, lost in 3 and tied in 3, so LightGBM is not clearly better here; I kept it because the models are locked and the comparison is validation-only (LightGBM's per-zone configuration was itself picked on this validation year, which slightly favours it). The test year was not used. The map models are unchanged.
 
 ## Limitations
 - Rolling 24-hour-ahead, not day-ahead. Every load input is known at least 24 h earlier, but a forecast issued once per day could not use `lag_24h` for the later hours of the next day. A validation-only ablation (`scripts/run_lag_ablation.py`, `results/lag_ablation_val.csv`; locked models unchanged) shows the dependence: without `lag_24h` the mean validation MAE rises by 8.7% (50Hertz +3.2%, Amprion +10.9%, TenneT +10.6%, TransnetBW +15.8%); without `lag_24h` and `lag_48h` it rises by 18.1% (+7.1%, +21.3%, +22.6%, +33.3%). Both variants still pass the keep rule and are far better than the last-week baseline, but by the threshold I set beforehand (15%) the headline MAEs depend materially on the short lags and **must not be read as day-ahead numbers**.

@@ -49,3 +49,8 @@ def test_script_does_not_touch_the_network_or_real_results():
 
 def test_readme_and_experiments_record_the_log_hash():
     for f in ("README.md", "results/EXPERIMENTS.md"): assert LOG_SHA in (ROOT / f).read_text(), f
+
+def test_methods_note_exists_with_key_numbers_and_verify_marks():
+    m = (ROOT / "docs/METHODS.md").read_text()
+    assert "72.5%" in m and "90.8%" in m and "[verify" in m and r"\alpha_{t+1}=\alpha_t+\gamma" in m
+    for ref in ("Ke, G.", "Koenker", "Vovk", "Romano", "Gibbs", "Friedman"): assert ref in m
