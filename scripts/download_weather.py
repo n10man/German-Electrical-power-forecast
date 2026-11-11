@@ -14,17 +14,21 @@ URL = "https://archive-api.open-meteo.com/v1/archive"
 OUT = Path("data/raw"); OUT.mkdir(parents=True, exist_ok=True)
 START, END = "2014-12-31", pd.Timestamp.utcnow().strftime("%Y-%m-%d")
 
-frames = []
-for z, pts in POINTS.items():
-    for name, lat, lon in pts:
-        for attempt in range(6):
-            r = requests.get(URL, params=dict(latitude=lat, longitude=lon, start_date=START, end_date=END,
-                                              hourly=VARS, timezone="UTC"), timeout=120)
-            if r.status_code == 200: break
-            time.sleep(15 * (attempt + 1))
-        r.raise_for_status()
-        h = pd.DataFrame(r.json()["hourly"])
-        h["timestamp_utc"] = pd.to_datetime(h.pop("time"), utc=True)
-        h["zone"], h["point"] = z, name
-        frames.append(h); print(z, name, len(h), flush=True)
-pd.concat(frames).to_parquet(OUT / "weather.parquet")
+def main():
+    frames = []
+    for z, pts in POINTS.items():
+        for name, lat, lon in pts:
+            for attempt in range(6):
+                r = requests.get(URL, params=dict(latitude=lat, longitude=lon, start_date=START, end_date=END,
+                                                  hourly=VARS, timezone="UTC"), timeout=120)
+                if r.status_code == 200: break
+                time.sleep(15 * (attempt + 1))
+            r.raise_for_status()
+            h = pd.DataFrame(r.json()["hourly"])
+            h["timestamp_utc"] = pd.to_datetime(h.pop("time"), utc=True)
+            h["zone"], h["point"] = z, name
+            frames.append(h); print(z, name, len(h), flush=True)
+    pd.concat(frames).to_parquet(OUT / "weather.parquet")
+
+if __name__ == "__main__":
+    main()
