@@ -3,10 +3,10 @@
 ## In 60 seconds
 This project predicts how much electricity Germany's four grid zones (50Hertz, Amprion, TenneT, TransnetBW) draw from the grid, hour by hour. A model learns from nine years of past data (calendar, recent load, and for the first days ahead sometimes weather), and the results are shown on an interactive map: click a state, pick a date, and see the forecast next to what really happened (for past days) or a forecast only (for future days). The numbers below come from a final year of data that was held back during development. It is a portfolio project, **not a production system**.
 
-**Live map:** `[URL to be added once hosting is decided]` (not published yet). Run it on your own computer in two lines, see *Run the map locally* below. Source of the page: [`site/`](site/); method: [`docs/METHODS.md`](docs/METHODS.md) (written in the next stage of this work).
+**Live map:** `[URL to be added once hosting is decided]` (not published yet). Run it on your own computer in two lines, see *Run the map locally* below. Source of the page: [`site/`](site/); method: [`docs/METHODS.md`](docs/METHODS.md).
 
 ### Limitations first
-- **The uncertainty ranges are too narrow.** The ranges labelled 80% and 95% contained only **72.5%** and **90.8%** of the real values on the held-back year (mean of the four zones; TenneT 66.9% and 87.1%). Treat them as optimistic.
+- **The uncertainty ranges are too narrow.** The ranges labelled 80% and 95% contained only **72.5%** and **90.8%** of the real values on the held-back year (mean of the four zones; TenneT 66.9% and 87.1%). Treat them as optimistic. Ranges for **future** days use a newer rolling recalibration that was checked on the validation year only (see *Fixing the ranges*); past days keep the old ranges. The real test is the *Prospective check (pending)*.
 - **The main model is a *rolling* forecast, not a day-ahead one.** For every hour it already knows the load from 24 hours earlier and uses observed instead of forecast weather. Without the 24-hour-old load it was 9% to 18% worse in a validation-year experiment (a validation estimate, not re-run on the final year).
 - **The comparison with the official forecast is not like-for-like.** SMARD's official forecast is a true day-ahead forecast issued the day before; ours had more information. Beating it says little about real day-ahead skill.
 - **The models are about two years old.** They were trained on data before 2024-10-25 and have not been refitted on newer data.
@@ -91,6 +91,22 @@ Nominal vs observed coverage, mean over the four zones:
 
 So the intervals are **too narrow on new data**: calibration on one period does not transfer (only 50Hertz is near nominal on test: 78.9% / 94.4%). Coverage is worst around midday (80% band 64-67% at 12-16 h on test) and over-covered at night. Plots: `results/figures/coverage.png`, example week `results/figures/fan_example.png`.
 
+### Fixing the ranges (validation year only; future days)
+Hypothesis: a single offset calibrated once cannot follow changing conditions, so recalibrating on recent errors should keep coverage nearer to nominal. Rules were written before running anything (`results/EXPERIMENTS.md`, entry I1): a replay over the validation year with a 13-week burn-in and weekly-or-finer updates, where an error may only be used 24k hours after the hour it belongs to (horizon model k). One shared setting for all zones and horizons; selection = smallest gap to nominal coverage among methods whose interval score is not more than 10% worse than the fixed method's. The sealed test year was not used.
+
+| Method | Mean coverage 80% / 95% | Worst cell 80% / 95% | Mean width (MWh/h) | Mean interval score | Score vs static | Admissible |
+|---|---|---|---|---|---|---|
+| static | 83.3% / 95.7% | 72.8% / 90.4% | 2,447 | 2,934 | 1.000 | yes |
+| rolling_4w | 79.2% / 93.9% | 77.2% / 91.7% | 2,153 | 2,860 | 0.995 | yes |
+| rolling_8w | 80.0% / 94.7% | 78.1% / 93.4% | 2,168 | 2,794 | 0.970 | yes |
+| rolling_13w | 80.4% / 94.9% | 78.2% / 93.6% | 2,196 | 2,794 | 0.969 | yes |
+| aci_g0.005 | 79.9% / 94.9% | 75.2% / 93.6% | 2,805 | 3,475 | 1.208 | no |
+| aci_g0.01 | 79.7% / 94.8% | 75.2% / 93.4% | 3,268 | 4,055 | 1.413 | no |
+| aci_g0.02 | 79.4% / 94.7% | 75.1% / 91.6% | 3,737 | 4,902 | 1.728 | no |
+
+**Selected: `rolling_8w`** (recalibrate on the errors of the latest 8 weeks). Adaptive conformal inference (Gibbs and Candes 2021) had the smallest coverage gap but widened the ranges so much (score 21% to 73% worse) that the rule excluded it; the 24k-hour feedback delay is a plausible reason, which I did not investigate. Caveats: the "static" row here is calibrated on only the first 13 weeks of validation and over-covers afterwards (the opposite sign from what happened on the test year), so the rows show the methods are *steadier*, not that the problem is solved; the choice among 7 methods is made on the same validation data it is judged on; validation had no shift as large as the test year.
+**Where it is used.** Only the future snapshot (`results/interval_calibration_rolling_8w.json`, hashed in `results/interval_lock.json`; the same forecast's new ranges are in `results/prospective/intervals_rolling_8w_*.json`). Because the sealed test year may not be used, it could only be calibrated on the 16 days after it (392 hourly errors per cell), a window shorter than 8 weeks. **Past-date ranges on the map are unchanged**, so past and future popups use different methods and are not comparable. The "ranges are too narrow" warning stays until the prospective check says otherwise.
+
 ## Stress tests (all inside train+validation; `scripts/stress_tests.py`, details in EXPERIMENTS.md)
 - **Rolling-origin backtest** (8 expanding-window folds: calendar years 2018-2023, 2024-01-01 to 2024-10-24, and the validation year): the model beats B1 in every window and zone.
 - **Holidays etc.**: lower error than B1 on every subset, but higher than its own average on Christmas-New Year (1.3-1.7x), public holidays (1.2-1.5x) and bridge days (1.2-1.8x). Heat waves are easier than average, cold snaps about average.
@@ -147,9 +163,36 @@ Reading it: the models beat the best simple baseline in all 36 cells on the test
 
 **Tests.** `tests/test_horizon.py` (no load feature uses information after the origin for its horizon; lags are at least 24k hours; the one-shot gate), `tests/test_future_forecast.py` (expected zones/hours/columns of the snapshot, monotone quantiles, no actual line in future files, accuracy table present, past-date map files byte-identical by SHA-256, the later comparison script).
 
-**Prospective check.** Each generated forecast is also saved as a dated file in `results/prospective/`. Once those days have happened, re-download the SMARD load and run `python scripts/compare_prospective.py results/prospective/forecast_<...>.json` to score it (MAE vs last week's baseline and coverage per horizon). Not run yet.
+## Prospective check (pending)
+**What was predicted.** The snapshot generated 2026-11-11 05:36 UTC (forecast origin 2026-11-10 07:00 UTC) covers 2026-11-11 06:00 to 2026-12-01 07:00 UTC for all four zones. Its predictions were saved *before* the hours happened in the dated log `results/prospective/forecast_20261110T07_20261111T053623Z.json`, **SHA-256 `897be3dc27dda1d05a09cc2db677593c5bf52488166fd40360c663325f49cafe`**, first committed in `35791f5ee8372a29edf7cfdef3316c0c37b9a1f6`. The same forecast's ranges under the newer method are in `results/prospective/intervals_rolling_8w_20261110T07_20261111T053623Z.json`, so both can be scored on the same hours (the point forecasts are identical).
+**When it will be evaluated.** On or after about 2026-12-05, when SMARD has published the load up to the end of the covered period: re-download the load, then `python scripts/compare_prospective.py results/prospective/forecast_20261110T07_20261111T053623Z.json --intervals results/prospective/intervals_rolling_8w_20261110T07_20261111T053623Z.json --update-readme`. It reports, per zone and days-ahead bucket, the hours scored, the error, the error of the same-hour-last-week baseline and the 80% / 95% coverage of both interval methods, and writes `results/prospective_results.md`. Hours with no actual yet are skipped and counted. **It will be reported whatever the outcome**, including if the model loses to the baseline or the new ranges miss as badly as the old ones. Not run yet (tested only on fake actuals in `tests/test_prospective.py`).
+
+<!-- PROSPECTIVE:START -->
+*Pending: no results yet.*
+<!-- PROSPECTIVE:END -->
 
 **Weather data by [Open-Meteo.com](https://open-meteo.com/)** (data licence CC BY 4.0, used non-commercially; terms and the wording relied on in `data/DATA_SOURCES.md`).
+
+## Model comparison (validation year only; comparison, not a replacement)
+Question: could a ridge regression or a small neural network replace LightGBM? Rules first (`results/EXPERIMENTS.md`, entries M5 and M5a): same features, horizons, per-zone configuration and split as the locked models, trained on the training period only, scored on the validation year (2024-10-25 to 2025-10-24) with the 1% tie band. Ridge: standardised features, calendar one-hot, alpha by time-ordered cross-validation. Neural network: scikit-learn `MLPRegressor`, layers (64, 32), early stopping on the last 10% of the training data in time order, 3 seeds. Mean absolute error in MWh/h:
+
+| Zone | Days ahead | LightGBM | Ridge | Small neural net (mean, range of 3 seeds) |
+|---|---|---|---|---|
+| 50Hertz | 1 | 592 | 642 | 636 (585-669) |
+| 50Hertz | 7 | 667 | 695 | 655 (654-656) |
+| 50Hertz | 21 | 702 | 765 | 682 (680-685) |
+| Amprion | 1 | 550 | 733 | 559 (555-563) |
+| Amprion | 7 | 727 | 829 | 727 (720-738) |
+| Amprion | 21 | 851 | 995 | 878 (866-889) |
+| TenneT | 1 | 402 | 565 | 395 (390-402) |
+| TenneT | 7 | 520 | 659 | 509 (504-514) |
+| TenneT | 21 | 590 | 879 | 584 (578-598) |
+| TransnetBW | 1 | 196 | 316 | 191 (191-191) |
+| TransnetBW | 7 | 264 | 342 | 266 (264-267) |
+| TransnetBW | 21 | 305 | 499 | 298 (285-306) |
+| **Pooled (sum of 12 cells)** | | 6,365 | 7,919 | 6,380 |
+
+Ridge was clearly worse in all 12 cells. The small neural network was **statistically indistinguishable in a pooled sense** (0.2% higher pooled error) and beat LightGBM by more than 1% in 6 of 12 cells, lost in 3 and tied in 3, so LightGBM is not clearly better here; I kept it because the models are locked and the comparison is validation-only (LightGBM's per-zone configuration was itself picked on this validation year, which slightly favours it). The test year was not used. The map models are unchanged.
 
 ## Limitations
 - Rolling 24-hour-ahead, not day-ahead. Every load input is known at least 24 h earlier, but a forecast issued once per day could not use `lag_24h` for the later hours of the next day. A validation-only ablation (`scripts/run_lag_ablation.py`, `results/lag_ablation_val.csv`; locked models unchanged) shows the dependence: without `lag_24h` the mean validation MAE rises by 8.7% (50Hertz +3.2%, Amprion +10.9%, TenneT +10.6%, TransnetBW +15.8%); without `lag_24h` and `lag_48h` it rises by 18.1% (+7.1%, +21.3%, +22.6%, +33.3%). Both variants still pass the keep rule and are far better than the last-week baseline, but by the threshold I set beforehand (15%) the headline MAEs depend materially on the short lags and **must not be read as day-ahead numbers**.

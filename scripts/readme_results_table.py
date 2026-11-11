@@ -20,3 +20,21 @@ def coverage():
 
 if __name__ == "__main__":
     print("\n".join(table())); print("coverage 80/95:", *coverage())
+
+def interval_rows():
+    """Validation replay of the interval methods (I1): coverage, width, interval score, from results/interval_val_summary.csv."""
+    S = pd.read_csv(ROOT / "results/interval_val_summary.csv")
+    rows = ["| Method | Mean coverage 80% / 95% | Worst cell 80% / 95% | Mean width (MWh/h) | Mean interval score | Score vs static | Admissible |", "|---|---|---|---|---|---|---|"]
+    for _, r in S.iterrows():
+        rows.append(f"| {r.candidate} | {r.mean_coverage_80:.1f}% / {r.mean_coverage_95:.1f}% | {r.min_cell_cov_80:.1f}% / {r.min_cell_cov_95:.1f}% | {r.mean_width:,.0f} | {r.mean_interval_score:,.0f} | {r.R_score_ratio_vs_static:.3f} | {'yes' if r.admissible else 'no'} |")
+    return rows
+
+def model_rows():
+    """LightGBM vs ridge vs MLP (M5), validation MAE, from results/model_comparison_val.csv."""
+    D = pd.read_csv(ROOT / "results/model_comparison_val.csv")
+    rows = ["| Zone | Days ahead | LightGBM | Ridge | Small neural net (mean, range of 3 seeds) |", "|---|---|---|---|---|"]
+    for _, r in D.iterrows():
+        rows.append(f"| {r.zone} | {r.k} | {r.mae_lightgbm:,.0f} | {r.mae_ridge:,.0f} | {r.mae_mlp_mean:,.0f} ({r.mae_mlp_min:,.0f}-{r.mae_mlp_max:,.0f}) |")
+    s = json.load(open(ROOT / "results/model_comparison_summary.json"))
+    rows.append(f"| **Pooled (sum of 12 cells)** | | {s['pooled']['mae_lightgbm']:,.0f} | {s['pooled']['mae_ridge']:,.0f} | {s['pooled']['mae_mlp_mean']:,.0f} |")
+    return rows

@@ -1,0 +1,590 @@
+{
+ "method": "rolling_8w",
+ "window_weeks": 8,
+ "origin_utc": "2026-11-10 07:00:00+00:00",
+ "scores_only_after": "2026-10-25 00:00:00+00:00",
+ "min_hours": 168,
+ "cells": {
+  "50Hertz|1|80": {
+   "offset": 671.8560163312686,
+   "static_offset": 495.76529681123066,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|1|95": {
+   "offset": 668.4226490490109,
+   "static_offset": 734.3222113343782,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|2|80": {
+   "offset": 305.09718400417114,
+   "static_offset": 425.0814711279472,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|2|95": {
+   "offset": 233.05071963499176,
+   "static_offset": 536.0560765843766,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|3|80": {
+   "offset": 824.030607507515,
+   "static_offset": 563.1749589290102,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|3|95": {
+   "offset": 737.0277089040555,
+   "static_offset": 805.9694036223082,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|5|80": {
+   "offset": 258.95150397885845,
+   "static_offset": 421.5147155143932,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|5|95": {
+   "offset": 207.97035319142196,
+   "static_offset": 561.3725045157844,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|7|80": {
+   "offset": 242.81060066561986,
+   "static_offset": 427.26339640740844,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|7|95": {
+   "offset": 189.37574495470108,
+   "static_offset": 560.0274486103226,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|10|80": {
+   "offset": 305.41010987186564,
+   "static_offset": 437.86964202336276,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|10|95": {
+   "offset": 448.65557515724686,
+   "static_offset": 549.1021209674836,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|14|80": {
+   "offset": 255.73046510970016,
+   "static_offset": 430.32441607913097,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|14|95": {
+   "offset": 317.9228636340704,
+   "static_offset": 571.5815435651166,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|16|80": {
+   "offset": 208.40467619920128,
+   "static_offset": 428.3319068516648,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|16|95": {
+   "offset": 323.1007939666779,
+   "static_offset": 595.6077708978573,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|21|80": {
+   "offset": 198.67730164028217,
+   "static_offset": 418.2768077593428,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "50Hertz|21|95": {
+   "offset": 282.8366970682964,
+   "static_offset": 593.3343720783814,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|1|80": {
+   "offset": 818.0470189469816,
+   "static_offset": 168.6417991094204,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|1|95": {
+   "offset": 1198.817621847811,
+   "static_offset": 335.2565294903143,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|2|80": {
+   "offset": 1099.0965858976997,
+   "static_offset": 226.5729838117968,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|2|95": {
+   "offset": 1381.9238726227377,
+   "static_offset": 403.47952256882854,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|3|80": {
+   "offset": 1133.3423183411105,
+   "static_offset": 268.7785885241101,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|3|95": {
+   "offset": 1417.931750174066,
+   "static_offset": 507.11190860792703,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|5|80": {
+   "offset": 1327.406162410076,
+   "static_offset": 317.4558995980369,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|5|95": {
+   "offset": 1563.108502148254,
+   "static_offset": 539.1907867977225,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|7|80": {
+   "offset": 1335.3943702163742,
+   "static_offset": 348.1996443311873,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|7|95": {
+   "offset": 1529.3067135046877,
+   "static_offset": 608.5388570630603,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|10|80": {
+   "offset": 1155.337877691436,
+   "static_offset": 407.1881899952223,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|10|95": {
+   "offset": 1336.3470958167381,
+   "static_offset": 748.3737664681685,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|14|80": {
+   "offset": 1060.0039976945263,
+   "static_offset": 430.8824139055905,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|14|95": {
+   "offset": 1300.2570697673982,
+   "static_offset": 714.9465777306141,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|16|80": {
+   "offset": 831.8653953841203,
+   "static_offset": 467.2288310314798,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|16|95": {
+   "offset": 974.6391140885717,
+   "static_offset": 753.820836421477,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|21|80": {
+   "offset": 752.9288379643294,
+   "static_offset": 509.8945027423506,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "Amprion|21|95": {
+   "offset": 845.3560791106684,
+   "static_offset": 804.8003881703953,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|1|80": {
+   "offset": 242.48357802917235,
+   "static_offset": 164.46871045031003,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|1|95": {
+   "offset": 768.7560260266728,
+   "static_offset": 257.14084176044344,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|2|80": {
+   "offset": 365.26270507901427,
+   "static_offset": 219.64404930303317,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|2|95": {
+   "offset": 1100.0146827475783,
+   "static_offset": 379.6870838668474,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|3|80": {
+   "offset": 342.36669035839805,
+   "static_offset": 202.9683636792288,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|3|95": {
+   "offset": 951.2237560505982,
+   "static_offset": 353.69807191853033,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|5|80": {
+   "offset": 313.8117861407354,
+   "static_offset": 224.69768932151055,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|5|95": {
+   "offset": 957.8905440807503,
+   "static_offset": 369.56309805485216,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|7|80": {
+   "offset": 356.844921830776,
+   "static_offset": 248.81804694394305,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|7|95": {
+   "offset": 1084.4134848082194,
+   "static_offset": 408.0589005050333,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|10|80": {
+   "offset": 529.0394827175714,
+   "static_offset": 278.0054294347465,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|10|95": {
+   "offset": 1076.61972083597,
+   "static_offset": 439.88144317308615,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|14|80": {
+   "offset": 535.3062414605265,
+   "static_offset": 286.4987427583983,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|14|95": {
+   "offset": 983.110645265866,
+   "static_offset": 457.3471322934638,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|16|80": {
+   "offset": 523.8085796919186,
+   "static_offset": 269.99616124812746,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|16|95": {
+   "offset": 914.1182005164228,
+   "static_offset": 479.6180614859695,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|21|80": {
+   "offset": 515.9737180738375,
+   "static_offset": 341.6860966726308,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TenneT|21|95": {
+   "offset": 896.5255687479657,
+   "static_offset": 535.1280323769479,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|1|80": {
+   "offset": 149.54503748954176,
+   "static_offset": 83.17658901798677,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|1|95": {
+   "offset": 298.02132992348015,
+   "static_offset": 138.54497654244187,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|2|80": {
+   "offset": 265.9692765607706,
+   "static_offset": 151.94212665672785,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|2|95": {
+   "offset": 427.87771585732753,
+   "static_offset": 253.80020301538025,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|3|80": {
+   "offset": 267.9116835371242,
+   "static_offset": 168.45525450484638,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|3|95": {
+   "offset": 449.7892621605224,
+   "static_offset": 258.30856946917993,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|5|80": {
+   "offset": 262.5036091289039,
+   "static_offset": 192.58105470559622,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|5|95": {
+   "offset": 451.9270122541875,
+   "static_offset": 280.24112552953375,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|7|80": {
+   "offset": 278.30086147228303,
+   "static_offset": 191.0027397576614,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|7|95": {
+   "offset": 448.5412412724727,
+   "static_offset": 269.9409090025565,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|10|80": {
+   "offset": 241.93927550214357,
+   "static_offset": 180.0811201184988,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|10|95": {
+   "offset": 292.58884864631455,
+   "static_offset": 256.3238251327648,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|14|80": {
+   "offset": 281.52583881727696,
+   "static_offset": 186.94939698978214,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|14|95": {
+   "offset": 325.13357709790216,
+   "static_offset": 279.50352469569407,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|16|80": {
+   "offset": 292.57317938885717,
+   "static_offset": 160.48309792544387,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|16|95": {
+   "offset": 439.3757689310178,
+   "static_offset": 286.0011998293621,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|21|80": {
+   "offset": 278.96866250054336,
+   "static_offset": 167.80352319466874,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  },
+  "TransnetBW|21|95": {
+   "offset": 475.9510695325007,
+   "static_offset": 278.5834308642652,
+   "n_scores": 392,
+   "fallback_to_static": false,
+   "first_score": "2026-10-25 00:00:00+00:00",
+   "last_score": "2026-11-10 07:00:00+00:00"
+  }
+ },
+ "original_log": "forecast_20261110T07_20261111T053623Z.json",
+ "original_log_sha256": "897be3dc27dda1d05a09cc2db677593c5bf52488166fd40360c663325f49cafe",
+ "interval_selection_sha256": "8110b40947868eb8900cb9cd003b257fbff333e63227f685d6b4216daa99a422",
+ "validation_summary_sha256": "0677c16410099488c8b41cb0877c85bf47eb8ee5b7546994f8475e00fa92726f",
+ "script_sha256": "7f3326e75dad619ff51c7bfe0625d7cef37f8516eec0ab15f3d438fccbc10242"
+}

@@ -76,7 +76,7 @@ function renderLicences() {
   const a = (url, text) => H(`<a href="${url}">${esc(text)}</a>`, text);
   const p = {smard: H("<strong>Bundesnetzagentur | SMARD.de</strong>", "Bundesnetzagentur | SMARD.de"), ccby: a(LINKS.ccby, "CC BY 4.0"), openmeteo: a(LINKS.openmeteo, "Weather data by Open-Meteo.com"),
     lightgbm: "LightGBM", repo: a(REPO, t("link_repo")), methods: a(METHODS, t("link_methods")), dlde: a(LINKS.dlde, "dl-de/by-2-0"), datenquellen: a(LINKS.datenquellen, "Datenquellen"), controlarea: a(LINKS.controlarea, "SMARD Control area")};
-  $("licBody").innerHTML = ["licences_load", "licences_weather", "licences_models", "licences_states", "licences_zones", "licences_notprod", "licences_code", "privacy_line"].map(k => `<p>${tm(k, p)}</p>`).join("");
+  $("licBody").innerHTML = ["licences_load", "licences_weather", "licences_models", "licences_states", "licences_zones", "licences_notprod", "licences_intervals", "licences_code", "privacy_line"].map(k => `<p>${tm(k, p)}</p>`).join("");
 }
 
 function el(name, attrs = {}, parent) { const e = document.createElementNS(SVGNS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
@@ -229,6 +229,7 @@ function renderFutureHeader(day, date) {
   fc.innerHTML = `<p>${tm("acc_intro", {zone: cur.zone, a1: MW(a1.test_mae), aL: MW(aL.test_mae), L: N(Lh), b1: N(a1.test_baseline_mae), bL: N(aL.test_baseline_mae)})}</p>` +
     `<table class="acc"><thead><tr>${th("acc_h_model")}${th("acc_h_inputs")}${th("acc_h_val")}${th("acc_h_valcov")}${th("acc_h_test")}${th("acc_h_testcov")}</tr></thead><tbody>${rows}</tbody></table>` +
     `<p class="warnline">${tm("acc_warn")}</p>` +
+    (fmeta.interval_method ? `<p class="small">${tm("intervals_future", {weeks: N(fmeta.interval_method.window_weeks), days: N(fmeta.interval_method.calibration_days), v80: PCT(fmeta.interval_method.validation_cov80, 1), v95: PCT(fmeta.interval_method.validation_cov95, 1)})}</p>` : "") +
     `<p class="small">${esc(t("acc_weather", {v0: fmtDate(meta.val_start.slice(0, 10)), v1: fmtDate(meta.test_start.slice(0, 10))}))}</p>`;
 }
 function expectedHours(date) { // 24, or 23/25 on the Berlin DST change days

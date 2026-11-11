@@ -28,3 +28,7 @@ def test_other_readme_numbers_trace_to_files():
     o = pd.read_csv(ROOT / "results/official_forecast_comparison.csv"); v = o[(o.period == "validation") & o.model.str.startswith("our model")].set_index("zone").MAE
     rise = [100 * (m[(z, "M2_mean_model")] / v[z] - 1) for z in T.ZONES]
     assert round(min(rise)) == 5 and round(max(rise)) == 35 and "5% to 35%" in README
+
+def test_interval_and_model_tables_match_results_files():
+    for line in T.interval_rows() + T.model_rows(): assert line in README, line
+    assert "<!-- PROSPECTIVE:START -->" in README and "<!-- PROSPECTIVE:END -->" in README

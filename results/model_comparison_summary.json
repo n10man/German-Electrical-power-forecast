@@ -1,0 +1,29 @@
+{
+ "cells": 12,
+ "ridge_vs_lightgbm": {
+  "wins": 0,
+  "losses": 12,
+  "ties": 0,
+  "pooled_a": 7918.831136214917,
+  "pooled_b": 6365.210217562031
+ },
+ "mlp_vs_lightgbm": {
+  "wins": 6,
+  "losses": 3,
+  "ties": 3,
+  "pooled_a": 6380.448122249754,
+  "pooled_b": 6365.210217562031
+ },
+ "mlp_vs_ridge": {
+  "wins": 12,
+  "losses": 0,
+  "ties": 0,
+  "pooled_a": 6380.448122249754,
+  "pooled_b": 7918.831136214917
+ },
+ "pooled": {
+  "mae_lightgbm": 6365.210217562031,
+  "mae_ridge": 7918.831136214917,
+  "mae_mlp_mean": 6380.448122249754
+ }
+}

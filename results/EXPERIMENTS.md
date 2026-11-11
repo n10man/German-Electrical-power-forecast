@@ -434,3 +434,41 @@ Rules applied exactly as in H0: horizons were chosen and shown/hidden on validat
 - **Models.** (1) LightGBM: the locked models' mean predictions (`models_future/{zone}_k{k}_mean.txt`). (2) Ridge: calendar integers hour, dow and month one-hot encoded, day of year as sin/cos, all other columns standardised on the training period (NaN rows are already dropped); alpha from {0.01, 0.1, 1, 10, 100, 1000, 10000} by 5-fold time-ordered cross-validation (sklearn TimeSeriesSplit) inside the training period, chosen by MAE. (3) MLP: sklearn MLPRegressor, same encoding, hidden layers (64, 32), ReLU, Adam, learning rate 0.001, batch 256, L2 alpha 1e-4, target standardised; early stopping on the LAST 10% of the training rows in time order (patience 8 epochs, at most 80 epochs, best epoch kept, implemented with partial_fit because sklearn's own early stopping splits at random); seeds 0, 1, 2; report the mean and the spread (min to max) of the validation MAE, and use the mean for the verdict.
 - **Verdict rule (1% tie band as before).** In a cell (zone x k), model X beats model Y if its MAE is lower by more than 1% of Y's MAE; otherwise they tie. The overall conclusion counts wins, ties and losses over the 12 cells and compares the pooled MAE (sum over cells). No candidate replaces LightGBM regardless of the result.
 - **M5a — amendment before any M5 result existed** (the first run stopped with an error on its first cell, ridge cannot take NaN; LightGBM can, and the locked row filter keeps rows with some NaN in the mean24/mean168 or older-lag features). For ridge and MLP only: training rows with a NaN in any feature are dropped; NaNs in validation features are filled with the training median of that feature. All three models are scored on the same validation rows. No other rule changes.
+
+
+### I1 — results (commands: `python scripts/run_interval_methods.py`, then `python scripts/make_new_intervals.py`). Validation year only; sealed test NOT read for any of this.
+| Method | Mean coverage 80% / 95% | Worst cell 80% / 95% | Mean width (MWh/h) | Mean interval score | Score vs static | Admissible |
+|---|---|---|---|---|---|---|
+| static | 83.3% / 95.7% | 72.8% / 90.4% | 2,447 | 2,934 | 1.000 | yes |
+| rolling_4w | 79.2% / 93.9% | 77.2% / 91.7% | 2,153 | 2,860 | 0.995 | yes |
+| rolling_8w | 80.0% / 94.7% | 78.1% / 93.4% | 2,168 | 2,794 | 0.970 | yes |
+| rolling_13w | 80.4% / 94.9% | 78.2% / 93.6% | 2,196 | 2,794 | 0.969 | yes |
+| aci_g0.005 | 79.9% / 94.9% | 75.2% / 93.6% | 2,805 | 3,475 | 1.208 | no |
+| aci_g0.01 | 79.7% / 94.8% | 75.2% / 93.4% | 3,268 | 4,055 | 1.413 | no |
+| aci_g0.02 | 79.4% / 94.7% | 75.1% / 91.6% | 3,737 | 4,902 | 1.728 | no |
+- Selection by the rule written above: admissible = score ratio <= 1.10 (static, the three rolling windows; not the three adaptive ones, 1.21 to 1.73). Smallest coverage gap among admissible non-static candidates: rolling_8w (D = 0.74 points; rolling_13w 0.91, rolling_4w 1.07; static 4.02). **SELECTED: rolling_8w** (also lowest score ratio, 0.970). Decision: KEEP (apply to the future snapshot only).
+- Surprises, not acted on: (1) ACI had the smallest D of all (0.43) but excessive widths; (2) the static analogue over-covers in this replay (83.3% / 95.7%) because its burn-in period was calmer than later months, so the replay shows steadiness, not a fix for the test-year under-coverage; (3) no tuning of anything was done after seeing these numbers.
+- Integration (`scripts/make_new_intervals.py`, run once): point forecasts rebuilt from the same weather file and models equal the log to 0.0 MWh/h. Calibration scores = hours 2026-10-25 00:00..2026-11-10 07:00 UTC only (392 per cell, all 72 cells above the 168-hour minimum, none fell back to static); window = min(8 weeks, available) = 16 days. Offsets are larger than the static ones in most cells (median ratio 1.66, range 0.34 to 4.85), so the new ranges are wider (e.g. TenneT mean 80% width about 2,000 vs 1,630 MWh/h). Artefacts: results/interval_calibration_rolling_8w.json, results/interval_lock.json, results/prospective/intervals_rolling_8w_*.json; site/data/future/*.json range columns and site/data/future_meta.json (interval_method) updated; past-date files and the original dated log unchanged.
+- Limitation to remember: the calibration window (16 days, autumn) is shorter than the validated one (8 weeks).
+
+### M5 — results (command: `python scripts/run_model_comparison.py`). Validation year only; the map models are unchanged.
+| Zone | Days ahead | LightGBM | Ridge | Small neural net (mean, range of 3 seeds) |
+|---|---|---|---|---|
+| 50Hertz | 1 | 592 | 642 | 636 (585-669) |
+| 50Hertz | 7 | 667 | 695 | 655 (654-656) |
+| 50Hertz | 21 | 702 | 765 | 682 (680-685) |
+| Amprion | 1 | 550 | 733 | 559 (555-563) |
+| Amprion | 7 | 727 | 829 | 727 (720-738) |
+| Amprion | 21 | 851 | 995 | 878 (866-889) |
+| TenneT | 1 | 402 | 565 | 395 (390-402) |
+| TenneT | 7 | 520 | 659 | 509 (504-514) |
+| TenneT | 21 | 590 | 879 | 584 (578-598) |
+| TransnetBW | 1 | 196 | 316 | 191 (191-191) |
+| TransnetBW | 7 | 264 | 342 | 266 (264-267) |
+| TransnetBW | 21 | 305 | 499 | 298 (285-306) |
+| **Pooled (sum of 12 cells)** | | 6,365 | 7,919 | 6,380 |
+- Verdicts with the 1% tie band over 12 cells: ridge vs LightGBM 0 wins / 12 losses; MLP vs LightGBM 6 wins / 3 losses / 3 ties (pooled MLP 6,380 vs LightGBM 6,365, +0.2%); MLP vs ridge 12 / 0. Conclusion: ridge is clearly worse; a small neural network is about as good as LightGBM on validation, so LightGBM is not clearly better, and it stays only because it is locked and was configured on this same data. Decision: no change to the map models. Test year not used.
+
+## P1 — Prospective check, pre-registration (appended; earlier entries are NOT edited)
+- Pre-registered predictions: `results/prospective/forecast_20261110T07_20261111T053623Z.json`, SHA-256 897be3dc27dda1d05a09cc2db677593c5bf52488166fd40360c663325f49cafe, committed in 35791f5ee8372a29edf7cfdef3316c0c37b9a1f6 (file unchanged since). New-method ranges for the same forecast: results/prospective/intervals_rolling_8w_20261110T07_20261111T053623Z.json (separate file).
+- Rules written now, before any actuals exist: run `scripts/compare_prospective.py` on or after about 2026-12-05; score every hour with an actual; report MAE, baseline MAE, 80%/95% coverage of both interval methods per zone and days-ahead bucket; report whatever the outcome. Keep/revert: the new interval method stays for future snapshots only if its pooled coverage is closer to nominal than the static one's on these hours; otherwise future snapshots go back to the static ranges (and this is reported). The check is run once for this log.

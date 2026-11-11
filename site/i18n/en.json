@@ -137,5 +137,7 @@
   "licences_code": "Source code and method: {repo} and {methods}.",
   "link_repo": "GitHub repository",
   "link_methods": "method note (docs/METHODS.md)",
-  "meta_description": "Interactive map of Germany: hourly electricity-load forecasts for the four grid zones, for past days and as a snapshot of future days. Not production-grade."
+  "meta_description": "Interactive map of Germany: hourly electricity-load forecasts for the four grid zones, for past days and as a snapshot of future days. Not production-grade.",
+  "intervals_future": "**Ranges for future days use a newer method:** they are recalibrated on recent forecast errors (a rolling {weeks}-week window, but only the {days} days after the unseen test year could be used, so the window is shorter than that). Replayed on the validation year, this method covered {v80} and {v95} of actual values (80% and 95% ranges). It has not been tested on new data yet and will be judged on the forecast check described in the README. Past days still show the older fixed ranges, so the two are not comparable.",
+  "licences_intervals": "Ranges: past days use fixed conformal ranges calibrated on the validation year; future days use ranges recalibrated on recent errors (evaluated on validation data only; see docs/METHODS.md)."
 }

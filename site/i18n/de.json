@@ -137,5 +137,7 @@
   "licences_code": "Quellcode und Methode: {repo} und {methods}.",
   "link_repo": "GitHub-Repository",
   "link_methods": "Methodenbeschreibung (docs/METHODS.md)",
-  "meta_description": "Interaktive Karte von Deutschland: stündliche Stromlast-Prognosen für die vier Netzzonen, für vergangene Tage und als Schnappschuss für kommende Tage. Nicht für den Produktivbetrieb."
+  "meta_description": "Interaktive Karte von Deutschland: stündliche Stromlast-Prognosen für die vier Netzzonen, für vergangene Tage und als Schnappschuss für kommende Tage. Nicht für den Produktivbetrieb.",
+  "intervals_future": "**Die Bereiche für künftige Tage nutzen ein neueres Verfahren:** Sie werden anhand aktueller Prognosefehler neu kalibriert (gleitendes Fenster von {weeks} Wochen; nutzbar waren aber nur die {days} Tage nach dem ungesehenen Testjahr, das Fenster ist also kürzer). Im Nachspielen auf dem Validierungsjahr deckte das Verfahren {v80} bzw. {v95} der tatsächlichen Werte ab (80-%- und 95-%-Bereich). Es wurde noch nicht an neuen Daten getestet und wird an der im README beschriebenen Prognoseprüfung gemessen. Vergangene Tage zeigen weiterhin die älteren festen Bereiche, beide sind daher nicht vergleichbar.",
+  "licences_intervals": "Bereiche: Vergangene Tage nutzen feste konforme Bereiche, die auf dem Validierungsjahr kalibriert wurden; künftige Tage nutzen anhand aktueller Fehler neu kalibrierte Bereiche (nur auf Validierungsdaten bewertet; siehe docs/METHODS.md)."
 }

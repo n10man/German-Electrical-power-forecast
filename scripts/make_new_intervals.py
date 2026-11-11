@@ -74,7 +74,7 @@ def main(log_path=None, method=None):
             for c in ("l80", "u80", "l95", "u95"): day[c] = [nl[z][c][i] for i in ii]
         json.dump(j, open(p, "w"), separators=(",", ":"))
     fm = json.load(open("site/data/future_meta.json")); S = pd.read_csv("results/interval_val_summary.csv").set_index("candidate").loc[method]
-    fm["interval_method"] = dict(name=method, window_weeks=weeks, scores_after=str(AFTER_SEALED), validation_cov80=round(float(S.mean_coverage_80), 1), validation_cov95=round(float(S.mean_coverage_95), 1), calibration_sha256=sha(cp), cells_fallback_to_static=n_fb)
+    fm["interval_method"] = dict(name=method, window_weeks=weeks, scores_after=str(AFTER_SEALED), validation_cov80=round(float(S.mean_coverage_80), 1), validation_cov95=round(float(S.mean_coverage_95), 1), calibration_sha256=sha(cp), cells_fallback_to_static=n_fb, calibration_days=round(min(v['n_scores'] for v in calib.values()) / 24))
     json.dump(fm, open("site/data/future_meta.json", "w"), indent=1)
 
 if __name__ == "__main__":

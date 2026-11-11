@@ -628,5 +628,15 @@
   }
  },
  "git_head": "ef70732b2dbeb37b03c3cc967d5713ad50eda178",
- "model_lock_file_sha256": "e20edd9fe8c93fce2b53c79d69be7ee0ef11483faf82abc1f2f6505913b5dc1b"
+ "model_lock_file_sha256": "e20edd9fe8c93fce2b53c79d69be7ee0ef11483faf82abc1f2f6505913b5dc1b",
+ "interval_method": {
+  "name": "rolling_8w",
+  "window_weeks": 8,
+  "scores_after": "2026-10-25 00:00:00+00:00",
+  "validation_cov80": 80.0,
+  "validation_cov95": 94.7,
+  "calibration_sha256": "80275e71275843967ac2cc744f2df0eddda17aa87e06ff0dc23a847059fa9f95",
+  "cells_fallback_to_static": 0,
+  "calibration_days": 16
+ }
 }
