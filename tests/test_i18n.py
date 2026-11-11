@@ -35,7 +35,7 @@ def test_bold_markers_and_numbers_are_kept():
 def test_every_key_used_in_code_and_html_exists_everywhere():
     called = set(re.findall(r"""\bt[m]?\(\s*["'](\w+)["']""", JS)) | set(re.findall(r"""\bth\(\s*["'](\w+)["']""", JS))
     prefixes = {k for k in called if k.endswith("_")}; called -= prefixes
-    used = called | set(re.findall(r'data-i18n(?:-html|-aria)?="(\w+)"', HTML))
+    used = called | set(re.findall(r'data-i18n(?:-html|-aria|-title)?="(\w+)"', HTML))
     used |= set(re.findall(r"""["'](\w+)["']""", JS)) & set(M["en"])        # keys passed through variables or ternaries, e.g. t(ok ? "inside" : "outside")
     assert prefixes == set(DYNAMIC) and len(used) > 60
     for l in LANGS:
@@ -81,7 +81,7 @@ def test_no_hard_coded_prose_in_html():
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     assert lines == ["Weather data by Open-Meteo.com"], lines         # the required attribution link text is the only literal text
     assert "<title></title>" in HTML
-    for attr in re.findall(r'\b(?:aria-label|title|alt|placeholder)="([^"]*)"', HTML): assert attr == "", attr
+    for attr in re.findall(r"(?<![\w-])(?:aria-label|title|alt|placeholder)=\"([^\"]*)\"", HTML): assert attr == "", attr
 
 def test_language_setup_rtl_and_logical_css():
     assert 'ar: {label: "العربية", dir: "rtl"' in JS and 'de: {label: "Deutsch", dir: "ltr"' in JS and 'en: {label: "English", dir: "ltr"' in JS

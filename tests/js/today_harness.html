@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><pre id="out">pending</pre>
+<script src="../../site/today.js"></script>
+<script>
+// Fake clock: berlinDate() takes the time as an argument, so each case passes its own instant (UTC).
+const T = TodayLogic, R0 = "2024-10-26", R1 = "2026-10-24", F0 = "2026-11-11", F1 = "2026-12-01", res = {};
+const run = (utc) => { const d = T.berlinDate(Date.parse(utc)); return {berlin: d, ...T.action(d, R0, R1, F0, F1)}; };
+res.inside = run("2026-11-15T10:00:00Z");
+res.inside_last_day_late_evening_utc = run("2026-11-30T23:30:00Z");     // 00:30 on 1 Dec in Berlin: still the last snapshot day
+res.ended = run("2026-12-01T23:30:00Z");                                 // 2 Dec in Berlin: snapshot is over
+res.ended_later = run("2027-03-01T12:00:00Z");
+res.gap_nearer_to_real = run("2026-10-30T12:00:00Z");
+res.gap_nearer_to_forecast = run("2026-11-05T12:00:00Z");
+res.before_everything = run("2024-01-01T12:00:00Z");
+res.inside_real_data = run("2026-01-14T12:00:00Z");
+res.no_snapshot = {berlin: "2026-11-15", ...T.action("2026-11-15", R0, R1, null, null)};
+document.getElementById("out").textContent = JSON.stringify(res);
+</script>

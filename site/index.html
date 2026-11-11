@@ -15,15 +15,21 @@
       <div id="langs" class="langs" role="group" data-i18n-aria="lang_group"></div>
     </div>
   </div>
-  <p class="sub" data-i18n-html="intro" id="intro"></p>
-  <p id="snapshot" class="snapshot" hidden></p>
+  <p class="sub" id="intro"></p>
+  <div id="snapshot" class="snapshot" hidden>
+    <p class="snaprow"><span id="snapShort"></span> <button type="button" id="snapToggle" class="snapbtn" aria-expanded="false" aria-controls="snapFull"></button></p>
+    <p id="snapFull" class="snapfull" hidden></p>
+  </div>
+  <p id="ended" class="ended" role="status" hidden></p>
 </header>
 <main>
   <div class="layout">
     <section class="mapwrap" data-i18n-aria="map_section_aria">
       <svg id="map" role="group" data-i18n-aria="map_aria"></svg>
-      <ul id="legend" class="legend"></ul>
-      <p class="attrib"><a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a> <span data-i18n="attrib_suffix"></span></p>
+      <div class="mapfoot">
+        <ul id="legend" class="legend"></ul>
+        <p class="attrib"><a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a> <span data-i18n="attrib_suffix"></span></p>
+      </div>
       <div id="tip" class="tip" hidden></div>
     </section>
     <aside class="howto" id="howto">
@@ -50,33 +56,42 @@
   </section>
 </main>
 
-<dialog id="popup" aria-labelledby="pTitle">
+<dialog id="popup" aria-labelledby="pTitle" tabindex="-1">
   <form method="dialog"><button class="close" data-i18n-aria="close"></button></form>
   <h2 id="pTitle"></h2>
   <p id="zoneStmt" class="stmt"></p>
   <p id="splitStmt" class="splitwarn" hidden></p>
   <div class="controls">
     <label><span data-i18n="label_date"></span> <input type="date" id="date"></label>
-    <span class="jump"><button type="button" id="jumpPast" data-i18n="jump_past" hidden></button><button type="button" id="jumpFuture" data-i18n="jump_future" hidden></button></span>
+    <span class="jump"><button type="button" id="jumpLatest" data-i18n="jump_latest" data-i18n-title="tip_latest"></button><button type="button" id="jumpToday" data-i18n="jump_today" data-i18n-title="tip_today" hidden></button></span>
     <label><span data-i18n="label_hour"></span> <select id="hour"></select></label>
   </div>
+  <p id="todayMsg" class="small todaymsg" role="status" hidden></p>
   <p id="badge" class="badge"></p>
-  <p id="dayInfo" class="small"></p>
+  <p id="headline" class="headline"></p>
   <svg id="chart" role="img" data-i18n-aria="chart_aria"></svg>
   <ul class="chartkey">
-    <li class="k-act-li"><i class="k-act"></i><span data-i18n="key_actual"></span></li><li><i class="k-fc"></i><span data-i18n="key_forecast"></span></li><li><i class="k-b80"></i><span data-i18n="key_80"></span></li><li><i class="k-b95"></i><span data-i18n="key_95"></span></li>
+    <li class="k-act-li"><i class="k-act"></i><span data-i18n="key_actual"></span></li><li><i class="k-fc"></i><span data-i18n="key_forecast"></span></li><li class="k-band-li"><i class="k-b80"></i><span data-i18n="key_80"></span></li><li class="k-band-li"><i class="k-b95"></i><span data-i18n="key_95"></span></li>
   </ul>
-  <table id="hourTable" class="hourtable" aria-live="polite"></table>
-  <div id="fcNote" class="fcnote" hidden></div>
-  <p id="covStmt" class="cov"></p>
-  <p id="backtestNote" class="backtest" data-i18n="backtest_note"></p>
+  <label class="switch"><input type="checkbox" id="bands"> <span data-i18n="show_range"></span></label>
+  <p class="small rangehint" data-i18n="range_hint"></p>
+  <details id="more" class="more">
+    <summary data-i18n="more_details"></summary>
+    <p id="periodNote" class="small"></p>
+    <p id="dayInfo" class="small"></p>
+    <table id="hourTable" class="hourtable" aria-live="polite"></table>
+    <div id="fcNote" class="fcnote" hidden></div>
+    <p id="covStmt" class="cov"></p>
+    <p id="backtestNote" class="backtest" data-i18n="backtest_note"></p>
+  </details>
 </dialog>
 
-<dialog id="licDialog" aria-labelledby="licTitle" class="licdlg">
+<dialog id="licDialog" aria-labelledby="licTitle" class="licdlg" tabindex="-1">
   <form method="dialog"><button class="close" data-i18n-aria="licences_close"></button></form>
   <h2 id="licTitle" data-i18n="licences_title"></h2>
   <div id="licBody" class="licbody"></div>
 </dialog>
+<script src="today.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

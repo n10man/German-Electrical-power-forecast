@@ -1,0 +1,32 @@
+<!doctype html><meta charset="utf-8"><pre id="out">pending</pre>
+<script>
+// Loads the real site in iframes of several sizes and measures it. Served over http by tests/test_layout_browser.py.
+const SIZES = [[1440, 900], [1920, 1080], [390, 844]], LANGS = ["en", "de", "ar"], out = [];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function frame(w, h, lang) {
+  const f = document.createElement("iframe"); f.style.cssText = `position:fixed;left:0;top:0;border:0;width:${w}px;height:${h}px;background:#fff`; f.src = `/site/index.html?lang=${lang}`; document.body.appendChild(f);
+  for (let i = 0; i < 150; i++) { await sleep(100); try { const win = f.contentWindow; if (win.eval("typeof states !== 'undefined' && !!states && !!meta && typeof fmeta !== 'undefined'")) { await sleep(300); return f; } } catch (e) {} }
+  throw new Error("site did not start " + w + "x" + h + " " + lang);
+}
+(async () => {
+  try {
+    for (const [w, h] of SIZES) for (const lang of LANGS) {
+      const f = await frame(w, h, lang), win = f.contentWindow, doc = win.document, de = doc.documentElement, r = {w, h, lang};
+      r.closed = {scrollW: de.scrollWidth, clientW: de.clientWidth, scrollH: de.scrollHeight, clientH: de.clientHeight, dir: de.dir, lang: de.lang};
+      for (const mode of ["future", "past"]) {
+        await win.eval(`openPopup(states.features.find(x => x.properties.id === "BY").properties, "${mode === "future" ? "2026-11-14" : "2026-01-14"}", "day")`);
+        await sleep(400);
+        const dlg = doc.getElementById("popup"), b = dlg.getBoundingClientRect(), vw = de.clientWidth, vh = win.innerHeight;
+        r[mode] = {open: dlg.open, scrollW: de.scrollWidth, clientW: vw, dlgScrollW: dlg.scrollWidth, dlgClientW: dlg.clientWidth, dx: Math.abs(b.x + b.width / 2 - win.innerWidth / 2), dy: Math.abs(b.y + b.height / 2 - vh / 2),
+          width: b.width, maxWidth: Math.min(0.92 * win.innerWidth, 760), heightRatio: b.height / vh, activeIsDialog: doc.activeElement === dlg, activeIsClose: !!doc.activeElement.closest(".close"),
+          lockClass: de.classList.contains("modal-open"), htmlOverflow: win.getComputedStyle(de).overflow, dialogOutline: win.getComputedStyle(dlg).outlineStyle,
+          bands: doc.getElementById("bands").checked, details: doc.getElementById("more").open, axisX: [...doc.querySelectorAll("#chart text")].map(t => t.textContent).filter(t => t.length > 12).join("|")};
+        const ev = new win.MouseEvent("click", {bubbles: true, clientX: 2, clientY: 2}); dlg.dispatchEvent(ev); for (let i = 0; i < 40 && de.classList.contains("modal-open"); i++) await sleep(100);   // click on the backdrop closes
+        r[mode].closedByBackdrop = !dlg.open; r[mode].lockReleased = !de.classList.contains("modal-open");
+      }
+      out.push(r); f.remove();
+    }
+    document.getElementById("out").textContent = JSON.stringify(out);
+  } catch (e) { document.getElementById("out").textContent = JSON.stringify({error: String(e)}); }
+})();
+</script>

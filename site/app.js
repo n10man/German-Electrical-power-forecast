@@ -8,7 +8,9 @@ const LINKS = {ccby: "https://creativecommons.org/licenses/by/4.0/", openmeteo: 
   datenquellen: "https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf", controlarea: "https://www.smard.de/page/en/wiki-article/5884/205642"};
 const $ = id => document.getElementById(id);
 const cache = {}, fcache = {}, msgs = {};
-let M = null, lang = "en", loc = "en-GB", meta, fmeta = null, states, cur = null;  // cur = {state, zone, data, fdata, day, future}
+let M = null, lang = "en", loc = "en-GB", meta, fmeta = null, states, cur = null, lastFocus = null, snapOpen = false, restoring = false;  // cur = {state, zone, data, fdata, day, future}
+const bandPref = {past: null, future: null};   // the "show usual range" choice, kept for this browser session only
+try { for (const k of ["past", "future"]) { const v = sessionStorage.getItem("bands_" + k); if (v !== null) bandPref[k] = v === "1"; } } catch (e) { /* storage may be blocked */ }
 
 /* ---------- translation helpers ---------- */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
@@ -49,14 +51,16 @@ function applyStatic() {
   document.documentElement.lang = lang; document.documentElement.dir = LANGS[lang].dir; document.title = t("page_title");
   document.querySelectorAll("[data-i18n]").forEach(e => { e.textContent = t(e.dataset.i18n); });
   document.querySelectorAll("[data-i18n-aria]").forEach(e => e.setAttribute("aria-label", t(e.dataset.i18nAria)));
+  document.querySelectorAll("[data-i18n-title]").forEach(e => e.setAttribute("title", t(e.dataset.i18nTitle)));
   document.querySelectorAll("#langs button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
 }
 async function setLang(l, save = true) {
   try { M = await loadMessages(l); lang = l; } catch (e) { M = await loadMessages("en"); lang = "en"; }
   loc = LANGS[lang].locale; applyStatic();
   if (save) { try { localStorage.setItem("lang", lang); } catch (e) { /* ignore */ } const u = new URL(location.href); u.searchParams.set("lang", lang); history.replaceState(null, "", u); }
-  if (states) { updateMapLabels(); renderIntro(); renderSnapshot(); renderLicences(); }
+  if (states) { updateMapLabels(); renderIntro(); renderSnapshot(); renderLicences(); renderEnded(); }
   if (cur && $("popup").open) { const d = $("date").value, h = $("hour").value; await openPopup(cur.state, d, h); }
+  else if (cur) updateTodayButton();
 }
 function renderIntro() { if (meta) $("intro").innerHTML = tm("intro", {pastStart: fmtDate(meta.first_full_local_day), pastEnd: fmtDate(meta.last_full_local_day)}); }
 function renderLicences() {
@@ -85,7 +89,7 @@ function drawMap() {
     const path = el("path", {d: pathOf(f.geometry), fill: ZONE_COLOR[p.zone], tabindex: 0, role: "button", "data-id": p.id, "data-zone": p.zone}, svg);
     path.addEventListener("mouseenter", () => highlightZone(p.zone));
     path.addEventListener("mousemove", e => showTip(e, p)); path.addEventListener("mouseleave", () => { hideTip(); highlightZone(null); });
-    path.addEventListener("focus", () => { highlightZone(p.zone); const r = path.getBoundingClientRect(); showTip({clientX: r.left + r.width / 2, clientY: r.top + r.height / 2}, p); });
+    path.addEventListener("focus", () => { if (restoring) return; highlightZone(p.zone); const r = path.getBoundingClientRect(); showTip({clientX: r.left + r.width / 2, clientY: r.top + r.height / 2}, p); });
     path.addEventListener("blur", () => { hideTip(); highlightZone(null); });
     path.addEventListener("click", () => openPopup(p));
     path.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPopup(p); } });
@@ -118,10 +122,43 @@ async function openPopup(p, date, hour) {
   else sp.hidden = true;
   const d = $("date"); d.min = meta.first_full_local_day; d.max = fmeta ? fmeta.covers_last_local_date : meta.last_full_local_day;
   const want = date || d.value || "2026-01-14"; d.value = (want < d.min) ? d.min : (want > d.max ? d.max : want);
-  $("jumpPast").hidden = $("jumpFuture").hidden = !fmeta;
-  const pop = $("popup"); if (!pop.open) pop.showModal();
+  $("jumpToday").hidden = !fmeta; updateTodayButton();
+  openModal($("popup"));
   renderDay(hour);
-  history.replaceState(null, "", `${location.search}#state=${p.id}&date=${$("date").value}&hour=${$("hour").value}`);
+  setHash();
+}
+function openModal(dlg) {   // centred modal; the page behind is locked and inert, focus goes to the dialog and comes back on close
+  if (dlg.open) return;
+  lastFocus = document.activeElement; document.documentElement.classList.add("modal-open"); dlg.showModal(); dlg.focus({preventScroll: true});
+}
+function onModalClose() {
+  if (document.querySelector("dialog[open]")) return;
+  document.documentElement.classList.remove("modal-open");
+  if (lastFocus && document.contains(lastFocus)) { restoring = true; lastFocus.focus({preventScroll: true}); restoring = false; }   // give focus back without re-showing the hover label
+}
+function backdropClose(dlg) {   // a click that lands on the dialog element itself but outside its box is a click on the backdrop
+  dlg.addEventListener("click", e => { if (e.target !== dlg) return; const r = dlg.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) { dlg.close(); onModalClose(); } });
+  dlg.addEventListener("close", onModalClose);
+}
+/* ---------- "Today" and "Latest real data" ---------- */
+const todayIso = () => TodayLogic.berlinDate(Date.now());
+function todayAction() { return TodayLogic.action(todayIso(), meta.first_full_local_day, meta.last_full_local_day, fmeta && fmeta.covers_first_local_date, fmeta && fmeta.covers_last_local_date); }
+function updateTodayButton() {
+  if (!fmeta || !meta) return; const a = todayAction(), btn = $("jumpToday"), msg = $("todayMsg");
+  btn.disabled = a.kind === "ended";
+  if (a.kind === "ended") { msg.hidden = false; msg.textContent = t("snapshot_ended", {date: fmtDate(a.date)}); } else msg.hidden = true;
+  msg.dataset.kind = a.kind === "ended" ? "ended" : "";
+}
+function goToday() {
+  const a = todayAction(), msg = $("todayMsg"); if (a.kind === "ended") return;
+  $("date").value = a.date; msg.dataset.kind = "";
+  if (a.kind === "nearest") { msg.hidden = false; msg.textContent = t("today_nearest", {date: fmtDate(a.date)}); } else msg.hidden = true;
+  renderDay(); setHash();
+}
+function goLatest() { $("date").value = meta.last_full_local_day; $("todayMsg").hidden = true; updateTodayButton(); renderDay(); setHash(); }
+function renderEnded() {
+  const e = $("ended"); if (!fmeta || !meta) { e.hidden = true; return; }
+  const a = todayAction(); e.hidden = a.kind !== "ended"; if (!e.hidden) e.textContent = t("snapshot_ended", {date: fmtDate(a.date)});
 }
 function hourLabel(day, i) {
   const h = day.h[i], dup = day.h.filter(x => x === h).length > 1, second = dup && day.h.indexOf(h) !== i;
@@ -132,24 +169,25 @@ function renderDay(preferHour) {
   const date = $("date").value, past = cur.data.days[date], fut = cur.fdata ? cur.fdata.days[date] : null, day = past || fut || null; cur.day = day; cur.future = !past && !!fut;
   const sel = $("hour"); sel.innerHTML = "";
   const badge = $("badge"), info = $("dayInfo"), chart = $("chart"), table = $("hourTable");
-  chart.innerHTML = ""; table.innerHTML = ""; $("fcNote").hidden = true; $("covStmt").hidden = true; $("backtestNote").hidden = !!fut && !past;
+  chart.innerHTML = ""; table.innerHTML = ""; $("fcNote").hidden = true; $("covStmt").hidden = true; $("backtestNote").hidden = !!fut && !past; $("periodNote").textContent = ""; $("headline").innerHTML = "";
   $("popup").classList.toggle("is-future", cur.future); $("date").classList.toggle("unavailable", !day);
   document.querySelectorAll(".k-act-li").forEach(e => e.hidden = cur.future);
+  $("bands").checked = bandsOn(); updateLegend();
   if (!day) {
-    badge.className = "badge"; badge.textContent = t("badge_none");
+    badge.className = "badge"; badge.textContent = t("badge_none"); badge.removeAttribute("title");
     const lastPast = meta.last_full_local_day, f0 = fmeta ? fmeta.covers_first_local_date : null;
     info.textContent = (date > lastPast && f0 && date < f0) ? t("nodata_gap", {lastPast: fmtDate(lastPast), firstFuture: fmtDate(f0)})
       : (fmeta && date > fmeta.covers_last_local_date) ? t("nodata_after", {lastFuture: fmtDate(fmeta.covers_last_local_date)}) : t("nodata_other");
-    return;
+    $("more").open = true; return;
   }
   const o = document.createElement("option"); o.value = "day"; o.textContent = t("full_day"); sel.appendChild(o);
   day.h.forEach((h, i) => { const op = document.createElement("option"); op.value = i; op.textContent = hourLabel(day, i); sel.appendChild(op); });
   sel.value = (preferHour !== undefined && [...sel.options].some(x => x.value === String(preferHour))) ? String(preferHour) : "day";
   if (cur.future) { renderFutureHeader(day, date); drawChart(day); renderHour(); return; }
   const nTest = day.s.reduce((a, b) => a + b, 0), n = day.s.length;
-  if (nTest === n) { badge.className = "badge test"; badge.textContent = t("badge_test"); }
-  else if (nTest === 0) { badge.className = "badge val"; badge.textContent = t("badge_val"); }
-  else { badge.className = "badge val mixed"; badge.textContent = t("badge_mixed", {nVal: N(n - nTest), nTest: N(nTest)}); }
+  const period = nTest === n ? t("badge_test") : nTest === 0 ? t("badge_val") : t("badge_mixed", {nVal: N(n - nTest), nTest: N(nTest)});
+  badge.className = "badge"; badge.classList.add(...(nTest === n ? ["test"] : nTest === 0 ? ["val"] : ["val", "mixed"])); badge.textContent = t("badge_past"); badge.title = period;   // the tuning / unseen-test distinction: tooltip and More details
+  $("periodNote").textContent = period;
   const miss = expectedHours(date) - n;
   info.textContent = miss > 0 ? t("missing_hours", {n: N(miss)}) : "";
   const c = meta.test_coverage_cqr_by_zone[cur.zone], m = meta.test_coverage_cqr_mean; $("covStmt").hidden = false;
@@ -158,7 +196,7 @@ function renderDay(preferHour) {
 }
 function renderFutureHeader(day, date) {
   const badge = $("badge"), info = $("dayInfo"), ds = day.d, k = [...new Set(day.k)], dmin = Math.min(...ds), dmax = Math.max(...ds), outlook = dmax >= fmeta.outlook_first_day;
-  badge.className = "badge fcst"; badge.textContent = t(outlook && dmin >= fmeta.outlook_first_day ? "badge_outlook" : "badge_future");
+  badge.className = "badge fcst"; badge.textContent = t(outlook && dmin >= fmeta.outlook_first_day ? "badge_outlook" : "badge_future"); badge.removeAttribute("title");
   const hz = dmin === dmax ? nf(dmin) : `${nf(dmin)}–${nf(dmax)}`;
   info.innerHTML = tm("future_info", {gen: fmtDT(fmeta.generated_utc), first: fmtDT(fmeta.covers_first_utc), last: fmtDT(fmeta.covers_last_utc), hz: L(hz), origin: fmtDT(fmeta.origin_utc)}) + (day.h.length < 24 ? esc(t("future_partial")) : "");
   const fc = $("fcNote"); fc.hidden = false;
@@ -171,7 +209,7 @@ function renderFutureHeader(day, date) {
   const a1 = fmeta.accuracy[`${cur.zone}|1`], Lh = fmeta.outlook_included ? 21 : 16, aL = fmeta.accuracy[`${cur.zone}|${Lh}`];
   const th = key => `<th>${esc(t(key))}</th>`;
   fc.innerHTML = `<p>${tm("acc_intro", {zone: cur.zone, a1: MW(a1.test_mae), aL: MW(aL.test_mae), L: N(Lh), b1: N(a1.test_baseline_mae), bL: N(aL.test_baseline_mae)})}</p>` +
-    `<div class="tscroll"><table class="acc"><thead><tr>${th("acc_h_model")}${th("acc_h_inputs")}${th("acc_h_val")}${th("acc_h_valcov")}${th("acc_h_test")}${th("acc_h_testcov")}</tr></thead><tbody>${rows}</tbody></table></div>` +
+    `<table class="acc"><thead><tr>${th("acc_h_model")}${th("acc_h_inputs")}${th("acc_h_val")}${th("acc_h_valcov")}${th("acc_h_test")}${th("acc_h_testcov")}</tr></thead><tbody>${rows}</tbody></table>` +
     `<p class="warnline">${tm("acc_warn")}</p>` +
     `<p class="small">${esc(t("acc_weather", {v0: fmtDate(meta.val_start.slice(0, 10)), v1: fmtDate(meta.test_start.slice(0, 10))}))}</p>`;
 }
@@ -188,7 +226,7 @@ function renderHour() {
     if (v === "day") tb.innerHTML = row(t("day_title", {n: N(n)}), "") + row(t("row_mean_forecast"), MW(mean(day.f)).h) + row(t("row_mean_range80"), L(`${nf(mean(day.l80))} – ${nf(mean(day.u80))} MWh/h`).h) + row(t("row_mean_range95"), L(`${nf(mean(day.l95))} – ${nf(mean(day.u95))} MWh/h`).h);
     else { const i = +v; tb.innerHTML = row(t("row_time"), esc(when(i))) + row(t("row_forecast"), MW(day.f[i]).h) + row(t("row_range80"), L(`${nf(day.l80[i])} – ${nf(day.u80[i])} MWh/h`).h) + row(t("row_range95"), L(`${nf(day.l95[i])} – ${nf(day.u95[i])} MWh/h`).h) +
       row(t("row_horizon"), esc(t("row_horizon_val", {d: N(day.d[i]), k: N(day.k[i])}))); }
-    drawChart(day); setHash(); return;
+    renderHeadline(day, v); drawChart(day); setHash(); return;
   }
   if (v === "day") {
     const inr = (lo, hi) => day.a.filter((x, i) => x >= lo[i] && x <= hi[i]).length, mae = day.a.reduce((s, x, i) => s + Math.abs(day.f[i] - x), 0) / n;
@@ -202,25 +240,38 @@ function renderHour() {
       row(t("row_error"), esc(t("row_error_val", {err: L(`${sgn(err)}${nf(err)} MWh/h`), pct: L(`${sgn(err)}${nf(100 * err / a, 1)}%`)}))) +
       row(t("row_range80"), L(`${nf(day.l80[i])} – ${nf(day.u80[i])} MWh/h`).h + flag(in80)) + row(t("row_range95"), L(`${nf(day.l95[i])} – ${nf(day.u95[i])} MWh/h`).h + flag(in95));
   }
-  drawChart(day); setHash();
+  renderHeadline(day, v); drawChart(day); setHash();
 }
+function renderHeadline(day, v) {
+  const mean = a => a.reduce((x, y) => x + y, 0) / a.length, date = fmtDate($("date").value), hr = v === "day" ? null : L(hourLabel(day, +v));
+  const at = a => v === "day" ? mean(a) : a[+v];
+  const f = at(day.f); let html;
+  if (cur.future) html = tm(hr ? "head_future_hour" : "head_future_day", {date, hour: hr, fc: MW(f), lo: N(at(day.l80)), hi: MW(at(day.u80))});
+  else { const a = at(day.a); html = tm(hr ? "head_past_hour" : "head_past_day", {date, hour: hr, actual: MW(a), fc: MW(f), pct: PCT(100 * Math.abs(f - a) / a, 1)}); }
+  $("headline").innerHTML = html;
+}
+const bandsOn = () => { const v = bandPref[cur.future ? "future" : "past"]; return v === null ? cur.future : v; };
+function updateLegend() { document.querySelectorAll(".k-band-li").forEach(e => e.hidden = !bandsOn()); }
 function drawChart(day) {
-  const svg = $("chart"); svg.innerHTML = ""; const W = 680, H_ = 300, Lm = 62, R = 12, T = 12, B = 34, n = day.h.length;
+  const svg = $("chart"); svg.innerHTML = ""; const W = Math.max(300, Math.min(640, Math.round(svg.clientWidth || 640))), H_ = W < 450 ? 240 : 220, Lm = 64, R = 10, T = 10, B = 40, n = day.h.length, FS = 12;   // viewBox follows the real width, so text keeps its size on phones
   svg.setAttribute("viewBox", `0 0 ${W} ${H_}`);
-  const fut = cur.future, all = [...(fut ? [] : day.a), ...day.l95, ...day.u95, ...day.f]; let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * .06; lo -= pad; hi += pad;
+  const fut = cur.future, bands = bandsOn(), all = [...(fut ? [] : day.a), ...day.f, ...(bands ? [...day.l95, ...day.u95] : [])]; let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * .08; lo -= pad; hi += pad;
   const x = i => Lm + (W - Lm - R) * (n === 1 ? .5 : i / (n - 1)), y = v => T + (H_ - T - B) * (1 - (v - lo) / (hi - lo));
-  for (let k = 0; k <= 4; k++) { const v = lo + (hi - lo) * k / 4, yy = y(v); el("line", {x1: Lm, x2: W - R, y1: yy, y2: yy, stroke: "currentColor", opacity: .15}, svg); const tx = el("text", {x: Lm - 6, y: yy + 4, "text-anchor": "end", "font-size": 11, fill: "currentColor", opacity: .7}, svg); tx.textContent = nf(v); }
-  const yt = el("text", {x: 12, y: (T + H_ - B) / 2, "font-size": 11, fill: "currentColor", opacity: .7, transform: `rotate(-90 12 ${(T + H_ - B) / 2})`, "text-anchor": "middle"}, svg); yt.textContent = t("axis_y");
-  day.h.forEach((h, i) => { if (n <= 25 && (i % 3 === 0 || i === n - 1)) { const tx = el("text", {x: x(i), y: H_ - 14, "text-anchor": "middle", "font-size": 11, fill: "currentColor", opacity: .7}, svg); tx.textContent = String(h).padStart(2, "0"); } });
-  const xt = el("text", {x: (Lm + W - R) / 2, y: H_ - 1, "text-anchor": "middle", "font-size": 11, fill: "currentColor", opacity: .7}, svg); xt.textContent = t("axis_x");
+  for (let k = 0; k <= 3; k++) { const v = lo + (hi - lo) * k / 3, yy = y(v); el("line", {x1: Lm, x2: W - R, y1: yy, y2: yy, stroke: "currentColor", opacity: .15}, svg); const tx = el("text", {x: Lm - 6, y: yy + 4, "text-anchor": "end", "font-size": FS, fill: "currentColor", opacity: .75}, svg); tx.textContent = nf(v); }
+  const yt = el("text", {x: 11, y: (T + H_ - B) / 2, "font-size": FS, fill: "currentColor", opacity: .75, transform: `rotate(-90 11 ${(T + H_ - B) / 2})`, "text-anchor": "middle"}, svg); yt.textContent = t("axis_y");
+  day.h.forEach((h, i) => { if (n <= 25 && (i % 3 === 0 || i === n - 1)) { const tx = el("text", {x: x(i), y: H_ - 22, "text-anchor": "middle", "font-size": FS, fill: "currentColor", opacity: .75}, svg); tx.textContent = String(h).padStart(2, "0"); } });
+  const xt = el("text", {x: (Lm + W - R) / 2, y: H_ - 5, "text-anchor": "middle", "font-size": FS, fill: "currentColor", opacity: .75}, svg); xt.textContent = t("axis_x");
   const fc = getComputedStyle(document.documentElement).getPropertyValue("--fc").trim() || "#d55e00", act = getComputedStyle(document.documentElement).getPropertyValue("--act").trim() || "#222";
   const defs = el("defs", {}, svg); const hp = el("pattern", {id: "fcHatch", width: 8, height: 8, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)"}, defs); el("line", {x1: 0, y1: 0, x2: 0, y2: 8, stroke: "currentColor", "stroke-width": 1, opacity: .12}, hp);
   const line = (a, col, w) => el("polyline", {points: a.map((v, i) => `${x(i)},${y(v)}`).join(" "), fill: "none", stroke: col, "stroke-width": w, "stroke-linejoin": "round"}, svg);
   const band = (lo_, hi_, op) => { const top = lo_.map((_, i) => `${x(i)},${y(hi_[i])}`), bot = lo_.map((_, i) => `${x(i)},${y(lo_[i])}`).reverse(); el("polygon", {points: top.concat(bot).join(" "), fill: fc, opacity: op}, svg); };
-  band(day.l95, day.u95, .2); band(day.l80, day.u80, .35);
+  if (bands) { band(day.l95, day.u95, .2); band(day.l80, day.u80, .35); }
   if (fut) el("rect", {x: Lm, y: T, width: W - Lm - R, height: H_ - T - B, fill: "url(#fcHatch)", opacity: .5}, svg);
-  const ln = line(day.f, fc, 2.2); if (fut) ln.setAttribute("stroke-dasharray", "7 4"); if (!fut) line(day.a, act, 2);
-  if (fut) { const wm = el("text", {x: Lm + 10, y: T + 20, "font-size": 13, "font-weight": 700, fill: "currentColor", opacity: .55}, svg); wm.textContent = t("chart_watermark"); }
+  const ln = line(day.f, fc, 2.4); if (fut) ln.setAttribute("stroke-dasharray", "7 4"); if (!fut) line(day.a, act, 2.2);
+  const label = (txt, i, dy, col) => { const tx = el("text", {x: Math.max(Lm + 30, Math.min(W - R - 30, x(i))), y: y(txt.v) + dy, "text-anchor": "middle", "font-size": FS + 1, "font-weight": 700, fill: col, stroke: "var(--card)", "stroke-width": 3, "paint-order": "stroke"}, svg); tx.textContent = txt.s; };
+  const argmax = a => a.indexOf(Math.max(...a)), argmin = a => a.indexOf(Math.min(...a));
+  label({s: t("key_forecast"), v: day.f[argmax(day.f)]}, argmax(day.f), -8, fc);
+  if (!fut) label({s: t("key_actual"), v: day.a[argmin(day.a)]}, argmin(day.a), 18, act);
   const v = $("hour").value;
   if (v !== "day") { const i = +v; el("line", {x1: x(i), x2: x(i), y1: T, y2: H_ - B, stroke: "currentColor", "stroke-dasharray": "4 3", opacity: .6}, svg); if (!fut) el("circle", {cx: x(i), cy: y(day.a[i]), r: 4.5, fill: act}, svg); el("circle", {cx: x(i), cy: y(day.f[i]), r: 4.5, fill: fc}, svg); }
   const hit = el("rect", {x: Lm, y: T, width: W - Lm - R, height: H_ - T - B, fill: "transparent", style: "cursor:pointer"}, svg);
@@ -228,8 +279,10 @@ function drawChart(day) {
 }
 function renderSnapshot() {
   if (!fmeta) return; const e = $("snapshot"); e.hidden = false;
-  e.innerHTML = tm("snapshot", {gen: fmtDT(fmeta.generated_utc), first: fmtDT(fmeta.covers_first_utc), last: fmtDT(fmeta.covers_last_utc), d1: fmtDate(fmeta.covers_first_local_date), d2: fmtDate(fmeta.covers_last_local_date), origin: fmtDT(fmeta.origin_utc)});
+  const p = {gen: fmtDT(fmeta.generated_utc), first: fmtDT(fmeta.covers_first_utc), last: fmtDT(fmeta.covers_last_utc), d1: fmtDate(fmeta.covers_first_local_date), d2: fmtDate(fmeta.covers_last_local_date), origin: fmtDT(fmeta.origin_utc)};
+  $("snapShort").innerHTML = tm("snapshot_short", p); $("snapFull").innerHTML = tm("snapshot", p); setSnap(snapOpen);
 }
+function setSnap(open) { snapOpen = open; $("snapFull").hidden = !open; $("snapToggle").setAttribute("aria-expanded", String(open)); $("snapToggle").textContent = t(open ? "snapshot_less" : "snapshot_more"); }
 
 /* ---------- start ---------- */
 async function init() {
@@ -241,14 +294,17 @@ async function init() {
   try { [meta, states] = await Promise.all([getJSON("data/meta.json"), getJSON("data/states.geojson")]); }
   catch (e) { const m = $("loaderr"); m.hidden = false; m.textContent = t("load_error", {err: e.message, cmd: "python3 -m http.server -d site 8000", url: "http://localhost:8000"}); return; }
   try { fmeta = await getJSON("data/future_meta.json"); } catch (e) { fmeta = null; }   // the future snapshot is optional
-  drawMap(); renderIntro(); renderSnapshot(); renderLicences();
-  $("licBtn").addEventListener("click", () => $("licDialog").showModal());
+  drawMap(); renderIntro(); renderSnapshot(); renderLicences(); renderEnded();
+  $("snapToggle").addEventListener("click", () => setSnap(!snapOpen));
+  backdropClose($("popup")); backdropClose($("licDialog"));
+  $("licBtn").addEventListener("click", () => openModal($("licDialog")));
+  $("bands").addEventListener("change", () => { const k = cur.future ? "future" : "past"; bandPref[k] = $("bands").checked; try { sessionStorage.setItem("bands_" + k, bandPref[k] ? "1" : "0"); } catch (e) { /* ignore */ } updateLegend(); if (cur.day) drawChart(cur.day); });
   $("date").addEventListener("change", () => { renderDay(); setHash(); });
   $("hour").addEventListener("change", renderHour);
-  $("jumpPast").addEventListener("click", () => { $("date").value = meta.last_full_local_day; renderDay(); });
-  $("jumpFuture").addEventListener("click", () => { $("date").value = fmeta.covers_first_local_date; renderDay(); });
+  $("jumpLatest").addEventListener("click", goLatest); $("jumpToday").addEventListener("click", goToday);
+  addEventListener("resize", () => { if (cur && cur.day && $("popup").open) drawChart(cur.day); });
   $("popup").addEventListener("close", () => history.replaceState(null, "", location.pathname + location.search));
   const h = new URLSearchParams(location.hash.slice(1)); const st = states.features.find(f => f.properties.id === h.get("state"));
-  if (st) openPopup(st.properties, h.get("date") || undefined, h.get("hour") || undefined);
+  if (st) openPopup(st.properties, h.get("date") || undefined, h.get("hour") || undefined).then(() => { if (h.get("more") === "1") $("more").open = true; });   // &more=1 opens "More details" (used for screenshots)
 }
 init();
