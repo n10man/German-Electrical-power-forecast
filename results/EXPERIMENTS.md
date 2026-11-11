@@ -358,3 +358,51 @@ MAE in MWh/h of the chosen mean model vs the best simple baseline (B_week won ev
 - Coverage per horizon on validation with swapped halves (mean over zones; nominal 80 / 95): A->B and B->A averaged: 80% band k=1: 80%, k=2: 80%, k=3: 80%, k=5: 80%, k=7: 80%, k=10: 80%, k=14: 80%, k=16: 80%, k=21: 80%; 95% band k=1: 94%, k=2: 95%, k=3: 94%, k=5: 95%, k=7: 94%, k=10: 94%, k=14: 94%, k=16: 94%, k=21: 94%. Worst single zone/swap cell: 80% band 62-72%, 95% band 82-90%, so some cells under-cover, as for the 24 h model (file results/horizon_coverage_val.csv). Raw quantile bands (no CQR) cover only 56-61% / 79-82%.
 - Lock: models_future/ (217 files: per zone and horizon a mean model and 5 quantile models, plus cqr_offsets_future.json) hashed in results/model_lock_future.json; SHA-256 of the lock file itself: e20edd9fe8c93fce2b53c79d69be7ee0ef11483faf82abc1f2f6505913b5dc1b. models_future/ is gitignored like models/. Dry run of scripts/final_eval_future.py: without --confirm-final exit 2, with --dummy synthetic data only (tests/test_horizon.py: refusal without flag, when DONE exists, on a tampered hash; dummy never reads the sealed file). This entry and the lock are committed BEFORE the sealed run.
 
+
+### F2 — sealed test year, SECOND use of 2025-10-25..2026-10-24 (first use: F1, for the 24 h model; this is a different model family). Run ONCE on 2026-11-11 with `python scripts/final_eval_future.py --confirm-final`, git HEAD 48ee29ad2738e8c0349c817447caaa169d0e14b1 (lock committed before; lock-file SHA-256 e20edd9f...dc1b). Files: results/future_test_{metrics,coverage}.csv, future_test_meta.json, FINAL_EVAL_FUTURE_DONE. No retuning, nothing re-run.
+Rules applied exactly as in H0: horizons were chosen and shown/hidden on validation; test numbers are reported next to them. MAE in MWh/h; baseline = best simple baseline per zone and horizon (B_week in every cell).
+| zone | k | config | model MAE | best baseline | gain | 80% band coverage | 95% band coverage |
+|---|---|---|---|---|---|---|---|
+| 50Hertz | 1 | C | 664 | 932 | 29% | 77.7% | 92.9% |
+| 50Hertz | 2 | A | 654 | 932 | 30% | 80.4% | 93.7% |
+| 50Hertz | 3 | C | 727 | 931 | 22% | 76.5% | 93.0% |
+| 50Hertz | 5 | A | 688 | 932 | 26% | 79.3% | 93.7% |
+| 50Hertz | 7 | A | 692 | 932 | 26% | 79.5% | 93.4% |
+| 50Hertz | 10 | A | 683 | 961 | 29% | 81.2% | 93.3% |
+| 50Hertz | 14 | A | 687 | 961 | 29% | 80.5% | 93.4% |
+| 50Hertz | 16 | A | 708 | 1053 | 33% | 79.4% | 93.4% |
+| 50Hertz | 21 | A | 710 | 1053 | 33% | 79.0% | 93.3% |
+| Amprion | 1 | A | 690 | 1184 | 42% | 71.3% | 89.9% |
+| Amprion | 2 | A | 796 | 1184 | 33% | 69.6% | 88.6% |
+| Amprion | 3 | A | 852 | 1184 | 28% | 69.7% | 90.1% |
+| Amprion | 5 | A | 911 | 1184 | 23% | 68.8% | 89.7% |
+| Amprion | 7 | A | 940 | 1184 | 21% | 69.5% | 90.6% |
+| Amprion | 10 | A | 984 | 1373 | 28% | 72.9% | 90.5% |
+| Amprion | 14 | A | 1009 | 1373 | 26% | 71.0% | 89.1% |
+| Amprion | 16 | A | 1079 | 1593 | 32% | 69.4% | 88.2% |
+| Amprion | 21 | A | 1126 | 1593 | 29% | 69.2% | 88.3% |
+| TenneT | 1 | A | 531 | 948 | 44% | 67.4% | 85.9% |
+| TenneT | 2 | A | 634 | 948 | 33% | 66.4% | 86.6% |
+| TenneT | 3 | A | 668 | 948 | 30% | 64.7% | 86.0% |
+| TenneT | 5 | A | 701 | 948 | 26% | 64.7% | 86.1% |
+| TenneT | 7 | A | 706 | 948 | 26% | 66.6% | 86.6% |
+| TenneT | 10 | A | 746 | 1066 | 30% | 66.8% | 86.6% |
+| TenneT | 14 | A | 759 | 1066 | 29% | 65.7% | 85.9% |
+| TenneT | 16 | A | 756 | 1218 | 38% | 66.1% | 87.1% |
+| TenneT | 21 | A | 781 | 1218 | 36% | 67.1% | 87.1% |
+| TransnetBW | 1 | A | 229 | 446 | 49% | 73.2% | 90.7% |
+| TransnetBW | 2 | B | 254 | 446 | 43% | 75.8% | 93.2% |
+| TransnetBW | 3 | B | 267 | 446 | 40% | 76.6% | 92.7% |
+| TransnetBW | 5 | B | 285 | 446 | 36% | 78.2% | 93.1% |
+| TransnetBW | 7 | B | 301 | 446 | 32% | 75.2% | 92.0% |
+| TransnetBW | 10 | A | 354 | 522 | 32% | 73.8% | 90.8% |
+| TransnetBW | 14 | A | 360 | 522 | 31% | 73.3% | 91.4% |
+| TransnetBW | 16 | A | 366 | 592 | 38% | 69.3% | 90.2% |
+| TransnetBW | 21 | A | 391 | 592 | 34% | 67.5% | 89.6% |
+
+- Point forecasts: the model beats the best simple baseline in all 36 cells on the test year (gain 21% to 49%; smallest Amprion k=7, 21%), and the harder 4-week-average reference (B_wk4avg) in all 36. The validation gains were larger (27% to 57%): test errors are 5-40% higher than validation errors for the same cell, in line with F1 (the cause is not investigated; the models are trained up to 2024-10 and the test year is 1-2 years later).
+- Coverage on test (CQR bands, mean over zones per horizon): 80% band k=1: 72.4%, k=2: 73.1%, k=3: 71.9%, k=5: 72.8%, k=7: 72.7%, k=10: 73.7%, k=14: 72.6%, k=16: 71.1%, k=21: 70.7%; 95% band k=1: 89.8%, k=2: 90.5%, k=3: 90.4%, k=5: 90.7%, k=7: 90.6%, k=10: 90.3%, k=14: 90.0%, k=16: 89.8%, k=21: 89.6%. By zone (all horizons): 50Hertz 79.3 / 93.3, Amprion 70.2 / 89.4, TenneT 66.2 / 86.4, TransnetBW 73.7 / 91.5 (80% / 95%). Targets 80 +/- 5 and 95 +/- 3 pp averaged over zones: BOTH MISSED at every horizon (about 72% and 90%), same as F1 for the 24 h model. The ranges are too narrow; the page says so.
+- Coverage does NOT get better or worse with the horizon in any systematic way (all within about 71-74% and 90-91%); band WIDTH is what the horizon changes only slightly, consistent with the flat validation MAE.
+- Caveat: the test used archived forecast weather for horizons 1-7 where the model used it (6 of 36 cells); the 7 or more day ahead models use no weather. Real forecasts at serving time come from the current forecast model mix, which may differ from the archived mix.
+- Decision: reporting only. The sealed year has now been used twice (F1 and F2); this is disclosed in the README.
+
