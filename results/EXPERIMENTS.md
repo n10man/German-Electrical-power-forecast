@@ -406,3 +406,10 @@ Rules applied exactly as in H0: horizons were chosen and shown/hidden on validat
 - Caveat: the test used archived forecast weather for horizons 1-7 where the model used it (6 of 36 cells); the 7 or more day ahead models use no weather. Real forecasts at serving time come from the current forecast model mix, which may differ from the archived mix.
 - Decision: reporting only. The sealed year has now been used twice (F1 and F2); this is disclosed in the README.
 
+
+### S1 — Serving snapshot, outlook decision, commit hashes (appended; earlier entries are NOT edited)
+- Snapshot made 2026-11-11 05:36 UTC by `scripts/make_future_forecast.py` from the locked models (SHA-256 verified) and the weather download of 2026-11-11 05:34 UTC; origin 2026-11-10 07:00 UTC (last hour with load in all four zones); published hours 2026-11-11 06:00..2026-12-01 07:00 UTC (hours already started at generation time are not published; the dated log results/prospective/forecast_20261110T07_20261111T053623Z.json keeps all 504 hours from the origin). No target hour was dropped for missing inputs. The point forecast is clipped into its own ranges where the separately fitted mean and quantile models disagree (monotone ranges are tested). No metric was computed in this step.
+- 17-21 day outlook: INCLUDED (passed the pre-registered rule in all four zones: validation gain 39-50% vs the best simple baseline in every zone, holiday/hot/cold subsets not worse). Labelled "low-confidence outlook" on the page; it has no weather input. On the sealed test year its gain was 29-36%, 70.7% / 89.6% coverage.
+- Hidden horizons: none (all 36 cells passed).
+- Existing, unrelated failing test: `tests/test_repo_files.py::test_no_personal_email_in_tracked_text_files` fails on `main` too, because the test file contains the string it searches for; not touched here.
+- Commits (this branch): H0 43b35fc, H1 48ee29a (lock committed before the sealed run), F2 ef70732, serving/map/docs 35791f5.
