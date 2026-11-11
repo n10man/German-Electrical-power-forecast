@@ -19,3 +19,8 @@ dialog::backdrop{background:rgba(0,0,0,.5)}dialog h2{margin:.1rem 2rem .3rem 0;f
 .hourtable{border-collapse:collapse;width:100%;font-size:.92rem}.hourtable th,.hourtable td{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)}.hourtable td:nth-child(2){font-variant-numeric:tabular-nums}.hourtable .in{color:var(--ok)}.hourtable .out{color:var(--bad)}
 .cov{font-size:.9rem;background:var(--warnbg);color:var(--warn);border-radius:6px;padding:6px 10px}.backtest{font-weight:600;font-size:.9rem;margin:.4rem 0 0}
 @media (max-width:520px){h1{font-size:1.25rem}dialog{padding:12px}}
+
+.snapshot{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:.9rem;margin:.3rem 0}.attrib{margin:4px;font-size:.9rem}.attrib a{color:inherit}
+.badge.fcst{border-color:var(--fc);color:var(--fc);border-style:dashed}.jump{display:flex;gap:8px;align-items:flex-end}.jump button{font:inherit;font-size:.85rem;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);cursor:pointer}
+#date.unavailable{opacity:.55;border-style:dashed}dialog.is-future{border:2px dashed var(--fc)}.fcnote{font-size:.88rem;margin:.5rem 0}.fcnote p{margin:.3rem 0}.warnline{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:6px 10px}
+.tscroll{overflow-x:auto}.acc{border-collapse:collapse;font-size:.8rem;min-width:620px}.acc th,.acc td{text-align:left;padding:3px 6px;border-bottom:1px solid var(--line);vertical-align:top}

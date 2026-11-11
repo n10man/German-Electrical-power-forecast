@@ -9,12 +9,14 @@
 <body>
 <header>
   <h1>Germany grid-load forecast map</h1>
-  <p class="sub">Hover a state to see its grid zone. Click it to explore hourly forecasts for that <strong>grid zone</strong> (not the state) between 2024-10-26 and 2026-10-24.</p>
+  <p class="sub">Hover a state to see its grid zone. Click it to explore hourly forecasts for that <strong>grid zone</strong> (not the state): past days from 2024-10-26 to 2026-10-24 (backtest, with the actual load) and a snapshot of future days.</p>
+  <p id="snapshot" class="snapshot" hidden></p>
 </header>
 <main>
   <section class="mapwrap" aria-label="Map of the 16 German states coloured by grid zone">
     <svg id="map" role="group" aria-label="Map of Germany"></svg>
     <ul id="legend" class="legend"></ul>
+    <p class="attrib"><a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a> (CC BY 4.0)</p>
     <p class="note">Zone colours show the <em>dominant</em> grid zone of each state. Striped states are split between zones (the other operator is shown on hover). Grid zones follow the transmission operators' control areas, not state borders.</p>
     <div id="tip" class="tip" hidden></div>
   </section>
@@ -28,17 +30,19 @@
   <p id="splitStmt" class="splitwarn" hidden></p>
   <div class="controls">
     <label>Date <input type="date" id="date"></label>
+    <span class="jump"><button type="button" id="jumpPast" hidden>Last past day</button><button type="button" id="jumpFuture" hidden>First forecast day</button></span>
     <label>Hour (Berlin local time) <select id="hour"></select></label>
   </div>
   <p id="badge" class="badge"></p>
   <p id="dayInfo" class="small"></p>
   <svg id="chart" role="img" aria-label="Actual and forecast load for the selected day with 80% and 95% ranges"></svg>
   <ul class="chartkey">
-    <li><i class="k-act"></i>Actual</li><li><i class="k-fc"></i>Forecast</li><li><i class="k-b80"></i>80% range</li><li><i class="k-b95"></i>95% range</li>
+    <li class="k-act-li"><i class="k-act"></i>Actual</li><li><i class="k-fc"></i>Forecast</li><li><i class="k-b80"></i>80% range</li><li><i class="k-b95"></i>95% range</li>
   </ul>
   <table id="hourTable" class="hourtable" aria-live="polite"></table>
+  <div id="fcNote" class="fcnote" hidden></div>
   <p id="covStmt" class="cov"></p>
-  <p class="backtest">Backtest using observed weather, not a live forecast.</p>
+  <p id="backtestNote" class="backtest">Backtest using observed weather, not a live forecast.</p>
 </dialog>
 
 <footer>
