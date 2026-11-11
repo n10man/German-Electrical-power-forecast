@@ -1,20 +1,45 @@
 # Germany electricity demand forecasting (4 grid zones)
 
-## In plain English
-This project predicts how much electricity Germany's four grid zones (50Hertz, Amprion, TenneT, TransnetBW) draw from the grid, hour by hour, and shows the forecasts on an [interactive map](site/). It is a portfolio baseline, not a production system.
+## In 60 seconds
+This project predicts how much electricity Germany's four grid zones (50Hertz, Amprion, TenneT, TransnetBW) draw from the grid, hour by hour. A model learns from nine years of past data (calendar, recent load, and for the first days ahead sometimes weather), and the results are shown on an interactive map: click a state, pick a date, and see the forecast next to what really happened (for past days) or a forecast only (for future days). The numbers below come from a final year of data that was held back during development. It is a portfolio project, **not a production system**.
+
+**Live map:** `[URL to be added once hosting is decided]` (not published yet). Run it on your own computer in two lines, see *Run the map locally* below. Source of the page: [`site/`](site/); method: [`docs/METHODS.md`](docs/METHODS.md) (written in the next stage of this work).
+
+### Limitations first
+- **The uncertainty ranges are too narrow.** The ranges labelled 80% and 95% contained only **72.5%** and **90.8%** of the real values on the held-back year (mean of the four zones; TenneT 66.9% and 87.1%). Treat them as optimistic.
+- **The main model is a *rolling* forecast, not a day-ahead one.** For every hour it already knows the load from 24 hours earlier and uses observed instead of forecast weather. Without the 24-hour-old load it was 9% to 18% worse in a validation-year experiment (a validation estimate, not re-run on the final year).
+- **The comparison with the official forecast is not like-for-like.** SMARD's official forecast is a true day-ahead forecast issued the day before; ours had more information. Beating it says little about real day-ahead skill.
+- **The models are about two years old.** They were trained on data before 2024-10-25 and have not been refitted on newer data.
+- **Days 8 to 21 use no weather at all**, and for days 1 to 7 weather was used only where it helped on validation (in most cases it did not). Days 17 to 21 are a low-confidence outlook.
+- **The held-back year was used more than once.** It was used once to evaluate the 24-hour model and a second time, exactly once, for the multi-day models; nothing was tuned on it, but it is no longer untouched (see `results/EXPERIMENTS.md`).
+- **Error is larger on new data:** on the held-back year the 24-hour model's error was 5% to 35% higher than on the validation year it was tuned on. More in *Limitations* below.
+
+### Results (held-back year 2025-10-25 to 2026-10-24, mean absolute error in MWh/h, lower is better)
+| Zone | Last week's load (simple baseline) | SMARD official day-ahead forecast | Our model, 24 h rolling | Our model, 7 days ahead | Our model, 21 days ahead |
+|---|---|---|---|---|---|
+| 50Hertz | 932 | 952 | 556 | 692 | 710 |
+| Amprion | 1,184 | 846 | 646 | 940 | 1,126 |
+| TenneT | 948 | 1,011 | 478 | 706 | 781 |
+| TransnetBW | 446 | 459 | 195 | 301 | 391 |
+
+Numbers are generated from `results/*.csv` by `python scripts/readme_results_table.py` and checked by `tests/test_readme_numbers.py`. The 24 h column is the rolling model (see the second limitation); the 7- and 21-day columns are the multi-day models behind the map's future dates, whose "last week" baseline differs slightly by horizon (see *Future forecast*). Even the 7-day model has a lower error than the official day-ahead forecast in three of four zones, but see the limitations above before reading anything into that.
+
+### Run the map locally
+```bash
+python3 -m http.server -d site 8000   # then open http://localhost:8000
+```
+The page loads JSON files, so opening `index.html` directly (`file://`) does not work. Visitors' browsers make no requests to any other site, set no cookies and send nothing anywhere.
+
+### Reproduce
+Install `requirements.txt` (exact versions), then follow *How to run* below (data download, dataset build, models, evaluation). Every experiment, with its rules written before the results, is in [`results/EXPERIMENTS.md`](results/EXPERIMENTS.md). To refresh the future-forecast snapshot with one command (downloads, regenerates, tests, checks that past-date files are unchanged; never pushes): `scripts/refresh_snapshot.sh`.
+
+### Translations
+The map is available in English, German and Arabic. The translations were written with AI assistance and not checked by a professional translator; corrections are welcome (open an issue or edit `site/i18n/*.json`).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/results_chart_dark.png">
   <img alt="Bar chart of the test-year mean absolute error per grid zone for last week's load, SMARD's official day-ahead forecast and this project's model. The model has the lowest error in every zone." src="docs/results_chart_light.png">
 </picture>
-
-- **Accuracy.** On a final year of data that was held back during development (2025-10-25 to 2026-10-24), the model's average hourly error is 40% to 56% lower than simply copying last week's load, and 24% to 58% lower than the official day-ahead forecast that the grid operators publish on SMARD (numbers in the chart and in the table under *Results*).
-- **That comparison favours this model.** The official forecast is a true day-ahead forecast, issued the day before. This model is a *rolling 24-hour-ahead* forecast: for every hour it already knows the load from 24 hours earlier, and it uses observed instead of forecast weather. In a validation-year experiment, taking away the 24-hour-old load made the model roughly **9% to 18% worse** (+8.7% without `lag_24h`, +18.1% without `lag_24h` and `lag_48h`); this is a validation estimate and was not re-run on the final year. So the model's accuracy is *not* day-ahead accuracy.
-- **The uncertainty ranges are too narrow.** Ranges labelled 80% and 95% contained only **72.5%** and **90.8%** of the real final-year values on average over the zones. Treat the ranges as optimistic.
-- **Future dates (new).** The map also shows a one-off snapshot of forecasts for the next 3 weeks (days 1-16 plus a low-confidence outlook for days 17-21), with honest caveats: see *Future forecast* below. Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0).
-- **It got worse on new data.** The error on the final year was 5% to 35% higher than on the validation year the model was tuned on.
-- **Other limits** (see *Limitations*): missing recent load history hurts a lot, holidays are harder, the map assigns each state to one zone by judgement, and the data terms (including a non-commercial restriction on the free weather API) are summarised in [`data/DATA_SOURCES.md`](data/DATA_SOURCES.md).
-
 
 A portfolio baseline that forecasts **hourly grid load** for Germany's four TSO control areas (50Hertz, Amprion, TenneT, TransnetBW), with prediction intervals, stress tests and one sealed final test. It is not production-grade; see *Limitations*. **Status: data, models, uncertainty, stress tests, final evaluation and the interactive map are done.**
 
@@ -91,7 +116,7 @@ Screenshots: ![overview](docs/screenshots/01_map_overview.png) ![test hour in a 
 The map is a static site in `site/` (relative URLs only, tested under a subpath), so it can be hosted for free. **In the GitHub repository choose Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"** (no folder to pick). The workflow `.github/workflows/pages.yml` then publishes the `site/` folder on every push to `main` that changes it, or when started by hand from the Actions tab; the map appears at `https://<your-github-username>.github.io/<repository-name>/`. The "Deploy from a branch" option does not work here, because it only offers the repository root or a `/docs` folder, not `site/`. The workflow was written and the site was tested locally under a subpath, but the workflow itself has not been run on GitHub yet.
 
 ## Future forecast (snapshot; branch `feature/future-forecast`)
-**What it is.** The map can also show dates that have not happened yet, for all four grid zones, as a **one-off snapshot**: `scripts/make_future_forecast.py` was run once and wrote `site/data/future/*.json` and `site/data/future_meta.json`. The page says "Forecast generated on <time> UTC, covers <start> to <end>". There is no scheduler and no GitHub Action, the page does not update itself, and visitors' browsers make no calls to Open-Meteo. Snapshot in this repository: forecast origin (last hour of actual load in all four zones) 2026-11-10 07:00 UTC, generated 2026-11-11 05:36 UTC, covering 2026-11-11 06:00 to 2026-12-01 07:00 UTC. To refresh it: `python scripts/download_load.py` (after moving the old raw load files), `python scripts/download_forecast_current.py`, `python scripts/make_future_forecast.py`.
+**What it is.** The map can also show dates that have not happened yet, for all four grid zones, as a **one-off snapshot**: `scripts/make_future_forecast.py` was run once and wrote `site/data/future/*.json` and `site/data/future_meta.json`. The page says "Forecast generated on <time> UTC, covers <start> to <end>". There is no scheduler and no GitHub Action, the page does not update itself, and visitors' browsers make no calls to Open-Meteo. Snapshot in this repository: forecast origin (last hour of actual load in all four zones) 2026-11-10 07:00 UTC, generated 2026-11-11 05:36 UTC, covering 2026-11-11 06:00 to 2026-12-01 07:00 UTC. To refresh it with one command: `scripts/refresh_snapshot.sh` (or `python scripts/refresh_snapshot.py`): it updates the SMARD load files (old ones are copied to `data/raw/_old_load_<time>/`), downloads the current 16-day forecast (12 requests, with the 429 retry logic), regenerates the snapshot and a new dated log in `results/prospective/` (older logs are kept), runs the tests, and fails if any past-date map file changed. It runs no git commands; review and commit the result yourself.
 
 **Caveats first.**
 - **Real weather forecasts reach only 7 days into the models, not 16.** Open-Meteo archives past forecasts by lead time only for leads of 1 to 7 days (Previous Runs API; humidity, wind, radiation and cloud only from 2024-01-19, temperature from 2021-03). A model cannot be trained honestly on a forecast it never saw, so the models for days 8 and later use **no weather at all** (calendar and recent load only); a stand-in experiment (day-7 forecast used for a later horizon) was worse on validation and was not used. Even for days 1-7, the forecast weather was used in only 6 of 36 zone-horizon models (it helped by 2-6% there and did not help in the other cells), so these are mostly **calendar and recent-load models**. The weather forecast download still happens, but 30 of 36 models ignore it.

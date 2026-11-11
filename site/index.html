@@ -2,8 +2,23 @@
 <html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title></title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Germany grid-load forecast map</title>
+<meta name="description" content="Interactive map of Germany: hourly electricity-load forecasts for the four grid zones, for past days and as a snapshot of future days. Not production-grade.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="Germany grid-load forecast map">
+<meta property="og:description" content="Interactive map of Germany: hourly electricity-load forecasts for the four grid zones, for past days and as a snapshot of future days. Not production-grade.">
+<meta property="og:image" content="preview.jpg">
+<meta property="og:url" content="">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Germany grid-load forecast map">
+<meta name="twitter:description" content="Interactive map of Germany: hourly electricity-load forecasts for the four grid zones, for past days and as a snapshot of future days. Not production-grade.">
+<meta name="twitter:image" content="preview.jpg">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -55,6 +70,7 @@
     </ul>
   </section>
 </main>
+<footer class="foot"><span id="privacyLine" data-i18n="privacy_line"></span> <a id="repoLink" href="https://github.com/n10man/German-Electrical-power-forecast" data-i18n="code_link"></a></footer>
 
 <dialog id="popup" aria-labelledby="pTitle" tabindex="-1">
   <form method="dialog"><button class="close" data-i18n-aria="close"></button></form>
@@ -91,6 +107,7 @@
   <h2 id="licTitle" data-i18n="licences_title"></h2>
   <div id="licBody" class="licbody"></div>
 </dialog>
+<script src="config.js"></script>
 <script src="today.js"></script>
 <script src="app.js"></script>
 </body>

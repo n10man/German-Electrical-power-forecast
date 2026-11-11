@@ -76,11 +76,11 @@ def test_no_hard_coded_prose_in_js():
     assert "؀" not in re.sub(r'العربية', "", JS), "Arabic prose in app.js"      # only the language label
 
 def test_no_hard_coded_prose_in_html():
-    body = re.sub(r"<(script|style)\b.*?</\1>", "", HTML, flags=re.S)
+    body = re.sub(r"<(script|style|title)\b.*?</\1>", "", HTML, flags=re.S)
     text = re.sub(r"<[^>]+>", "\n", body)
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     assert lines == ["Weather data by Open-Meteo.com"], lines         # the required attribution link text is the only literal text
-    assert "<title></title>" in HTML
+    assert re.search(r"<title>Germany grid-load forecast map</title>", HTML)
     for attr in re.findall(r"(?<![\w-])(?:aria-label|title|alt|placeholder)=\"([^\"]*)\"", HTML): assert attr == "", attr
 
 def test_language_setup_rtl_and_logical_css():

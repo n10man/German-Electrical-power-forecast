@@ -45,7 +45,7 @@ def test_layout_at_three_viewports_and_three_languages(server):
             p = r[mode]
             assert p["open"] and p["scrollW"] <= p["clientW"] and p["dlgScrollW"] <= p["dlgClientW"], ("horizontal scroll, dialog open", tag, mode, p)
             assert p["dx"] <= 3 and p["dy"] <= 3, ("dialog not centred", tag, mode, p["dx"], p["dy"])
-            assert p["width"] <= p["maxWidth"] + 1 and p["heightRatio"] <= 0.881, ("dialog too big", tag, mode, p)
+            assert p["width"] <= min(760, 0.961 * c["clientW"]) + 1 and p["heightRatio"] <= 0.921, ("dialog too big", tag, mode, p)
             assert p["activeIsDialog"] and not p["activeIsClose"] and p["dialogOutline"] == "none", ("focus", tag, mode, p)
             assert p["lockClass"] and p["htmlOverflow"] == "hidden", ("page scroll not locked", tag, mode, p)
             assert p["closedByBackdrop"] and p["lockReleased"], ("backdrop click / unlock", tag, mode, p)

@@ -97,7 +97,7 @@
   "cfg_C": "forecasts of temperature, humidity, wind, solar radiation and cloud plus calendar and recent load",
   "acc_warn": "**The ranges are too narrow.** On the unseen test year the 80% ranges contained about 72% and the 95% ranges about 90% of actual values at every horizon, and some zones were worse (TenneT 66% and 86%). Treat the ranges as optimistic.",
   "acc_weather": "Weather: archived weather forecasts were only available for leads up to 7 days, so only days 1–7 can use a weather forecast, and only where it helped on validation (see the Inputs column; in most cases it did not). Days 8–21 use calendar and recent load only. Validation = {v0} to {v1} (exclusive); the test year was used for the load-only 24-hour model before and is now a second time for these models. Weather forecasts for days 1–7 come from Open-Meteo; the models were trained on older archived forecasts of the same kind (which may differ from today's forecast model mix).",
-  "load_error": "Could not load the data files ({err}). Serve this folder over http, e.g. {cmd}, and open {url} (opening index.html directly via file:// is blocked by the browser).",
+  "load_error": "Sorry, the map data could not be loaded. Please check your connection and reload the page. (Technical detail: {err}) If you are running this folder on your own computer, serve it over http, e.g. {cmd}, and open {url}; browsers block opening index.html directly via file://.",
   "state_SH": "Schleswig-Holstein",
   "state_HH": "Hamburg",
   "state_NI": "Lower Saxony",
@@ -130,5 +130,12 @@
   "head_future_hour": "Forecast for {date} at {hour}: {fc} (likely range {lo} to {hi}).",
   "show_range": "Show usual range",
   "range_hint": "The ranges tend to be a bit too narrow – see details.",
-  "more_details": "More details"
+  "more_details": "More details",
+  "load_error_zone": "Sorry, the data for this grid zone could not be loaded. Please check your connection and try again. ({err})",
+  "privacy_line": "This site collects no personal data and sets no cookies; your language choice is kept only in your own browser. The web host may keep standard technical server logs.",
+  "code_link": "Source code and method",
+  "licences_code": "Source code and method: {repo} and {methods}.",
+  "link_repo": "GitHub repository",
+  "link_methods": "method note (docs/METHODS.md)",
+  "meta_description": "Interactive map of Germany: hourly electricity-load forecasts for the four grid zones, for past days and as a snapshot of future days. Not production-grade."
 }

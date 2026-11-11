@@ -18,15 +18,24 @@ def fetch(url, tries=8):
         time.sleep(3 * (i + 1) ** 1.5)
     raise RuntimeError(f"failed: {url}")
 
-for z in ZONES:
-    f = OUT / f"load_{z}.parquet"
-    if f.exists(): print("skip", z); continue
-    stamps = fetch(IDX.format(z=z))["timestamps"]
+def zone_frame(z, since_ms=None, get=fetch):
+    """Quarter-hourly rows of one zone. since_ms: only weekly chunks that start at or after this timestamp (used by the snapshot refresh)."""
+    stamps = get(IDX.format(z=z))["timestamps"]
+    if since_ms is not None: stamps = [t for t in stamps if t >= since_ms]
     rows = []
     for ts in stamps:
-        for t, v in fetch(BASE.format(z=z, ts=ts))["series"]:
+        for t, v in get(BASE.format(z=z, ts=ts))["series"]:
             rows.append((t, v))
     df = pd.DataFrame(rows, columns=["ts_ms", "load_mw"])
     df["timestamp_utc"] = pd.to_datetime(df.ts_ms, unit="ms", utc=True)
-    df.drop(columns="ts_ms").to_parquet(f)
-    print(z, len(df), df.timestamp_utc.min(), df.timestamp_utc.max(), df.load_mw.isna().sum(), "NaN")
+    return df.drop(columns="ts_ms")
+
+def main():
+    for z in ZONES:
+        f = OUT / f"load_{z}.parquet"
+        if f.exists(): print("skip", z); continue
+        df = zone_frame(z); df.to_parquet(f)
+        print(z, len(df), df.timestamp_utc.min(), df.timestamp_utc.max(), df.load_mw.isna().sum(), "NaN")
+
+if __name__ == "__main__":
+    main()

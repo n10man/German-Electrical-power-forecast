@@ -97,7 +97,7 @@
   "cfg_C": "Prognosen für Temperatur, Luftfeuchtigkeit, Wind, Sonneneinstrahlung und Bewölkung plus Kalender und jüngste Last",
   "acc_warn": "**Die Bereiche sind zu eng.** Im ungesehenen Testjahr enthielten die 80-%-Bereiche bei jedem Horizont etwa 72 % und die 95-%-Bereiche etwa 90 % der tatsächlichen Werte, und einige Zonen waren schlechter (TenneT 66 % und 86 %). Betrachten Sie die Bereiche als zu optimistisch.",
   "acc_weather": "Wetter: Archivierte Wettervorhersagen waren nur für Vorlaufzeiten bis 7 Tage verfügbar; daher können nur die Tage 1–7 eine Wettervorhersage nutzen, und nur dort, wo sie in der Validierung geholfen hat (siehe Spalte „Eingaben“; in den meisten Fällen hat sie das nicht). Die Tage 8–21 nutzen nur Kalender und jüngste Last. Validierung = {v0} bis {v1} (ausschließlich); das Testjahr wurde zuvor für das reine 24-Stunden-Lastmodell verwendet und wird jetzt ein zweites Mal für diese Modelle verwendet. Die Wettervorhersagen für die Tage 1–7 stammen von Open-Meteo; die Modelle wurden mit älteren archivierten Vorhersagen derselben Art trainiert (die sich vom heutigen Mix der Vorhersagemodelle unterscheiden können).",
-  "load_error": "Die Datendateien konnten nicht geladen werden ({err}). Stellen Sie diesen Ordner über http bereit, z. B. {cmd}, und öffnen Sie {url} (das direkte Öffnen von index.html über file:// wird vom Browser blockiert).",
+  "load_error": "Die Kartendaten konnten leider nicht geladen werden. Bitte prüfen Sie Ihre Verbindung und laden Sie die Seite neu. (Technische Angabe: {err}) Wenn Sie diesen Ordner auf Ihrem eigenen Rechner ausführen, stellen Sie ihn über http bereit, z. B. {cmd}, und öffnen Sie {url}; Browser blockieren das direkte Öffnen von index.html über file://.",
   "state_SH": "Schleswig-Holstein",
   "state_HH": "Hamburg",
   "state_NI": "Niedersachsen",
@@ -130,5 +130,12 @@
   "head_future_hour": "Prognose für {date} um {hour}: {fc} (wahrscheinlicher Bereich {lo} bis {hi}).",
   "show_range": "Üblichen Bereich anzeigen",
   "range_hint": "Die Bereiche sind tendenziell etwas zu eng – siehe Details.",
-  "more_details": "Weitere Details"
+  "more_details": "Weitere Details",
+  "load_error_zone": "Die Daten für diese Netzzone konnten leider nicht geladen werden. Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut. ({err})",
+  "privacy_line": "Diese Website erhebt keine personenbezogenen Daten und setzt keine Cookies; Ihre Sprachwahl wird nur in Ihrem eigenen Browser gespeichert. Der Webhost kann übliche technische Server-Logs führen.",
+  "code_link": "Quellcode und Methode",
+  "licences_code": "Quellcode und Methode: {repo} und {methods}.",
+  "link_repo": "GitHub-Repository",
+  "link_methods": "Methodenbeschreibung (docs/METHODS.md)",
+  "meta_description": "Interaktive Karte von Deutschland: stündliche Stromlast-Prognosen für die vier Netzzonen, für vergangene Tage und als Schnappschuss für kommende Tage. Nicht für den Produktivbetrieb."
 }

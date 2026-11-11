@@ -4,6 +4,7 @@
 const ZONE_COLOR = {"50Hertz": "#0072B2", "Amprion": "#E69F00", "TenneT": "#009E73", "TransnetBW": "#CC79A7"};
 const SVGNS = "http://www.w3.org/2000/svg";
 const LANGS = {en: {label: "English", dir: "ltr", locale: "en-GB"}, ar: {label: "العربية", dir: "rtl", locale: "ar-u-nu-latn"}, de: {label: "Deutsch", dir: "ltr", locale: "de-DE"}};
+const REPO = "https://github.com/n10man/German-Electrical-power-forecast", METHODS = REPO + "/blob/main/docs/METHODS.md";
 const LINKS = {ccby: "https://creativecommons.org/licenses/by/4.0/", openmeteo: "https://open-meteo.com/", dlde: "https://www.govdata.de/dl-de/by-2-0",
   datenquellen: "https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf", controlarea: "https://www.smard.de/page/en/wiki-article/5884/205642"};
 const $ = id => document.getElementById(id);
@@ -47,8 +48,16 @@ function pickLang() {
   for (const l of navigator.languages || [navigator.language]) { const c = String(l || "").slice(0, 2).toLowerCase(); if (c in LANGS) return c; }
   return "en";
 }
+function applyMeta() {   // page title / description / social tags follow the language; the image and url become absolute once SITE_CONFIG.baseUrl is set
+  const base = ((window.SITE_CONFIG && window.SITE_CONFIG.baseUrl) || "").replace(/\/+$/, "");
+  const set = (sel, attr, v) => { const e = document.querySelector(sel); if (e) e.setAttribute(attr, v); };
+  set('meta[name="description"]', "content", t("meta_description")); set('meta[property="og:title"]', "content", t("page_title")); set('meta[name="twitter:title"]', "content", t("page_title"));
+  set('meta[property="og:description"]', "content", t("meta_description")); set('meta[name="twitter:description"]', "content", t("meta_description"));
+  set('meta[property="og:locale"]', "content", {en: "en_GB", de: "de_DE", ar: "ar_AR"}[lang]);
+  if (base) { set('meta[property="og:image"]', "content", base + "/preview.jpg"); set('meta[name="twitter:image"]', "content", base + "/preview.jpg"); set('meta[property="og:url"]', "content", base + "/"); }
+}
 function applyStatic() {
-  document.documentElement.lang = lang; document.documentElement.dir = LANGS[lang].dir; document.title = t("page_title");
+  document.documentElement.lang = lang; document.documentElement.dir = LANGS[lang].dir; document.title = t("page_title"); applyMeta();
   document.querySelectorAll("[data-i18n]").forEach(e => { e.textContent = t(e.dataset.i18n); });
   document.querySelectorAll("[data-i18n-aria]").forEach(e => e.setAttribute("aria-label", t(e.dataset.i18nAria)));
   document.querySelectorAll("[data-i18n-title]").forEach(e => e.setAttribute("title", t(e.dataset.i18nTitle)));
@@ -66,14 +75,18 @@ function renderIntro() { if (meta) $("intro").innerHTML = tm("intro", {pastStart
 function renderLicences() {
   const a = (url, text) => H(`<a href="${url}">${esc(text)}</a>`, text);
   const p = {smard: H("<strong>Bundesnetzagentur | SMARD.de</strong>", "Bundesnetzagentur | SMARD.de"), ccby: a(LINKS.ccby, "CC BY 4.0"), openmeteo: a(LINKS.openmeteo, "Weather data by Open-Meteo.com"),
-    lightgbm: "LightGBM", dlde: a(LINKS.dlde, "dl-de/by-2-0"), datenquellen: a(LINKS.datenquellen, "Datenquellen"), controlarea: a(LINKS.controlarea, "SMARD Control area")};
-  $("licBody").innerHTML = ["licences_load", "licences_weather", "licences_models", "licences_states", "licences_zones", "licences_notprod"].map(k => `<p>${tm(k, p)}</p>`).join("");
+    lightgbm: "LightGBM", repo: a(REPO, t("link_repo")), methods: a(METHODS, t("link_methods")), dlde: a(LINKS.dlde, "dl-de/by-2-0"), datenquellen: a(LINKS.datenquellen, "Datenquellen"), controlarea: a(LINKS.controlarea, "SMARD Control area")};
+  $("licBody").innerHTML = ["licences_load", "licences_weather", "licences_models", "licences_states", "licences_zones", "licences_notprod", "licences_code", "privacy_line"].map(k => `<p>${tm(k, p)}</p>`).join("");
 }
 
 function el(name, attrs = {}, parent) { const e = document.createElementNS(SVGNS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
 async function zoneData(z) { return cache[z] || (cache[z] = await getJSON(`data/${z}.json`)); }
 async function futureData(z) { if (!fmeta) return null; return fcache[z] || (fcache[z] = await getJSON(`data/future/${z}.json`)); }
 
+function showLoadError(key, e) {   // friendly, translated; the technical detail stays in the console
+  console.error(e); const m = $("loaderr"); m.hidden = false;
+  m.textContent = t(key, {err: String(e && e.message || e), cmd: "python3 -m http.server -d site 8000", url: "http://localhost:8000"}); m.scrollIntoView({block: "nearest"});
+}
 /* ---------- map ---------- */
 function project(lon, lat) { const k = Math.cos(51 * Math.PI / 180); return [(lon - 5.8) * k * 100, (55.1 - lat) * 100]; }
 function pathOf(geom) {
@@ -87,8 +100,12 @@ function drawMap() {
   for (const f of states.features) {   // one solid colour per state: its dominant zone
     const p = f.properties;
     const path = el("path", {d: pathOf(f.geometry), fill: ZONE_COLOR[p.zone], tabindex: 0, role: "button", "data-id": p.id, "data-zone": p.zone}, svg);
-    path.addEventListener("mouseenter", () => highlightZone(p.zone));
-    path.addEventListener("mousemove", e => showTip(e, p)); path.addEventListener("mouseleave", () => { hideTip(); highlightZone(null); });
+    // Pointer events, not mouse events: on phones there is no hover, so a single tap must open the popup (iOS Safari swallows the first tap when a hover handler changes the page).
+    path.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") highlightZone(p.zone); });
+    path.addEventListener("pointermove", e => { if (e.pointerType === "mouse") showTip(e, p); });
+    path.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") { hideTip(); highlightZone(null); } });
+    path.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") highlightZone(p.zone); });   // touch / pen: show the zone while pressed
+    for (const ev of ["pointerup", "pointercancel"]) path.addEventListener(ev, e => { if (e.pointerType !== "mouse") highlightZone(null); });
     path.addEventListener("focus", () => { if (restoring) return; highlightZone(p.zone); const r = path.getBoundingClientRect(); showTip({clientX: r.left + r.width / 2, clientY: r.top + r.height / 2}, p); });
     path.addEventListener("blur", () => { hideTip(); highlightZone(null); });
     path.addEventListener("click", () => openPopup(p));
@@ -114,7 +131,8 @@ function hideTip() { $("tip").hidden = true; }
 /* ---------- popup ---------- */
 async function openPopup(p, date, hour) {
   hideTip(); const zone = p.zone;
-  cur = {state: p, zone, data: await zoneData(zone), fdata: await futureData(zone), day: null, future: false};
+  try { cur = {state: p, zone, data: await zoneData(zone), fdata: await futureData(zone), day: null, future: false}; }
+  catch (e) { showLoadError("load_error_zone", e); return; }   // the zone file could not be fetched: say so instead of failing silently
   $("pTitle").textContent = stateName(p);
   $("zoneStmt").textContent = t("zone_stmt", {zone});
   const sp = $("splitStmt");
@@ -292,7 +310,7 @@ async function init() {
   }
   try { await setLang(pickLang(), false); } catch (e) { $("loaderr").hidden = false; $("loaderr").textContent = e.message + "  →  python3 -m http.server -d site 8000"; return; }
   try { [meta, states] = await Promise.all([getJSON("data/meta.json"), getJSON("data/states.geojson")]); }
-  catch (e) { const m = $("loaderr"); m.hidden = false; m.textContent = t("load_error", {err: e.message, cmd: "python3 -m http.server -d site 8000", url: "http://localhost:8000"}); return; }
+  catch (e) { showLoadError("load_error", e); return; }
   try { fmeta = await getJSON("data/future_meta.json"); } catch (e) { fmeta = null; }   // the future snapshot is optional
   drawMap(); renderIntro(); renderSnapshot(); renderLicences(); renderEnded();
   $("snapToggle").addEventListener("click", () => setSnap(!snapOpen));
