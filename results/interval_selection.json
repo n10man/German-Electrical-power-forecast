@@ -1,0 +1,5 @@
+{
+ "selected": "rolling_8w",
+ "reason": "smallest coverage gap among admissible candidates (D=0.74 vs static 4.02; score ratio 0.970)",
+ "rule": "EXPERIMENTS.md I1"
+}
