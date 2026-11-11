@@ -309,3 +309,52 @@ Audit fix 4 (commit 6d1e03c) removed scikit-learn from requirements.txt because 
 
 **Sealed test (second use of the 2025-10-25..2026-10-24 year, for a different model family; the first use was F1).** Model files go to models_future/ (not models/, so the F1 lock is untouched) with SHA-256 lock results/model_lock_future.json, written and committed BEFORE the run. Gate script scripts/final_eval_future.py needs --confirm-final, refuses if results/FINAL_EVAL_FUTURE_DONE exists or a hash differs, has a --dummy dry run. The test year is NOT used to choose features, horizons, thresholds or offsets. Whether a horizon is shown on the map is decided on validation; test results are reported next to it, whatever they are. Prospective log: scripts/save_forecast_log.py stores each generated forecast; scripts/compare_prospective.py scores it later (not run now).
 **Serving.** The forecast origin is the last hour with all four zones' actual load. Models are the locked train-only models (not refitted on newer data; a limitation: they are about two years behind the origin). Forecast weather for days 1-7 comes from one Open-Meteo forecast call per city (12 calls) stored with its download time; days 8+ do not use weather. Visitors' browsers make no Open-Meteo calls.
+
+### H1 — validation results (commands: `python scripts/run_horizon_models.py A`, `B`, `C`, `X1`; `python scripts/select_horizons.py`; `python scripts/train_future.py`). Validation 2024-10-25..2025-10-24; sealed test NOT read.
+MAE in MWh/h of the chosen mean model vs the best simple baseline (B_week won everywhere; B_day is far worse except at k=7/14/21 where it equals B_week). Gain = 1 - model/baseline. Config: A = no weather, B = + temperature forecast, C = + all five forecast variables.
+| zone | k | config | model MAE | best baseline MAE | gain | B_wk4avg (context) |
+|---|---|---|---|---|---|---|
+| 50Hertz | 1 | C | 592 | 922 | 36% | 841 |
+| 50Hertz | 2 | A | 646 | 922 | 30% | 841 |
+| 50Hertz | 3 | C | 649 | 922 | 30% | 841 |
+| 50Hertz | 5 | A | 661 | 922 | 28% | 841 |
+| 50Hertz | 7 | A | 667 | 922 | 28% | 841 |
+| 50Hertz | 10 | A | 681 | 1003 | 32% | 907 |
+| 50Hertz | 14 | A | 680 | 1003 | 32% | 907 |
+| 50Hertz | 16 | A | 695 | 1068 | 35% | 951 |
+| 50Hertz | 21 | A | 702 | 1068 | 34% | 951 |
+| Amprion | 1 | A | 550 | 1003 | 45% | 1075 |
+| Amprion | 2 | A | 636 | 1003 | 37% | 1075 |
+| Amprion | 3 | A | 668 | 1003 | 33% | 1075 |
+| Amprion | 5 | A | 689 | 1003 | 31% | 1075 |
+| Amprion | 7 | A | 727 | 1003 | 27% | 1075 |
+| Amprion | 10 | A | 807 | 1241 | 35% | 1262 |
+| Amprion | 14 | A | 839 | 1241 | 32% | 1262 |
+| Amprion | 16 | A | 833 | 1385 | 40% | 1404 |
+| Amprion | 21 | A | 851 | 1385 | 39% | 1404 |
+| TenneT | 1 | A | 402 | 791 | 49% | 845 |
+| TenneT | 2 | A | 460 | 791 | 42% | 845 |
+| TenneT | 3 | A | 479 | 791 | 39% | 845 |
+| TenneT | 5 | A | 503 | 791 | 36% | 845 |
+| TenneT | 7 | A | 520 | 791 | 34% | 845 |
+| TenneT | 10 | A | 557 | 948 | 41% | 1002 |
+| TenneT | 14 | A | 591 | 948 | 38% | 1002 |
+| TenneT | 16 | A | 580 | 1089 | 47% | 1119 |
+| TenneT | 21 | A | 590 | 1089 | 46% | 1119 |
+| TransnetBW | 1 | A | 196 | 450 | 57% | 470 |
+| TransnetBW | 2 | B | 222 | 450 | 51% | 470 |
+| TransnetBW | 3 | B | 239 | 450 | 47% | 470 |
+| TransnetBW | 5 | B | 261 | 450 | 42% | 470 |
+| TransnetBW | 7 | B | 264 | 450 | 41% | 470 |
+| TransnetBW | 10 | A | 299 | 534 | 44% | 546 |
+| TransnetBW | 14 | A | 301 | 534 | 44% | 546 |
+| TransnetBW | 16 | A | 299 | 603 | 50% | 603 |
+| TransnetBW | 21 | A | 305 | 603 | 49% | 603 |
+
+- Choice rule outcome: A for 30 of 36 zone-horizon cells, B for 4 (TransnetBW k=2,3,5,7), C for 2 (50Hertz k=1,3). Forecast weather helps only a little (TransnetBW -4..-6%, 50Hertz -4% at two horizons) and hurts in Amprion and TenneT; C (trained on only about 9 months, because four of the five variables exist from 2024-01-19) is usually worse than A. Archived forecast weather is therefore a minor ingredient; the models are mostly calendar + recent-load models.
+- SHOW-ON-MAP RULE: all 36 cells PASS (5% margin and holiday/hot/cold subsets, all four zones, all nine horizons incl. 21). So no horizon is hidden, and the 17-21 day outlook IS included, labelled "low-confidence outlook". Strongly read this next to the caveat that the bar is low: B_week at long range copies a week that is up to 3 weeks old, so beating it by 28-57% mostly shows that calendar/seasonal level matters; B_wk4avg (extra context) is a harder bar (a 4-week average), and the model is also well below it (e.g. Amprion k=21 851 vs 1,404).
+- Surprise worth flagging: validation MAE grows only slowly with the horizon (e.g. 50Hertz 592 at k=1 to 702 at k=21; TenneT 402 to 590). That is plausible because one-day-ahead already lacks weather observations and mostly relies on the calendar and the seasonal level, but it means these models gain little from recency. The page must NOT suggest day 1 is much better than day 14 for 50Hertz.
+- X1 (reported only, never shipped): horizon 10 with the day-7 forecast as a stand-in is WORSE than A on validation (50Hertz +16%, Amprion +34%, TenneT +34%, TransnetBW +24%) because it trains on ~9 months only; so it does not tempt a stand-in for days 8-16.
+- Coverage per horizon on validation with swapped halves (mean over zones; nominal 80 / 95): A->B and B->A averaged: 80% band k=1: 80%, k=2: 80%, k=3: 80%, k=5: 80%, k=7: 80%, k=10: 80%, k=14: 80%, k=16: 80%, k=21: 80%; 95% band k=1: 94%, k=2: 95%, k=3: 94%, k=5: 95%, k=7: 94%, k=10: 94%, k=14: 94%, k=16: 94%, k=21: 94%. Worst single zone/swap cell: 80% band 62-72%, 95% band 82-90%, so some cells under-cover, as for the 24 h model (file results/horizon_coverage_val.csv). Raw quantile bands (no CQR) cover only 56-61% / 79-82%.
+- Lock: models_future/ (217 files: per zone and horizon a mean model and 5 quantile models, plus cqr_offsets_future.json) hashed in results/model_lock_future.json; SHA-256 of the lock file itself: e20edd9fe8c93fce2b53c79d69be7ee0ef11483faf82abc1f2f6505913b5dc1b. models_future/ is gitignored like models/. Dry run of scripts/final_eval_future.py: without --confirm-final exit 2, with --dummy synthetic data only (tests/test_horizon.py: refusal without flag, when DONE exists, on a tampered hash; dummy never reads the sealed file). This entry and the lock are committed BEFORE the sealed run.
+
