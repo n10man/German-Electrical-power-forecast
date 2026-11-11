@@ -16,14 +16,16 @@ import run_horizon_models as R
 KS = [1, 7, 21]; ALPHAS = [0.01, 0.1, 1, 10, 100, 1000, 10000]; SEEDS = [0, 1, 2]
 ONEHOT = {"hour": range(24), "dow": range(7), "month": range(1, 13)}
 
-def encode(X, f, scaler=None):
+def encode(X, f, scaler=None, med=None):
     parts = []
     for c, cats in ONEHOT.items(): parts.append(pd.DataFrame({f"{c}_{v}": (X[c].values == v).astype(float) for v in cats}, index=X.index))
     parts.append(pd.DataFrame({"doy_sin": np.sin(2 * np.pi * X.doy.values / 366), "doy_cos": np.cos(2 * np.pi * X.doy.values / 366)}, index=X.index))
     num = [c for c in f if c not in ONEHOT and c != "doy"]
     N = X[num].values.astype(float)
+    if med is None: med = np.nanmedian(N, axis=0)
+    N = np.where(np.isnan(N), med, N)                       # M5a: NaNs in validation features -> training median (training NaN rows were dropped)
     if scaler is None: scaler = StandardScaler().fit(N)
-    return np.hstack([p.values for p in parts] + [scaler.transform(N)]), scaler
+    return np.hstack([p.values for p in parts] + [scaler.transform(N)]), (scaler, med)
 
 def ridge_fit_predict(Xt, yt, Xv):
     best = None
@@ -59,10 +61,11 @@ def main():
             X = X.dropna(subset=[f"lag_{H.shift_hours(k)}h", f"lag_{H.week_lag(k)}h", "load_mw"] + [c for c in f if c.startswith("w_")])
             t = X[X.index < val0]; v = X[(X.index >= val0) & (X.index < test0)]; y = v.load_mw.values
             p_lgb = lgb.Booster(model_file=f"models_future/{z}_k{k}_mean.txt").predict(v[f]); mae = lambda p: float(np.abs(p - y).mean())
-            Xt, sc = encode(t, f); Xv, _ = encode(v, f, sc)
-            p_r, a = ridge_fit_predict(Xt, t.load_mw.values, Xv); mm = []; eps = []
-            for s in SEEDS: p, e = mlp_fit_predict(Xt, t.load_mw.values, Xv, s); mm.append(mae(p)); eps.append(e)
-            rows.append(dict(zone=z, k=k, config=cfg, n_train=len(t), n_val=len(v), mae_lightgbm=mae(p_lgb), mae_ridge=mae(p_r), ridge_alpha=a, mae_mlp_mean=float(np.mean(mm)), mae_mlp_min=float(min(mm)), mae_mlp_max=float(max(mm)),
+            num = [c for c in f if c not in ONEHOT and c != "doy"]; t2 = t.dropna(subset=num)           # M5a: drop training rows with NaN features (ridge / MLP only)
+            Xt, (sc, med) = encode(t2, f); Xv, _ = encode(v, f, sc, med); yt = t2.load_mw.values
+            p_r, a = ridge_fit_predict(Xt, yt, Xv); mm = []; eps = []
+            for s in SEEDS: p, e = mlp_fit_predict(Xt, yt, Xv, s); mm.append(mae(p)); eps.append(e)
+            rows.append(dict(zone=z, k=k, config=cfg, n_train=len(t2), n_train_lightgbm=len(t), n_val=len(v), mae_lightgbm=mae(p_lgb), mae_ridge=mae(p_r), ridge_alpha=a, mae_mlp_mean=float(np.mean(mm)), mae_mlp_min=float(min(mm)), mae_mlp_max=float(max(mm)),
                              mlp_epochs=",".join(map(str, eps)), best_baseline_week=float(np.nanmean(np.abs(v["B_week"].values - y))))); print(rows[-1], flush=True)
     D = pd.DataFrame(rows); D.to_csv("results/model_comparison_val.csv", index=False)
     def verdict(a, b):   # a beats b if lower by more than 1% of b
