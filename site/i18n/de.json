@@ -2,7 +2,7 @@
   "page_title": "Prognosekarte der Netzlast in Deutschland",
   "h1": "Prognosekarte der Netzlast in Deutschland",
   "intro": "Klicken Sie auf ein Bundesland, um stündliche Lastprognosen für seine Regelzone (nicht für das Bundesland) zu sehen: vergangene Tage von {pastStart} bis {pastEnd} und eine Momentaufnahme künftiger Tage.",
-  "snapshot": "**Momentaufnahme der Zukunftsprognose:** Prognose erstellt am {gen}, gilt von {first} bis {last} (Berliner Daten {d1} bis {d2}). Es ist eine einmalig erzeugte Datei, die aus echten Wettervorhersagen und der letzten bekannten Last um {origin} entstanden ist; diese Seite aktualisiert sich nicht selbst, und Ihr Browser stellt keine Wetteranfragen. Tag 1–16 sind Prognosen; Tag 17–21 sind ein Ausblick mit geringer Zuverlässigkeit und ohne Wetter. Die Genauigkeit sinkt, je weiter man in die Zukunft blickt.",
+  "snapshot": "Prognose erstellt am {gen}, gilt von {first} bis {last} (Berliner Daten {d1} bis {d2}). Es ist eine einmalig erzeugte Datei, die aus echten Wettervorhersagen und der letzten bekannten Last um {origin} entstanden ist; diese Seite aktualisiert sich nicht selbst, und Ihr Browser stellt keine Wetteranfragen. Tag 1–16 sind Prognosen; Tag 17–21 sind ein Ausblick mit geringer Zuverlässigkeit und ohne Wetter. Die Genauigkeit sinkt, je weiter man in die Zukunft blickt.",
   "lang_group": "Sprache",
   "licences_button": "Daten und Lizenzen",
   "licences_title": "Daten und Lizenzen",
@@ -28,7 +28,6 @@
   "disclaimer_2": "Die Bereiche sind enger, als ihre Bezeichnungen vermuten lassen.",
   "disclaimer_3": "Künftige Tage sind eine einmalige Momentaufnahme, und die Genauigkeit sinkt, je weiter man in die Zukunft blickt.",
   "disclaimer_4": "Nicht für den produktiven Einsatz geeignet.",
-  "tip": "{state} · Zone {zone} – zum Öffnen klicken",
   "state_aria": "{state}, Regelzone {zone}. Prognose öffnen.",
   "state_aria_split": "{state}, Regelzone {zone}, teilweise {others}. Prognose öffnen.",
   "close": "Schließen",
@@ -115,8 +114,6 @@
   "state_ST": "Sachsen-Anhalt",
   "state_TH": "Thüringen",
   "snapshot_short": "**Momentaufnahme der Zukunftsprognose:** erstellt {gen}, gilt bis {last}.",
-  "snapshot_more": "Mehr",
-  "snapshot_less": "Weniger",
   "snapshot_ended": "Diese Prognose-Momentaufnahme endete am {date} und ist daher nicht mehr aktuell.",
   "today_nearest": "Heute ist hier nicht verfügbar; angezeigt wird das nächstgelegene verfügbare Datum: {date}.",
   "jump_latest": "Neueste echte Daten",
@@ -139,5 +136,7 @@
   "link_methods": "Methodenbeschreibung (docs/METHODS.md)",
   "meta_description": "Interaktive Karte von Deutschland: stündliche Stromlast-Prognosen für die vier Netzzonen, für vergangene Tage und als Schnappschuss für kommende Tage. Nicht für den Produktivbetrieb.",
   "intervals_future": "**Die Bereiche für künftige Tage nutzen ein neueres Verfahren:** Sie werden anhand aktueller Prognosefehler neu kalibriert (gleitendes Fenster von {weeks} Wochen; nutzbar waren aber nur die {days} Tage nach dem ungesehenen Testjahr, das Fenster ist also kürzer). Im Nachspielen auf dem Validierungsjahr deckte das Verfahren {v80} bzw. {v95} der tatsächlichen Werte ab (80-%- und 95-%-Bereich). Es wurde noch nicht an neuen Daten getestet und wird an der im README beschriebenen Prognoseprüfung gemessen. Vergangene Tage zeigen weiterhin die älteren festen Bereiche, beide sind daher nicht vergleichbar.",
-  "licences_intervals": "Bereiche: Vergangene Tage nutzen feste konforme Bereiche, die auf dem Validierungsjahr kalibriert wurden; künftige Tage nutzen anhand aktueller Fehler neu kalibrierte Bereiche (nur auf Validierungsdaten bewertet; siehe docs/METHODS.md)."
+  "licences_intervals": "Bereiche: Vergangene Tage nutzen feste konforme Bereiche, die auf dem Validierungsjahr kalibriert wurden; künftige Tage nutzen anhand aktueller Fehler neu kalibrierte Bereiche (nur auf Validierungsdaten bewertet; siehe docs/METHODS.md).",
+  "snapshot_heading": "Momentaufnahme der Zukunftsprognose",
+  "tip_rest": "Zone {zone} – zum Öffnen klicken"
 }

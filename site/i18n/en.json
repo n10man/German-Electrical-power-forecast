@@ -2,7 +2,7 @@
   "page_title": "Germany grid-load forecast map",
   "h1": "Germany grid-load forecast map",
   "intro": "Click a state to see hourly load forecasts for its grid zone (not the state): past days from {pastStart} to {pastEnd} and a snapshot of future days.",
-  "snapshot": "**Future forecast snapshot:** Forecast generated on {gen}, covers {first} to {last} ({d1} to {d2} Berlin dates). It is a one-off file made from real weather forecasts and the latest load known at {origin}; this page does not update itself and your browser makes no weather requests. Days 1–16 are forecasts; days 17–21 are a low-confidence outlook without weather. Accuracy falls the further ahead you look.",
+  "snapshot": "Forecast generated on {gen}, covers {first} to {last} ({d1} to {d2} Berlin dates). It is a one-off file made from real weather forecasts and the latest load known at {origin}; this page does not update itself and your browser makes no weather requests. Days 1–16 are forecasts; days 17–21 are a low-confidence outlook without weather. Accuracy falls the further ahead you look.",
   "lang_group": "Language",
   "licences_button": "Data and licences",
   "licences_title": "Data and licences",
@@ -28,7 +28,6 @@
   "disclaimer_2": "The ranges are narrower than their labels suggest.",
   "disclaimer_3": "Future days are a one-off snapshot, and accuracy falls the further ahead you look.",
   "disclaimer_4": "Not production-grade.",
-  "tip": "{state} · {zone} zone – click to open",
   "state_aria": "{state}, {zone} grid zone. Open forecast.",
   "state_aria_split": "{state}, {zone} grid zone, partly {others}. Open forecast.",
   "close": "Close",
@@ -115,8 +114,6 @@
   "state_ST": "Saxony-Anhalt",
   "state_TH": "Thuringia",
   "snapshot_short": "**Future forecast snapshot:** generated {gen}, covers until {last}.",
-  "snapshot_more": "More",
-  "snapshot_less": "Less",
   "snapshot_ended": "This forecast snapshot ended on {date}, so it is no longer current.",
   "today_nearest": "Today is not available here, so the nearest available date is shown: {date}.",
   "jump_latest": "Latest real data",
@@ -139,5 +136,7 @@
   "link_methods": "method note (docs/METHODS.md)",
   "meta_description": "Interactive map of Germany: hourly electricity-load forecasts for the four grid zones, for past days and as a snapshot of future days. Not production-grade.",
   "intervals_future": "**Ranges for future days use a newer method:** they are recalibrated on recent forecast errors (a rolling {weeks}-week window, but only the {days} days after the unseen test year could be used, so the window is shorter than that). Replayed on the validation year, this method covered {v80} and {v95} of actual values (80% and 95% ranges). It has not been tested on new data yet and will be judged on the forecast check described in the README. Past days still show the older fixed ranges, so the two are not comparable.",
-  "licences_intervals": "Ranges: past days use fixed conformal ranges calibrated on the validation year; future days use ranges recalibrated on recent errors (evaluated on validation data only; see docs/METHODS.md)."
+  "licences_intervals": "Ranges: past days use fixed conformal ranges calibrated on the validation year; future days use ranges recalibrated on recent errors (evaluated on validation data only; see docs/METHODS.md).",
+  "snapshot_heading": "Future forecast snapshot",
+  "tip_rest": "{zone} zone – click to open"
 }

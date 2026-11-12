@@ -10,7 +10,7 @@ async function frame(w, h, lang) {
 (async () => {
   const out = [];
   try {
-    for (const lang of ["en", "ar"]) {
+    for (const lang of ["en", "de", "ar"]) {
       const f = await frame(1440, 900, lang), win = f.contentWindow, doc = win.document, de = doc.documentElement, r = {lang};
       const path = doc.querySelector('#map>path[data-id="BY"]'), small = doc.querySelector('#map>path[data-id="BE"]'), layer = doc.getElementById("hoverLayer");
       const PE = (type, pt, el) => el.dispatchEvent(new win.PointerEvent(type, {pointerType: pt, bubbles: type !== "pointerenter" && type !== "pointerleave", clientX: 700, clientY: 400, isPrimary: true}));
@@ -29,6 +29,26 @@ async function frame(w, h, lang) {
       PE("pointerenter", "mouse", path); await sleep(150);
       path.dispatchEvent(new win.MouseEvent("click", {bubbles: true})); for (let i = 0; i < 40 && !doc.getElementById("popup").open; i++) await sleep(100);
       r.tapOpensPopup = doc.getElementById("popup").open; r.afterPopup = layer.children.length; r.noScrollPopup = noScroll(); r.dir = de.dir;
+      // every state: the enlarged copy stays inside the viewBox (screen rectangle of the viewBox from the CTM)
+      doc.getElementById("popup").close(); de.classList.remove("modal-open"); await sleep(100);
+      const svg = doc.getElementById("map"), vb = svg.viewBox.baseVal, ctm = svg.getScreenCTM(), vbL = ctm.e + vb.x * ctm.a, vbT = ctm.f + vb.y * ctm.d, vbR = vbL + vb.width * ctm.a, vbB = vbT + vb.height * ctm.d;
+      r.fit = {};
+      for (const st of doc.querySelectorAll("#map>path")) {
+        PE("pointerenter", "mouse", st); await sleep(220); const q = layer.querySelector(".hv").getBoundingClientRect();
+        r.fit[st.dataset.id] = {inside: q.left >= vbL - 0.5 && q.right <= vbR + 0.5 && q.top >= vbT - 0.5 && q.bottom <= vbB + 0.5, scale: layer.querySelector(".hv").style.transform, w: q.width}; PE("pointerleave", "mouse", st);
+      }
+      // tooltip: name large and bold on its own line, inside the viewport, no scrollbars
+      const tipPath = doc.querySelector('#map>path[data-id="BY"]');
+      for (const [x, y] of [[700, 400], [1430, 890], [5, 5]]) {
+        tipPath.dispatchEvent(new win.PointerEvent("pointermove", {pointerType: "mouse", bubbles: true, clientX: x, clientY: y})); await sleep(60);
+        const tip = doc.getElementById("tip"), nm = tip.querySelector(".tipname"), rest = tip.querySelector(".tiprest"), tr = tip.getBoundingClientRect();
+        (r.tip = r.tip || []).push({name: nm.textContent, rest: rest.textContent, namePx: parseFloat(win.getComputedStyle(nm).fontSize), nameWeight: win.getComputedStyle(nm).fontWeight, restPx: parseFloat(win.getComputedStyle(rest).fontSize),
+          inside: tr.left >= 0 && tr.top >= 0 && tr.right <= win.innerWidth && tr.bottom <= win.innerHeight, bg: win.getComputedStyle(tip).backgroundColor, fg: win.getComputedStyle(tip).color, noScroll: noScroll(), pe: win.getComputedStyle(tip).pointerEvents});
+      }
+      // banner without a toggle; the long snapshot text is in the licences dialog
+      r.bannerToggle = !!doc.querySelector("#snapshot button, #snapToggle, #snapFull"); r.bannerText = doc.getElementById("snapshot").textContent;
+      doc.getElementById("licBtn").click(); await sleep(150); const lb = doc.getElementById("licBody");
+      r.licHeading = [...lb.querySelectorAll("h3")].map(h => h.textContent).join("|"); r.licSnap = lb.innerText;
       out.push(r); f.remove();
     }
     document.getElementById("out").textContent = JSON.stringify(out);

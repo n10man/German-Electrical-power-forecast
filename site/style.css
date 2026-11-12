@@ -10,15 +10,14 @@ h1{font-size:1.3rem;margin:0;min-width:0}.topctl{display:flex;flex-wrap:wrap;ali
 .langs{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .langs button{font:inherit;font-size:.85rem;padding:4px 11px;border:0;border-inline-end:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}.langs button:last-child{border-inline-end:0}
 .langs button[aria-pressed=true]{background:var(--fg);color:var(--bg);font-weight:700}
-.linkbtn,.jump button,.snapbtn{font:inherit;font-size:.85rem;padding:4px 11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+.linkbtn,.jump button{font:inherit;font-size:.85rem;padding:4px 11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
 .jump button:disabled{opacity:.45;cursor:not-allowed}
-.snapbtn{padding:1px 8px;font-size:.8rem;margin-inline-start:6px}
 /* focus rings only for keyboard users */
 :focus{outline:none}
 :focus-visible{outline:3px solid var(--fc);outline-offset:2px}
 dialog:focus,dialog:focus-visible{outline:none}
 .sub{margin:4px 0;color:var(--muted);font-size:.9rem}
-.snapshot{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:4px 10px;font-size:.85rem;margin:4px 0}.snapshot p{margin:0}.snapfull{margin-top:4px!important}
+.snapshot{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:4px 10px;font-size:.85rem;margin:4px 0}
 .ended{background:var(--orbg);color:var(--ortx);border:2px solid var(--orline);border-radius:6px;padding:4px 10px;margin:4px 0;font-size:.9rem;font-weight:600}
 .layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.9fr) minmax(240px,1fr);gap:12px;align-items:stretch}
 .mapwrap,.howto{position:relative;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;min-width:0;min-height:0}
@@ -31,7 +30,7 @@ dialog:focus,dialog:focus-visible{outline:none}
 .mapfoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2px 14px;padding:2px 4px}
 .legend{list-style:none;display:flex;flex-wrap:wrap;gap:2px 14px;padding:0;margin:0;font-size:.85rem}.legend i{display:inline-block;width:.85em;height:.85em;border-radius:3px;margin-inline-end:5px;vertical-align:-1px}
 .attrib{margin:0;font-size:.8rem}.attrib a{color:inherit}
-.tip{position:fixed;pointer-events:none;background:var(--fg);color:var(--bg);padding:5px 9px;border-radius:6px;font-size:.85rem;z-index:5;max-width:260px}
+.tip{position:fixed;pointer-events:none;background:#111;color:#fff;border:1px solid rgba(255,255,255,.4);padding:7px 12px;border-radius:8px;z-index:5;max-width:min(340px,calc(100vw - 8px));box-shadow:0 3px 10px rgba(0,0,0,.35);line-height:1.25}.tip .tipname{display:block;font-size:1.3rem;font-weight:700}.tip .tiprest{display:block;font-size:.85rem;font-weight:400;margin-top:2px}
 .err{color:var(--err);font-weight:600}
 .disclaimer{margin-top:8px;background:var(--orbg);color:var(--ortx);border:2px solid var(--orline);border-radius:8px;padding:4px 12px;font-size:.8rem;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 12px}
 .disclaimer h2{font-size:.85rem;margin:0}.disclaimer ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:0 14px;min-width:0;flex:1}.disclaimer li::before{content:"•";margin-inline-end:5px}
@@ -64,8 +63,7 @@ dialog h2{margin:.1rem 0 .2rem;margin-inline-end:2rem;font-size:1.25rem}
 button,summary,select,input,#map path{touch-action:manipulation}
 button{-webkit-tap-highlight-color:transparent}
 @media (pointer:coarse),(max-width:760px){
-  .langs button,.linkbtn,.jump button,.snapbtn{min-height:44px;min-width:44px;font-size:.95rem}
-  .snapbtn{padding:4px 12px}
+  .langs button,.linkbtn,.jump button{min-height:44px;min-width:44px;font-size:.95rem}
   .close{width:44px;height:44px;font-size:2rem;inset-inline-end:4px;top:4px}
   .controls input,.controls select{min-height:44px}
   .more summary{min-height:44px;display:flex;align-items:center}
@@ -95,9 +93,10 @@ dialog form{position:sticky;top:0;z-index:2;height:0;overflow:visible}
 .controls select{-webkit-appearance:none;appearance:none;min-height:44px;padding-inline-end:30px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23777' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:calc(100% - 10px) center}
 [dir=rtl] .controls select{background-position:10px center}
 @media (pointer:fine) and (min-width:761px){.controls select,.controls input{min-height:0}}
-@media (max-width:760px){.langs button,.linkbtn{padding:4px 8px;font-size:.9rem}.topctl{flex-wrap:nowrap;gap:6px}.snaprow{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}.snapbtn{margin-inline-start:0}.sub{margin:2px 0}}
+@media (max-width:760px){.langs button,.linkbtn{padding:4px 8px;font-size:.9rem}.topctl{flex-wrap:nowrap;gap:6px}.sub{margin:2px 0}}
 
 /* hovered-state layer (see app.js): above the states, ignores the pointer, never changes layout */
 #hoverLayer{pointer-events:none}
 #hoverLayer .hv{transform-box:fill-box;transform-origin:center;transition:transform .12s ease-out}
+.licbody h3{font-size:1rem;margin:1rem 0 .2rem}
 @media (prefers-reduced-motion:reduce){#hoverLayer .hv{transition:none;transform:none!important}}

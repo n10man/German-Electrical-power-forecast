@@ -53,18 +53,28 @@ def test_layout_at_three_viewports_and_three_languages(server):
     en = next(r for r in res if r["lang"] == "en"); assert "hour of day (Berlin time)" in en["future"]["axisX"]
 
 def test_hover_layer_in_real_browser(server):
+    import json as _j
     res = dom(f"{server}/tests/js/hover_harness.html")
-    assert isinstance(res, list) and len(res) == 2, res
+    assert isinstance(res, list) and len(res) == 3, res
+    heads = {"en": "Future forecast snapshot", "de": "Momentaufnahme der Zukunftsprognose", "ar": "لقطة التوقعات المستقبلية"}
     for r in res:
         tag = r["lang"]
         assert r["layerPointerEvents"] == "none" and r["layerAbove"] and r["before"] == 0, (tag, r)               # a separate top layer that ignores the pointer
         assert r["afterEnter"] == 1 and r["copyCount"] == 3 and r["copyD"] and r["copyPointerEvents"] == "none", (tag, r)   # hovering creates a copy of the state's path (outline, fill, white inner edge)
         assert r["fill"] != r["zoneFill"] and r["fill"].startswith("#"), (tag, r)                                   # lighter fill than the zone colour
-        assert r["scale"] == "scale(1.04)" and r["transition"] == "0.12s", (tag, r)                                  # large state: about 1.04, short transition
-        assert float(r["smallScale"][6:-1]) >= 1.2, (tag, r)                                                         # very small state (Berlin): clearly larger
+        assert "scale(1.25" in r["scale"] and r["transition"] == "0.12s", (tag, r)                                   # large state: about 1.25, short transition
+        assert float(r["smallScale"].split("scale(")[1][:-1]) >= 1.4, (tag, r)                                       # very small state (Berlin): about 1.45
         assert r["zoneLit"] == "TenneT" and r["afterMove"] == 3, (tag, r)                                            # zone highlight still works; moving inside the state keeps the layer
         assert r["afterLeave"] == 0 and r["zoneClearedOnLeave"], (tag, r)                                            # leaving cleans up
         assert r["noScrollHover"] and r["noScrollPopup"], (tag, r)                                                   # no scrollbars from the effect
         assert r["touchDuring"] == 0 and r["touchPressedZone"] and r["touchAfter"] == 0, (tag, r)                    # touch: pressed zone highlight, but no overlay
         assert r["tapOpensPopup"] and r["afterPopup"] == 0, (tag, r)                                                 # a click still opens the popup and clears the layer
+        assert len(r["fit"]) == 16 and all(v["inside"] for v in r["fit"].values()), (tag, {k: v for k, v in r["fit"].items() if not v["inside"]})   # the enlarged copy never leaves the viewBox (all 16 states)
+        for sid in ("BE", "HH", "HB", "BY", "SH"): assert sid in r["fit"], sid
+        assert float(r["fit"]["BE"]["scale"].split("scale(")[1][:-1]) >= 1.4 and float(r["fit"]["HH"]["scale"].split("scale(")[1][:-1]) >= 1.4, (tag, r["fit"])
+        for t in r["tip"]:                                                                                           # tooltip: big bold name, smaller second line, inside the viewport, no scrollbars
+            assert t["namePx"] >= 20 and t["nameWeight"] in ("700", "bold") and t["restPx"] < t["namePx"] and t["inside"] and t["noScroll"] and t["pe"] == "none", (tag, t)
+            assert t["bg"] == "rgb(17, 17, 17)" and t["fg"] == "rgb(255, 255, 255)" and t["name"] and t["rest"], (tag, t)
+        assert not r["bannerToggle"] and r["bannerText"].count("\n") == 0 and "UTC" in r["bannerText"], (tag, r["bannerText"])      # one permanent line, no More/Less button
+        assert heads[tag] in r["licHeading"] and "UTC" in r["licSnap"] and ("17" in r["licSnap"]), (tag, r["licHeading"], r["licSnap"][-400:])   # the long text now lives in the licences dialog
     assert {r["dir"] for r in res} == {"ltr", "rtl"}

@@ -9,7 +9,7 @@ const LINKS = {ccby: "https://creativecommons.org/licenses/by/4.0/", openmeteo: 
   datenquellen: "https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf", controlarea: "https://www.smard.de/page/en/wiki-article/5884/205642"};
 const $ = id => document.getElementById(id);
 const cache = {}, fcache = {}, msgs = {};
-let M = null, lang = "en", loc = "en-GB", meta, fmeta = null, states, cur = null, lastFocus = null, snapOpen = false, restoring = false;  // cur = {state, zone, data, fdata, day, future}
+let M = null, lang = "en", loc = "en-GB", meta, fmeta = null, states, cur = null, lastFocus = null, restoring = false;  // cur = {state, zone, data, fdata, day, future}
 const bandPref = {past: null, future: null};   // the "show usual range" choice, kept for this browser session only
 try { for (const k of ["past", "future"]) { const v = sessionStorage.getItem("bands_" + k); if (v !== null) bandPref[k] = v === "1"; } } catch (e) { /* storage may be blocked */ }
 
@@ -77,6 +77,7 @@ function renderLicences() {
   const p = {smard: H("<strong>Bundesnetzagentur | SMARD.de</strong>", "Bundesnetzagentur | SMARD.de"), ccby: a(LINKS.ccby, "CC BY 4.0"), openmeteo: a(LINKS.openmeteo, "Weather data by Open-Meteo.com"),
     lightgbm: "LightGBM", repo: a(REPO, t("link_repo")), methods: a(METHODS, t("link_methods")), dlde: a(LINKS.dlde, "dl-de/by-2-0"), datenquellen: a(LINKS.datenquellen, "Datenquellen"), controlarea: a(LINKS.controlarea, "SMARD Control area")};
   $("licBody").innerHTML = ["licences_load", "licences_weather", "licences_models", "licences_states", "licences_zones", "licences_notprod", "licences_intervals", "licences_code", "privacy_line"].map(k => `<p>${tm(k, p)}</p>`).join("");
+  if (fmeta) $("licBody").insertAdjacentHTML("beforeend", `<h3>${esc(t("snapshot_heading"))}</h3><p>${tm("snapshot", snapParams())}</p>`);
 }
 
 function el(name, attrs = {}, parent) { const e = document.createElementNS(SVGNS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
@@ -97,8 +98,15 @@ function highlightZone(zone) { $("map").classList.toggle("hovering", !!zone); do
 /* ---------- hovered-state layer: a lighter, outlined, slightly enlarged copy of the hovered state, drawn above all states and ignored by the pointer ---------- */
 const canHover = () => matchMedia("(hover: hover)").matches, reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mixWhite = (hex, w) => "#" + [1, 3, 5].map(i => Math.round(parseInt(hex.slice(i, i + 2), 16) * (1 - w) + 255 * w).toString(16).padStart(2, "0")).join("");
-function hoverScale(bb) {   // about 1.04 for large states, up to 1.25 for very small ones (Berlin, Hamburg, Bremen), from the size of the bounding box (map units)
-  const size = Math.max(bb.width, bb.height), t = Math.min(1, Math.max(0, (size - 35) / (90 - 35))); return 1.25 - (1.25 - 1.04) * t;
+function hoverScale(bb) {   // about 1.25 for large states, up to 1.45 for very small ones (Berlin, Hamburg, Bremen), from the size of the bounding box (map units)
+  const size = Math.max(bb.width, bb.height), t = Math.min(1, Math.max(0, (size - 35) / (90 - 35))); return 1.45 - (1.45 - 1.25) * t;
+}
+function hoverFit(svg, bb, s) {   // keep the enlarged copy (plus outline and shadow) fully inside the viewBox: shrink if it cannot fit, otherwise slide it inwards
+  const vb = svg.viewBox.baseVal, m = 9 * vb.width / (svg.getBoundingClientRect().width || vb.width);   // about 9 screen pixels for outline and shadow, in map units
+  s = Math.min(s, (vb.width - 2 * m) / bb.width, (vb.height - 2 * m) / bb.height);
+  const cx = bb.x + bb.width / 2, cy = bb.y + bb.height / 2, hw = bb.width * s / 2 + m, hh = bb.height * s / 2 + m;
+  const dx = Math.max(0, vb.x - (cx - hw)) - Math.max(0, (cx + hw) - (vb.x + vb.width)), dy = Math.max(0, vb.y - (cy - hh)) - Math.max(0, (cy + hh) - (vb.y + vb.height));
+  return {s, dx, dy};
 }
 function setupHoverLayer(svg) {
   const defs = el("defs", {}, svg), f = el("filter", {id: "hvShadow", x: "-30%", y: "-30%", width: "160%", height: "160%"}, defs);
@@ -113,8 +121,8 @@ function showHover(path, zone, scaleOn = true) {
   const g = el("g", {class: "hv", filter: "url(#hvShadow)"}, layer), d = path.getAttribute("d"), cp = el("clipPath", {id: "hvClip"}, g); el("path", {d}, cp);
   el("path", {d, fill: mixWhite(ZONE_COLOR[zone], 0.35), stroke: "#111", "stroke-width": 2.5, "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke"}, g);   // dark outline
   el("path", {d, fill: "none", stroke: "#fff", "stroke-width": 2, "vector-effect": "non-scaling-stroke", "clip-path": "url(#hvClip)"}, g);                                  // thin white inner edge
-  const s = scaleOn && canHover() && !reducedMotion() ? hoverScale(path.getBBox()) : 1; g.style.transform = "scale(1)";
-  if (s !== 1) { g.getBoundingClientRect(); g.style.transform = `scale(${s.toFixed(3)})`; }   // the transition (style.css) animates the zoom about the centre of the bounding box
+  g.style.transform = "scale(1)";
+  if (scaleOn && canHover() && !reducedMotion()) { const bb = path.getBBox(), f = hoverFit($("map"), bb, hoverScale(bb)); g.getBoundingClientRect(); g.style.transform = `translate(${f.dx.toFixed(2)}px, ${f.dy.toFixed(2)}px) scale(${f.s.toFixed(3)})`; }   // the transition (style.css) animates the zoom about the centre of the bounding box
 }
 function drawMap() {
   const svg = $("map"); const k = Math.cos(51 * Math.PI / 180);
@@ -142,11 +150,12 @@ function updateMapLabels() {
   }
   $("legend").innerHTML = Object.entries(ZONE_COLOR).map(([z, c]) => `<li><i style="background:${c}"></i>${esc(z)}</li>`).join("");
 }
-function showTip(e, p) {
-  const tip = $("tip"); tip.hidden = false;
-  tip.textContent = t("tip", {state: stateName(p), zone: p.zone});
-  const w = tip.offsetWidth || 240, x = LANGS[lang].dir === "rtl" ? e.clientX - 14 - w : e.clientX + 14;
-  tip.style.left = Math.max(4, Math.min(x, innerWidth - w - 4)) + "px"; tip.style.top = (e.clientY + 14) + "px";
+function showTip(e, p) {   // two pieces: the state name (large, bold) and the rest on a second, smaller line
+  const tip = $("tip"); tip.hidden = false; tip.replaceChildren();
+  const a = document.createElement("span"), b = document.createElement("span"); a.className = "tipname"; b.className = "tiprest"; a.textContent = stateName(p); b.textContent = t("tip_rest", {zone: p.zone}); tip.append(a, b);
+  const w = tip.offsetWidth || 240, h = tip.offsetHeight || 60, rtl = LANGS[lang].dir === "rtl", x = rtl ? e.clientX - 14 - w : e.clientX + 14;
+  let y = e.clientY + 18; if (y + h > innerHeight - 4) y = e.clientY - 14 - h;                         // flip above the pointer near the bottom edge
+  tip.style.left = Math.max(4, Math.min(x, innerWidth - w - 4)) + "px"; tip.style.top = Math.max(4, Math.min(y, innerHeight - h - 4)) + "px";
 }
 function hideTip() { $("tip").hidden = true; }
 
@@ -318,12 +327,10 @@ function drawChart(day) {
   const hit = el("rect", {x: Lm, y: T, width: W - Lm - R, height: H_ - T - B, fill: "transparent", style: "cursor:pointer"}, svg);
   hit.addEventListener("click", e => { const b = svg.getBoundingClientRect(), px = (e.clientX - b.left) / b.width * W; const i = Math.max(0, Math.min(n - 1, Math.round((px - Lm) / (W - Lm - R) * (n - 1)))); $("hour").value = String(i); renderHour(); });
 }
-function renderSnapshot() {
-  if (!fmeta) return; const e = $("snapshot"); e.hidden = false;
-  const p = {gen: fmtDT(fmeta.generated_utc), first: fmtDT(fmeta.covers_first_utc), last: fmtDT(fmeta.covers_last_utc), d1: fmtDate(fmeta.covers_first_local_date), d2: fmtDate(fmeta.covers_last_local_date), origin: fmtDT(fmeta.origin_utc)};
-  $("snapShort").innerHTML = tm("snapshot_short", p); $("snapFull").innerHTML = tm("snapshot", p); setSnap(snapOpen);
+function snapParams() { return {gen: fmtDT(fmeta.generated_utc), first: fmtDT(fmeta.covers_first_utc), last: fmtDT(fmeta.covers_last_utc), d1: fmtDate(fmeta.covers_first_local_date), d2: fmtDate(fmeta.covers_last_local_date), origin: fmtDT(fmeta.origin_utc)}; }
+function renderSnapshot() {   // one permanent line; the long explanation is in the "Data and licences" dialog
+  if (!fmeta) return; const e = $("snapshot"); e.hidden = false; e.innerHTML = tm("snapshot_short", snapParams());
 }
-function setSnap(open) { snapOpen = open; $("snapFull").hidden = !open; $("snapToggle").setAttribute("aria-expanded", String(open)); $("snapToggle").textContent = t(open ? "snapshot_less" : "snapshot_more"); }
 
 /* ---------- start ---------- */
 async function init() {
@@ -336,7 +343,6 @@ async function init() {
   catch (e) { showLoadError("load_error", e); return; }
   try { fmeta = await getJSON("data/future_meta.json"); } catch (e) { fmeta = null; }   // the future snapshot is optional
   drawMap(); renderIntro(); renderSnapshot(); renderLicences(); renderEnded();
-  $("snapToggle").addEventListener("click", () => setSnap(!snapOpen));
   backdropClose($("popup")); backdropClose($("licDialog"));
   $("licBtn").addEventListener("click", () => openModal($("licDialog")));
   $("bands").addEventListener("change", () => { const k = cur.future ? "future" : "past"; bandPref[k] = $("bands").checked; try { sessionStorage.setItem("bands_" + k, bandPref[k] ? "1" : "0"); } catch (e) { /* ignore */ } updateLegend(); if (cur.day) drawChart(cur.day); });
