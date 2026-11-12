@@ -22,7 +22,7 @@ def test_readme_structure_order_and_required_lines():
     assert heads == ["Data and licences", "The problem we set out to solve", "What we built", "How the results were tested", "Results", "How sure are we?", "Stress tests", "Other models we tried", "The interactive map",
                      "Prospective check (pending)", "Problems and mistakes we ran into", "Limitations", "Lessons for next time"], heads        # the problem section comes second; ends with Limitations, then Lessons
     assert README.startswith("# Germany electricity demand forecasting\n") and "In 60 seconds" not in README
-    assert "\nLive map: [link to be added]\n" in README
+    assert "\nLive map: https://germany-electricity-forecast.netlify.app\n" in README and "[link to be added]" not in README
     for d in ("docs/METHODS.md", "docs/DETAILED_RESULTS.md", "docs/HOW_TO_RUN.md", "results/EXPERIMENTS.md"): assert d in README.split("## Data and licences")[0], d
     assert "AI-assisted and not fully reviewed yet" in README and "Claude Code" not in README
     assert "<!-- PROSPECTIVE:START -->" in README and "<!-- PROSPECTIVE:END -->" in README

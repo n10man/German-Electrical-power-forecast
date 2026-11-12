@@ -8,7 +8,12 @@ def test_head_has_title_description_favicon_theme_and_social_tags():
     for needle in ('<title>', 'name="description"', 'rel="icon"', 'name="theme-color"', 'property="og:title"', 'property="og:description"', 'property="og:image"', 'property="og:url"', 'name="twitter:card"', 'name="twitter:image"', 'viewport-fit=cover'):
         assert needle in HTML, needle
     assert (SITE / "favicon.svg").exists() and (SITE / "preview.jpg").stat().st_size > 10_000
-    assert 'baseUrl: ""' in (SITE / "config.js").read_text()          # empty until hosting is decided; scripts/set_site_url.py fills it
+    URL = "https://germany-electricity-forecast.netlify.app"            # the real address; scripts/set_site_url.py fills it into config.js and the tags below
+    cfg = re.search(r'baseUrl:\s*"([^"]*)"', (SITE / "config.js").read_text()).group(1)
+    assert cfg == URL, cfg                                                # no empty or placeholder address any more
+    for prop, want in (('property="og:url"', URL + "/"), ('property="og:image"', URL + "/preview.jpg"), ('name="twitter:image"', URL + "/preview.jpg")):
+        m = re.search(r'<meta ' + prop + r' content="([^"]*)"', HTML); assert m and m.group(1) == want, (prop, m and m.group(1))
+    assert not re.search(r'<link rel="canonical"', HTML) or f'<link rel="canonical" href="{URL}/">' in HTML
 
 def test_privacy_line_in_footer_and_licences_in_every_language_and_no_cookies():
     assert 'id="privacyLine"' in HTML and 'data-i18n="privacy_line"' in HTML and "privacy_line" in JS
