@@ -5,7 +5,7 @@ def test_mit_license_and_readme_section():
     lic = (ROOT / "LICENSE").read_text()
     assert lic.startswith("MIT License") and "Copyright (c) 2026 n10man" in lic and "Permission is hereby granted, free of charge" in lic
     readme = (ROOT / "README.md").read_text()
-    sec = readme[readme.index("## Licence and data terms"):]; sec = sec[:sec.index("\n## ", 5)]
+    sec = readme[readme.index("## Data and licences"):]; sec = sec[:sec.index("\n## ", 5)]
     for needle in ("MIT", "CC BY 4.0", "non-commercial", "dl-de/by-2-0", "portfolio", "LICENSE"): assert needle in sec, needle
     assert "no LICENSE file" not in readme and "no licence file" not in readme
 
@@ -23,3 +23,13 @@ def test_no_personal_email_in_tracked_text_files():
         if p.suffix in (".png", ".jpg", ".parquet", ".json", ".geojson") and p.stat().st_size > 2_000_000: continue
         data = p.read_bytes().lower()
         for needle in forbidden: assert needle not in data, f"a forbidden string from {FORBIDDEN_FILE.name} appears in {f}"
+
+def test_every_relative_link_and_image_in_readme_and_docs_exists():
+    import re
+    for md in [ROOT / "README.md"] + sorted((ROOT / "docs").glob("*.md")):
+        text = md.read_text()
+        targets = re.findall(r"!?\[[^\]]*\]\(([^)\s]+)\)", text) + re.findall(r'(?:src|srcset|href)="([^"]+)"', text)
+        for t in targets:
+            if re.match(r"^(https?:|mailto:|#)", t): continue
+            path = t.split("#")[0]
+            if path: assert (md.parent / path).exists(), f"{md.name}: broken link or image {t}"

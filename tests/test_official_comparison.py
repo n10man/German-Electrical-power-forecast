@@ -35,11 +35,11 @@ def test_scripts_do_not_read_the_sealed_file():
         assert "sealed_test" not in text and "data/processed" not in text, f
 
 def test_readme_states_caveats_and_matches_csv(R):
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "README.md").read_text(); details = (ROOT / "docs/DETAILED_RESULTS.md").read_text()      # the full table moved to docs/DETAILED_RESULTS.md
     for needle in ("true day-ahead forecast", "rolling 24-hour-ahead", "favours us", "not like-for-like", "+8.7%", "+18.1%"):
         assert needle in readme, needle
     for z in ZONES:
-        row = next(l for l in readme.splitlines() if l.startswith(f"| {z} | ") and "official" not in l and len(l.split("|")) >= 9)
+        row = next(l for l in details.splitlines() if l.startswith(f"| {z} | ") and "official" not in l and len(l.split("|")) >= 9)
         cells = [c.strip() for c in row.strip("|").split("|")]
         t = R[(R.period == "test") & (R.zone == z)].set_index("model").MAE
         assert cells[1] == f"{t['B1 last week (logged, F1)']:.0f}" and cells[2] == f"{t[OFF]:.0f}" and cells[3] == f"{t['our model (logged, F1)']:.0f}", (z, cells)
