@@ -37,3 +37,11 @@ def test_recorded_browser_check_includes_hover_results():
     r = json.load(open(ROOT / "results/site_browser_check.json"))["runs"]
     desk = [x["hover"] for x in r if "overlayOnHover" in x.get("hover", {})]; touch = [x["hover"] for x in r if "overlayCreatedByTouch" in x.get("hover", {})]
     assert desk and touch and all(all(v is True for v in h.values()) for h in desk) and all(h["overlayCreatedByTouch"] == 0 for h in touch)
+
+
+def test_recorded_engine_checks_are_clean():
+    r = json.load(open(ROOT / "results/site_browser_check.json"))["engine_checks"]
+    assert set(r) >= {"chromium", "webkit"}
+    for eng, d in r.items():
+        assert set(d) == {"tooltip_every_state_every_language", "no_focus_rectangle_after_mouse_click_and_close", "keyboard_highlight_after_tab"}
+        assert all(v == [] for v in d.values()), (eng, d)

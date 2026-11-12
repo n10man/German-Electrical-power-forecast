@@ -6,11 +6,11 @@
 For every engine x size x language it checks: no horizontal scroll (page closed and popup open), touch targets >= 44 px on touch devices, form controls >= 16 px,
 body text >= 14 px, chart labels >= 11 px, a single tap/click on a state opens the popup, the popup fits the viewport with its close button reachable,
 and that every network request stays on this site. It also measures first-load weight and time. Writes results/site_browser_check.json."""
-import argparse, functools, http.server, json, threading, time
+import argparse, functools, http.server, json, sys, threading, time
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(Path(__file__).resolve().parent))
 SIZES = [("360x740", 360, 740), ("390x844", 390, 844), ("768x1024", 768, 1024), ("1024x768", 1024, 768), ("1440x900", 1440, 900), ("1920x1080", 1920, 1080),
          ("844x390 landscape", 844, 390), ("667x375 landscape", 667, 375), ("390x844 portrait-tall", 390, 844)]
 LANGS = ["en", "de", "ar"]
@@ -119,5 +119,13 @@ if __name__ == "__main__":
     for r in rep:
         b = verdict(r); r["problems"] = b; problems += bool(b)
         if b: print(r["engine"], r["size"], r["lang"], "->", "; ".join(b))
-    json.dump({"checked": len(rep), "with_problems": problems, "first_load_files_1440_en": weights, "runs": rep}, open(ROOT / a.out, "w"), indent=1)
+    import site_engine_checks as EC                                   # regression checks: tooltip on every state/language, no focus rectangle after mouse use, keyboard highlight after Tab
+    engine_checks = {}
+    with sync_playwright() as pw:
+        for eng in a.engines.split(","):
+            br = getattr(pw, eng).launch(); srv2, base2 = serve(); engine_checks[eng] = {name: fn(br, base2) for name, fn in EC.ALL.items()}; br.close(); srv2.shutdown()
+    for eng, d in engine_checks.items():
+        for name, probs in d.items():
+            if probs: problems += 1; print(eng, name, "->", probs[:3])
+    json.dump({"checked": len(rep), "with_problems": problems, "engine_checks": engine_checks, "first_load_files_1440_en": weights, "runs": rep}, open(ROOT / a.out, "w"), indent=1)
     print(f"{len(rep)} runs, {problems} with problems; first load (1440 en): {sum(weights.values())} bytes in {len(weights)} files")
