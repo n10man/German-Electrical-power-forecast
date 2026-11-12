@@ -1,0 +1,37 @@
+<!doctype html><meta charset="utf-8"><pre id="out">pending</pre>
+<script>
+// Hover layer checks in real headless Chrome (synthetic pointer events of type mouse / touch on the real page). Served over http by tests/test_layout_browser.py.
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function frame(w, h, lang) {
+  const f = document.createElement("iframe"); f.style.cssText = `position:fixed;left:0;top:0;border:0;width:${w}px;height:${h}px;background:#fff`; f.src = `/site/index.html?lang=${lang}`; document.body.appendChild(f);
+  for (let i = 0; i < 150; i++) { await sleep(100); try { if (f.contentWindow.eval("typeof states !== 'undefined' && !!states && !!meta && typeof fmeta !== 'undefined' && !!document.getElementById('hoverLayer')")) { await sleep(300); return f; } } catch (e) {} }
+  throw new Error("site did not start");
+}
+(async () => {
+  const out = [];
+  try {
+    for (const lang of ["en", "ar"]) {
+      const f = await frame(1440, 900, lang), win = f.contentWindow, doc = win.document, de = doc.documentElement, r = {lang};
+      const path = doc.querySelector('#map>path[data-id="BY"]'), small = doc.querySelector('#map>path[data-id="BE"]'), layer = doc.getElementById("hoverLayer");
+      const PE = (type, pt, el) => el.dispatchEvent(new win.PointerEvent(type, {pointerType: pt, bubbles: type !== "pointerenter" && type !== "pointerleave", clientX: 700, clientY: 400, isPrimary: true}));
+      const noScroll = () => de.scrollWidth <= de.clientWidth && de.scrollHeight <= win.innerHeight + 1;
+      r.layerPointerEvents = win.getComputedStyle(layer).pointerEvents; r.layerAbove = layer === doc.getElementById("map").lastElementChild;
+      r.before = layer.children.length;
+      PE("pointerenter", "mouse", path); await sleep(250);
+      r.afterEnter = layer.children.length; const copies = layer.querySelectorAll("path"); r.copyCount = copies.length; r.copyD = copies[0].getAttribute("d") === path.getAttribute("d");
+      r.copyPointerEvents = win.getComputedStyle(copies[0]).pointerEvents; r.fill = copies[1].getAttribute("fill"); r.zoneFill = path.getAttribute("fill");
+      r.scale = layer.querySelector(".hv").style.transform; r.transition = win.getComputedStyle(layer.querySelector(".hv")).transitionDuration; r.noScrollHover = noScroll();
+      r.zoneLit = [...doc.querySelectorAll("#map>path.hl")].map(x => x.dataset.zone).filter((z, i, a) => a.indexOf(z) === i).join();
+      PE("pointermove", "mouse", path); PE("pointermove", "mouse", path); await sleep(100); r.afterMove = layer.querySelectorAll("path").length;
+      PE("pointerleave", "mouse", path); await sleep(50); r.afterLeave = layer.children.length; r.zoneClearedOnLeave = doc.querySelectorAll("#map>path.hl").length === 0;
+      PE("pointerenter", "mouse", small); await sleep(250); r.smallScale = layer.querySelector(".hv").style.transform; PE("pointerleave", "mouse", small);
+      PE("pointerdown", "touch", path); r.touchDuring = layer.children.length; r.touchPressedZone = doc.querySelectorAll("#map>path.hl").length > 0; PE("pointerup", "touch", path); r.touchAfter = layer.children.length;
+      PE("pointerenter", "mouse", path); await sleep(150);
+      path.dispatchEvent(new win.MouseEvent("click", {bubbles: true})); for (let i = 0; i < 40 && !doc.getElementById("popup").open; i++) await sleep(100);
+      r.tapOpensPopup = doc.getElementById("popup").open; r.afterPopup = layer.children.length; r.noScrollPopup = noScroll(); r.dir = de.dir;
+      out.push(r); f.remove();
+    }
+    document.getElementById("out").textContent = JSON.stringify(out);
+  } catch (e) { document.getElementById("out").textContent = JSON.stringify({error: String(e)}); }
+})();
+</script>

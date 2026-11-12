@@ -32,3 +32,8 @@ def test_recorded_browser_check_is_clean():
     p = ROOT / "results/site_browser_check.json"; r = json.load(open(p))
     assert r["with_problems"] == 0 and {x["engine"] for x in r["runs"]} >= {"chromium", "webkit"}
     assert sum(r["first_load_files_1440_en"].values()) < 1_000_000
+
+def test_recorded_browser_check_includes_hover_results():
+    r = json.load(open(ROOT / "results/site_browser_check.json"))["runs"]
+    desk = [x["hover"] for x in r if "overlayOnHover" in x.get("hover", {})]; touch = [x["hover"] for x in r if "overlayCreatedByTouch" in x.get("hover", {})]
+    assert desk and touch and all(all(v is True for v in h.values()) for h in desk) and all(h["overlayCreatedByTouch"] == 0 for h in touch)

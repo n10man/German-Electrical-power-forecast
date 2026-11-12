@@ -36,6 +36,21 @@ DLG_JS = """() => { const dlg = document.getElementById('popup'), c = dlg.queryS
   return {open: dlg.open, left: r.left, right: r.right, top: r.top, bottom: r.bottom, vw: innerWidth, vh: innerHeight, dlgScrollW: dlg.scrollWidth, dlgClientW: dlg.clientWidth, closeW: cr.width, closeH: cr.height,
           closeVisibleAfterScroll: cr2.top >= r.top - 1 && cr2.bottom <= r.bottom + 1 && cr2.left >= r.left - 1 && cr2.right <= r.right + 1}; }"""
 
+def hover_checks(page, w, h):
+    """Real mouse hover and keyboard focus on desktop-type contexts: the overlay copy appears, ignores the pointer, survives movement inside the state, disappears on leave, and never scrolls the page."""
+    path = page.locator('#map>path[data-id="BY"]'); path.scroll_into_view_if_needed(); bx = path.bounding_box()
+    cx, cy = bx["x"] + bx["width"] / 2, bx["y"] + bx["height"] / 2; q = lambda js: page.evaluate(js); res = {}
+    page.mouse.move(2, 2); page.mouse.move(cx, cy); page.wait_for_timeout(250)
+    res["overlayOnHover"] = q("document.querySelectorAll('#hoverLayer path').length") == 3 and q("getComputedStyle(document.getElementById('hoverLayer')).pointerEvents") == "none"
+    res["hoveredStaysSame"] = q("document.elementFromPoint(%f, %f).dataset.id" % (cx, cy)) == "BY"                       # the layer does not steal the pointer
+    page.mouse.move(cx + 6, cy + 6, steps=4); page.wait_for_timeout(100); res["survivesMove"] = q("document.querySelectorAll('#hoverLayer path').length") == 3
+    res["noScroll"] = q("document.documentElement.scrollWidth <= document.documentElement.clientWidth && document.documentElement.scrollHeight <= innerHeight + 1")
+    page.mouse.move(2, 2); page.wait_for_timeout(100); res["removedOnLeave"] = q("document.getElementById('hoverLayer').children.length") == 0
+    page.evaluate("document.activeElement && document.activeElement.blur()"); page.keyboard.press("Tab"); q("document.querySelector('#map>path[data-id=BY]').focus()"); page.wait_for_timeout(250)     # a key press first, so the focus counts as keyboard focus (:focus-visible)
+    res["keyboardFocusShowsLayer"] = q("document.activeElement.matches('#map>path') && document.querySelectorAll('#hoverLayer path').length === 3")
+    page.evaluate("document.activeElement && document.activeElement.blur()"); page.mouse.move(2, 2)
+    return res
+
 def run(engines, shots):
     srv, base = serve(); report = []; weights = {}
     with sync_playwright() as pw:
@@ -53,13 +68,16 @@ def run(engines, shots):
                     first = {u: len(r.body() or b"") for u, r in resp.items()}; r0 = {"engine": eng, "size": label, "lang": lang, "load_ms": load_ms, "initial_requests": len(first), "initial_bytes": sum(first.values())}
                     if (eng, label, lang) == (engines[0], SIZES[4][0], "en"): weights = {u.replace(base, ""): n for u, n in first.items()}
                     r0["closed"] = page.evaluate(PAGE_JS)
-                    path = page.locator('#map path[data-id="BY"]')            # one tap / click, no hover first
+                    path = page.locator('#map>path[data-id="BY"]')            # one tap / click, no hover first
+                    page.evaluate("window.__hv = 0; new MutationObserver(m => { window.__hv += m.reduce((n, x) => n + x.addedNodes.length, 0); }).observe(document.getElementById('hoverLayer'), {childList: true})")
+                    if not kw["has_touch"]: r0["hover"] = hover_checks(page, w, h)
                     path.scroll_into_view_if_needed(); box = path.bounding_box()
                     x0, x1, y0, y1 = max(box["x"], 0), min(box["x"] + box["width"], w), max(box["y"], 0), min(box["y"] + box["height"], h)   # the visible part of the state
                     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
                     if kw["has_touch"]: page.touchscreen.tap(cx, cy)
                     else: page.mouse.click(cx, cy)
                     page.wait_for_selector("#popup[open]", timeout=8000); page.wait_for_selector("#chart text"); time.sleep(.3)
+                    if kw["has_touch"]: r0["hover"] = {"overlayCreatedByTouch": page.evaluate("window.__hv")}
                     r0["tapOpensPopup"] = True; r0["open"] = page.evaluate(PAGE_JS); r0["dialog"] = page.evaluate(DLG_JS)
                     r0["zoneBytes"] = sum(len(r.body() or b"") for u, r in resp.items() if "/data/" in u and u not in first)
                     if shots and eng == "chromium" and label in ("390x844", "1440x900", "844x390 landscape") and lang in LANGS:
@@ -80,6 +98,12 @@ def verdict(r):
     touch = r["size"] not in ("1440x900", "1920x1080", "1024x768")
     if touch and r["open"]["smallTargets"]: bad.append(f"touch targets <44px {r['open']['smallTargets']}")
     if touch and r["closed"]["smallTargets"]: bad.append(f"touch targets <44px (page) {r['closed']['smallTargets']}")
+    hv = r.get("hover", {})
+    if "overlayCreatedByTouch" in hv and hv["overlayCreatedByTouch"]: bad.append("hover overlay created on a touch device")
+    if "overlayOnHover" in hv:
+        for k in ("overlayOnHover", "hoveredStaysSame", "survivesMove", "noScroll", "removedOnLeave"):
+            if not hv[k]: bad.append(f"hover check failed: {k}")
+        if not hv["keyboardFocusShowsLayer"]: bad.append("keyboard focus does not show the layer")
     d = r["dialog"]
     if d["left"] < -1 or d["right"] > d["vw"] + 1 or d["top"] < -1 or d["bottom"] > d["vh"] + 1: bad.append("popup outside viewport")
     if d["dlgScrollW"] > d["dlgClientW"]: bad.append("popup scrolls horizontally")

@@ -51,3 +51,20 @@ def test_layout_at_three_viewports_and_three_languages(server):
             assert p["closedByBackdrop"] and p["lockReleased"], ("backdrop click / unlock", tag, mode, p)
             assert p["bands"] == (mode == "future") and p["details"] is False, ("defaults", tag, mode, p)
     en = next(r for r in res if r["lang"] == "en"); assert "hour of day (Berlin time)" in en["future"]["axisX"]
+
+def test_hover_layer_in_real_browser(server):
+    res = dom(f"{server}/tests/js/hover_harness.html")
+    assert isinstance(res, list) and len(res) == 2, res
+    for r in res:
+        tag = r["lang"]
+        assert r["layerPointerEvents"] == "none" and r["layerAbove"] and r["before"] == 0, (tag, r)               # a separate top layer that ignores the pointer
+        assert r["afterEnter"] == 1 and r["copyCount"] == 3 and r["copyD"] and r["copyPointerEvents"] == "none", (tag, r)   # hovering creates a copy of the state's path (outline, fill, white inner edge)
+        assert r["fill"] != r["zoneFill"] and r["fill"].startswith("#"), (tag, r)                                   # lighter fill than the zone colour
+        assert r["scale"] == "scale(1.04)" and r["transition"] == "0.12s", (tag, r)                                  # large state: about 1.04, short transition
+        assert float(r["smallScale"][6:-1]) >= 1.2, (tag, r)                                                         # very small state (Berlin): clearly larger
+        assert r["zoneLit"] == "TenneT" and r["afterMove"] == 3, (tag, r)                                            # zone highlight still works; moving inside the state keeps the layer
+        assert r["afterLeave"] == 0 and r["zoneClearedOnLeave"], (tag, r)                                            # leaving cleans up
+        assert r["noScrollHover"] and r["noScrollPopup"], (tag, r)                                                   # no scrollbars from the effect
+        assert r["touchDuring"] == 0 and r["touchPressedZone"] and r["touchAfter"] == 0, (tag, r)                    # touch: pressed zone highlight, but no overlay
+        assert r["tapOpensPopup"] and r["afterPopup"] == 0, (tag, r)                                                 # a click still opens the popup and clears the layer
+    assert {r["dir"] for r in res} == {"ltr", "rtl"}
