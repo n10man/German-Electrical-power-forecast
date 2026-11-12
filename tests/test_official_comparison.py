@@ -37,7 +37,8 @@ def test_scripts_do_not_read_the_sealed_file():
 def test_readme_states_caveats_and_matches_csv(R):
     readme = (ROOT / "README.md").read_text(); details = (ROOT / "docs/DETAILED_RESULTS.md").read_text()      # the full table moved to docs/DETAILED_RESULTS.md
     for needle in ("true day-ahead forecast", "rolling 24-hour-ahead", "favours us", "not like-for-like", "+8.7%", "+18.1%"):
-        assert needle in readme, needle
+        assert needle in details, needle                      # the long explanation moved to docs/DETAILED_RESULTS.md
+    for needle in ("not a fair fight", "8.7%", "18.1%", "does not show that we beat the grid operators"): assert needle in readme, needle
     for z in ZONES:
         row = next(l for l in details.splitlines() if l.startswith(f"| {z} | ") and "official" not in l and len(l.split("|")) >= 9)
         cells = [c.strip() for c in row.strip("|").split("|")]

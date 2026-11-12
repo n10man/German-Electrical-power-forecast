@@ -52,3 +52,12 @@ def interval_summary_rows():
     """The short 3-row version for the README: static, the selected rolling method, and the best adaptive method (excluded by the rule). Lines identical to interval_rows()."""
     r = interval_rows(); keep = {"static", "rolling_8w", "aci_g0.005"}
     return r[:2] + [l for l in r[2:] if l.split("|")[1].strip() in keep]
+
+def interval_short_rows():
+    """The README's 3-row table: plain labels, typical coverage and average width, from results/interval_val_summary.csv."""
+    S = pd.read_csv(ROOT / "results/interval_val_summary.csv").set_index("candidate")
+    labels = [("static", "Old method: one fixed setting (`static`)"), ("rolling_8w", "New method: reset on the last 8 weeks (`rolling_8w`)"), ("aci_g0.005", "Self-adjusting method, left out because the ranges got too wide (`aci_g0.005`)")]
+    rows = ["| Method | Typical share of real values inside the 80% and 95% ranges | Average width of the 80% range plus 95% range, in MWh/h |", "|---|---|---|"]
+    for k, lab in labels:
+        r = S.loc[k]; rows.append(f"| {lab} | {r.mean_coverage_80:.1f}% and {r.mean_coverage_95:.1f}% | {r.mean_width:,.0f} |")
+    return rows
