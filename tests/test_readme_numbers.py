@@ -19,8 +19,8 @@ def test_headline_coverage_numbers_match_site_meta():
 
 def test_readme_structure_order_and_required_lines():
     heads = re.findall(r"^## (.+)$", README, re.M)
-    assert heads == ["Data and licences", "What we built", "How the results were tested", "Results", "How sure are we?", "Stress tests", "Other models we tried", "The interactive map",
-                     "Prospective check (pending)", "Problems and mistakes we ran into", "The problem we set out to solve", "Limitations", "Lessons for next time"], heads        # ends with Limitations, then Lessons
+    assert heads == ["Data and licences", "The problem we set out to solve", "What we built", "How the results were tested", "Results", "How sure are we?", "Stress tests", "Other models we tried", "The interactive map",
+                     "Prospective check (pending)", "Problems and mistakes we ran into", "Limitations", "Lessons for next time"], heads        # the problem section comes second; ends with Limitations, then Lessons
     assert README.startswith("# Germany electricity demand forecasting\n") and "In 60 seconds" not in README
     assert "\nLive map: [link to be added]\n" in README
     for d in ("docs/METHODS.md", "docs/DETAILED_RESULTS.md", "docs/HOW_TO_RUN.md", "results/EXPERIMENTS.md"): assert d in README.split("## Data and licences")[0], d
