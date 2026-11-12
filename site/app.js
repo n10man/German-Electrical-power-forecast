@@ -94,6 +94,28 @@ function pathOf(geom) {
   return polys.map(p => p.map(ring => "M" + ring.map(c => project(c[0], c[1]).map(v => v.toFixed(1)).join(",")).join("L") + "Z").join("")).join("");
 }
 function highlightZone(zone) { $("map").classList.toggle("hovering", !!zone); document.querySelectorAll("#map path").forEach(p => p.classList.toggle("hl", !!zone && p.dataset.zone === zone)); }
+/* ---------- hovered-state layer: a lighter, outlined, slightly enlarged copy of the hovered state, drawn above all states and ignored by the pointer ---------- */
+const canHover = () => matchMedia("(hover: hover)").matches, reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const mixWhite = (hex, w) => "#" + [1, 3, 5].map(i => Math.round(parseInt(hex.slice(i, i + 2), 16) * (1 - w) + 255 * w).toString(16).padStart(2, "0")).join("");
+function hoverScale(bb) {   // about 1.04 for large states, up to 1.25 for very small ones (Berlin, Hamburg, Bremen), from the size of the bounding box (map units)
+  const size = Math.max(bb.width, bb.height), t = Math.min(1, Math.max(0, (size - 35) / (90 - 35))); return 1.25 - (1.25 - 1.04) * t;
+}
+function setupHoverLayer(svg) {
+  const defs = el("defs", {}, svg), f = el("filter", {id: "hvShadow", x: "-30%", y: "-30%", width: "160%", height: "160%"}, defs);
+  el("feGaussianBlur", {in: "SourceAlpha", stdDeviation: "2.2", result: "b"}, f); el("feOffset", {in: "b", dx: "0", dy: "2", result: "o"}, f);
+  el("feComponentTransfer", {in: "o", result: "s"}, f).appendChild(el("feFuncA", {type: "linear", slope: "0.45"}));
+  const m = el("feMerge", {}, f); el("feMergeNode", {in: "s"}, m); el("feMergeNode", {in: "SourceGraphic"}, m);
+  el("g", {id: "hoverLayer", "pointer-events": "none", "aria-hidden": "true"}, svg);
+}
+function clearHover() { const g = $("hoverLayer"); if (g) g.replaceChildren(); }
+function showHover(path, zone, scaleOn = true) {
+  const layer = $("hoverLayer"); if (!layer) return; layer.replaceChildren();
+  const g = el("g", {class: "hv", filter: "url(#hvShadow)"}, layer), d = path.getAttribute("d"), cp = el("clipPath", {id: "hvClip"}, g); el("path", {d}, cp);
+  el("path", {d, fill: mixWhite(ZONE_COLOR[zone], 0.35), stroke: "#111", "stroke-width": 2.5, "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke"}, g);   // dark outline
+  el("path", {d, fill: "none", stroke: "#fff", "stroke-width": 2, "vector-effect": "non-scaling-stroke", "clip-path": "url(#hvClip)"}, g);                                  // thin white inner edge
+  const s = scaleOn && canHover() && !reducedMotion() ? hoverScale(path.getBBox()) : 1; g.style.transform = "scale(1)";
+  if (s !== 1) { g.getBoundingClientRect(); g.style.transform = `scale(${s.toFixed(3)})`; }   // the transition (style.css) animates the zoom about the centre of the bounding box
+}
 function drawMap() {
   const svg = $("map"); const k = Math.cos(51 * Math.PI / 180);
   svg.setAttribute("viewBox", `-5 -5 ${(15.1 - 5.8) * k * 100 + 10} ${(55.1 - 47.2) * 100 + 10}`);
@@ -101,17 +123,17 @@ function drawMap() {
     const p = f.properties;
     const path = el("path", {d: pathOf(f.geometry), fill: ZONE_COLOR[p.zone], tabindex: 0, role: "button", "data-id": p.id, "data-zone": p.zone}, svg);
     // Pointer events, not mouse events: on phones there is no hover, so a single tap must open the popup (iOS Safari swallows the first tap when a hover handler changes the page).
-    path.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") highlightZone(p.zone); });
+    path.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") { highlightZone(p.zone); if (canHover()) showHover(path, p.zone); } });
     path.addEventListener("pointermove", e => { if (e.pointerType === "mouse") showTip(e, p); });
-    path.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") { hideTip(); highlightZone(null); } });
+    path.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") { hideTip(); highlightZone(null); clearHover(); } });
     path.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") highlightZone(p.zone); });   // touch / pen: show the zone while pressed
     for (const ev of ["pointerup", "pointercancel"]) path.addEventListener(ev, e => { if (e.pointerType !== "mouse") highlightZone(null); });
-    path.addEventListener("focus", () => { if (restoring) return; highlightZone(p.zone); const r = path.getBoundingClientRect(); showTip({clientX: r.left + r.width / 2, clientY: r.top + r.height / 2}, p); });
-    path.addEventListener("blur", () => { hideTip(); highlightZone(null); });
+    path.addEventListener("focus", () => { if (restoring) return; highlightZone(p.zone); if (path.matches(":focus-visible")) showHover(path, p.zone); const r = path.getBoundingClientRect(); showTip({clientX: r.left + r.width / 2, clientY: r.top + r.height / 2}, p); });
+    path.addEventListener("blur", () => { hideTip(); highlightZone(null); clearHover(); });
     path.addEventListener("click", () => openPopup(p));
     path.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPopup(p); } });
   }
-  updateMapLabels();
+  setupHoverLayer(svg); updateMapLabels();
 }
 function updateMapLabels() {
   for (const f of states.features) {
@@ -130,7 +152,7 @@ function hideTip() { $("tip").hidden = true; }
 
 /* ---------- popup ---------- */
 async function openPopup(p, date, hour) {
-  hideTip(); const zone = p.zone;
+  hideTip(); clearHover(); highlightZone(null); const zone = p.zone;
   try { cur = {state: p, zone, data: await zoneData(zone), fdata: await futureData(zone), day: null, future: false}; }
   catch (e) { showLoadError("load_error_zone", e); return; }   // the zone file could not be fetched: say so instead of failing silently
   $("pTitle").textContent = stateName(p);

@@ -25,9 +25,9 @@ dialog:focus,dialog:focus-visible{outline:none}
 .mapwrap{display:flex;flex-direction:column}
 .howto{padding:10px 14px;overflow:auto}.howto h2{font-size:1rem;margin:0 0 .4rem}.howto ol{margin:0;padding-inline-start:1.2rem;font-size:.9rem}.howto li{margin:.35rem 0}.howto .note{font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:.5rem;margin:.6rem 0 0}
 #map{width:100%;height:auto;max-height:70vh;max-height:70svh;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:block;min-height:0;flex:1 1 auto}
-#map path{stroke:var(--bg);stroke-width:.6;vector-effect:non-scaling-stroke;cursor:pointer;transition:opacity .1s,filter .1s}
-#map.hovering path:not(.hl){opacity:.4}
-#map path.hl{filter:brightness(1.1) saturate(1.2);stroke:var(--fg);stroke-width:1.2}
+#map>path{stroke:var(--bg);stroke-width:.6;vector-effect:non-scaling-stroke;cursor:pointer;transition:opacity .1s,filter .1s}
+#map.hovering>path:not(.hl){opacity:.4}
+#map>path.hl{filter:brightness(1.1) saturate(1.2);stroke:var(--fg);stroke-width:1.2}
 .mapfoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2px 14px;padding:2px 4px}
 .legend{list-style:none;display:flex;flex-wrap:wrap;gap:2px 14px;padding:0;margin:0;font-size:.85rem}.legend i{display:inline-block;width:.85em;height:.85em;border-radius:3px;margin-inline-end:5px;vertical-align:-1px}
 .attrib{margin:0;font-size:.8rem}.attrib a{color:inherit}
@@ -96,3 +96,8 @@ dialog form{position:sticky;top:0;z-index:2;height:0;overflow:visible}
 [dir=rtl] .controls select{background-position:10px center}
 @media (pointer:fine) and (min-width:761px){.controls select,.controls input{min-height:0}}
 @media (max-width:760px){.langs button,.linkbtn{padding:4px 8px;font-size:.9rem}.topctl{flex-wrap:nowrap;gap:6px}.snaprow{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}.snapbtn{margin-inline-start:0}.sub{margin:2px 0}}
+
+/* hovered-state layer (see app.js): above the states, ignores the pointer, never changes layout */
+#hoverLayer{pointer-events:none}
+#hoverLayer .hv{transform-box:fill-box;transform-origin:center;transition:transform .12s ease-out}
+@media (prefers-reduced-motion:reduce){#hoverLayer .hv{transition:none;transform:none!important}}
