@@ -9,7 +9,7 @@ const LINKS = {ccby: "https://creativecommons.org/licenses/by/4.0/", openmeteo: 
   datenquellen: "https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf", controlarea: "https://www.smard.de/page/en/wiki-article/5884/205642"};
 const $ = id => document.getElementById(id);
 const cache = {}, fcache = {}, msgs = {};
-let M = null, lang = "en", loc = "en-GB", meta, fmeta = null, states, cur = null, lastFocus = null, restoring = false;  // cur = {state, zone, data, fdata, day, future}
+let M = null, lang = "en", loc = "en-GB", meta, fmeta = null, states, cur = null, lastFocus = null;  // cur = {state, zone, data, fdata, day, future}
 const bandPref = {past: null, future: null};   // the "show usual range" choice, kept for this browser session only
 try { for (const k of ["past", "future"]) { const v = sessionStorage.getItem("bands_" + k); if (v !== null) bandPref[k] = v === "1"; } } catch (e) { /* storage may be blocked */ }
 
@@ -95,6 +95,16 @@ function pathOf(geom) {
   return polys.map(p => p.map(ring => "M" + ring.map(c => project(c[0], c[1]).map(v => v.toFixed(1)).join(",")).join("L") + "Z").join("")).join("");
 }
 function highlightZone(zone) { $("map").classList.toggle("hovering", !!zone); document.querySelectorAll("#map path").forEach(p => p.classList.toggle("hl", !!zone && p.dataset.zone === zone)); }
+/* ---------- input method: "keyboard" only after Tab / arrows / Enter / Space, back to "pointer" on any pointer use. A focused state shows its highlight only in keyboard mode. ---------- */
+const root = document.documentElement; root.dataset.input = "pointer";
+const KEYS = ["Tab", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", " "];
+function setInput(mode) {
+  if (root.dataset.input === mode) return; root.dataset.input = mode;
+  if (mode === "pointer") { const a = document.activeElement; if (a && a.matches && a.matches("#map>path")) { clearHover(); highlightZone(null); hideTip(); } }   // a focused state shows nothing in pointer mode
+}
+addEventListener("keydown", e => { if (KEYS.includes(e.key) && !e.metaKey && !e.ctrlKey && !e.altKey) setInput("keyboard"); }, true);
+for (const ev of ["pointerdown", "pointermove"]) addEventListener(ev, () => setInput("pointer"), true);
+const keyboardMode = () => root.dataset.input === "keyboard";
 /* ---------- hovered-state layer: a lighter, outlined, slightly enlarged copy of the hovered state, drawn above all states and ignored by the pointer ---------- */
 const canHover = () => matchMedia("(hover: hover)").matches, reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mixWhite = (hex, w) => "#" + [1, 3, 5].map(i => Math.round(parseInt(hex.slice(i, i + 2), 16) * (1 - w) + 255 * w).toString(16).padStart(2, "0")).join("");
@@ -115,9 +125,9 @@ function setupHoverLayer(svg) {
   const m = el("feMerge", {}, f); el("feMergeNode", {in: "s"}, m); el("feMergeNode", {in: "SourceGraphic"}, m);
   el("g", {id: "hoverLayer", "pointer-events": "none", "aria-hidden": "true"}, svg);
 }
-function clearHover() { const g = $("hoverLayer"); if (g) g.replaceChildren(); }
+function clearHover() { const g = $("hoverLayer"); if (g) while (g.firstChild) g.removeChild(g.firstChild); }   // no replaceChildren: older Safari lacks it
 function showHover(path, zone, scaleOn = true) {
-  const layer = $("hoverLayer"); if (!layer) return; layer.replaceChildren();
+  const layer = $("hoverLayer"); if (!layer) return; clearHover();
   const g = el("g", {class: "hv", filter: "url(#hvShadow)"}, layer), d = path.getAttribute("d"), cp = el("clipPath", {id: "hvClip"}, g); el("path", {d}, cp);
   el("path", {d, fill: mixWhite(ZONE_COLOR[zone], 0.35), stroke: "#111", "stroke-width": 2.5, "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke"}, g);   // dark outline
   el("path", {d, fill: "none", stroke: "#fff", "stroke-width": 2, "vector-effect": "non-scaling-stroke", "clip-path": "url(#hvClip)"}, g);                                  // thin white inner edge
@@ -131,13 +141,17 @@ function drawMap() {
     const p = f.properties;
     const path = el("path", {d: pathOf(f.geometry), fill: ZONE_COLOR[p.zone], tabindex: 0, role: "button", "data-id": p.id, "data-zone": p.zone}, svg);
     // Pointer events, not mouse events: on phones there is no hover, so a single tap must open the popup (iOS Safari swallows the first tap when a hover handler changes the page).
-    path.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") { highlightZone(p.zone); if (canHover()) showHover(path, p.zone); } });
-    path.addEventListener("pointermove", e => { if (e.pointerType === "mouse") showTip(e, p); });
+    const lit = e => { highlightZone(p.zone); if (canHover()) { try { showHover(path, p.zone); } catch (err) { console.error(err); } } };   // cosmetic: an error here must never stop the tooltip
+    path.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") { lit(e); showTip(e, p); } });
+    path.addEventListener("pointermove", e => { if (e.pointerType === "mouse") { if (!$("hoverLayer").firstChild) lit(e); showTip(e, p); } });   // self-healing: re-light if the first enter was missed
     path.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") { hideTip(); highlightZone(null); clearHover(); } });
     path.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") highlightZone(p.zone); });   // touch / pen: show the zone while pressed
     for (const ev of ["pointerup", "pointercancel"]) path.addEventListener(ev, e => { if (e.pointerType !== "mouse") highlightZone(null); });
-    path.addEventListener("focus", () => { if (restoring) return; highlightZone(p.zone); if (path.matches(":focus-visible")) showHover(path, p.zone); const r = path.getBoundingClientRect(); showTip({clientX: r.left + r.width / 2, clientY: r.top + r.height / 2}, p); });
-    path.addEventListener("blur", () => { hideTip(); highlightZone(null); clearHover(); });
+    path.addEventListener("focus", () => {   // only keyboard focus shows anything: same shape-following highlight as hover, plus the label
+      if (!keyboardMode()) return; highlightZone(p.zone); try { showHover(path, p.zone); } catch (err) { console.error(err); }
+      const r = path.getBoundingClientRect(); showTip({clientX: r.left + r.width / 2, clientY: r.top + r.height / 2}, p);
+    });
+    path.addEventListener("blur", () => { if (keyboardMode()) { hideTip(); highlightZone(null); clearHover(); } });
     path.addEventListener("click", () => openPopup(p));
     path.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPopup(p); } });
   }
@@ -151,8 +165,8 @@ function updateMapLabels() {
   $("legend").innerHTML = Object.entries(ZONE_COLOR).map(([z, c]) => `<li><i style="background:${c}"></i>${esc(z)}</li>`).join("");
 }
 function showTip(e, p) {   // two pieces: the state name (large, bold) and the rest on a second, smaller line
-  const tip = $("tip"); tip.hidden = false; tip.replaceChildren();
-  const a = document.createElement("span"), b = document.createElement("span"); a.className = "tipname"; b.className = "tiprest"; a.textContent = stateName(p); b.textContent = t("tip_rest", {zone: p.zone}); tip.append(a, b);
+  const tip = $("tip"); tip.hidden = false; tip.textContent = "";
+  const a = document.createElement("span"), b = document.createElement("span"); a.className = "tipname"; b.className = "tiprest"; a.textContent = stateName(p); b.textContent = t("tip_rest", {zone: p.zone}); tip.appendChild(a); tip.appendChild(b);
   const w = tip.offsetWidth || 240, h = tip.offsetHeight || 60, rtl = LANGS[lang].dir === "rtl", x = rtl ? e.clientX - 14 - w : e.clientX + 14;
   let y = e.clientY + 18; if (y + h > innerHeight - 4) y = e.clientY - 14 - h;                         // flip above the pointer near the bottom edge
   tip.style.left = Math.max(4, Math.min(x, innerWidth - w - 4)) + "px"; tip.style.top = Math.max(4, Math.min(y, innerHeight - h - 4)) + "px";
@@ -183,7 +197,7 @@ function openModal(dlg) {   // centred modal; the page behind is locked and iner
 function onModalClose() {
   if (document.querySelector("dialog[open]")) return;
   document.documentElement.classList.remove("modal-open");
-  if (lastFocus && document.contains(lastFocus)) { restoring = true; lastFocus.focus({preventScroll: true}); restoring = false; }   // give focus back without re-showing the hover label
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus({preventScroll: true});   // give focus back; in pointer mode the focus handler shows nothing
 }
 function backdropClose(dlg) {   // a click that lands on the dialog element itself but outside its box is a click on the backdrop
   dlg.addEventListener("click", e => { if (e.target !== dlg) return; const r = dlg.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) { dlg.close(); onModalClose(); } });

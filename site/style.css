@@ -15,6 +15,8 @@ h1{font-size:1.3rem;margin:0;min-width:0}.topctl{display:flex;flex-wrap:wrap;ali
 /* focus rings only for keyboard users */
 :focus{outline:none}
 :focus-visible{outline:3px solid var(--fc);outline-offset:2px}
+/* the map's states and their wrapper never draw a browser focus rectangle; keyboard users get the shape-following highlight from app.js instead */
+#map,#map:focus,#map:focus-visible,#map *,#map *:focus,#map *:focus-visible,#map path:focus,#map path:focus-visible,.mapwrap:focus,.mapwrap:focus-visible,#hoverLayer,#hoverLayer *{outline:none!important;-webkit-tap-highlight-color:transparent}
 dialog:focus,dialog:focus-visible{outline:none}
 .sub{margin:4px 0;color:var(--muted);font-size:.9rem}
 .snapshot{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:4px 10px;font-size:.85rem;margin:4px 0}
