@@ -9,7 +9,7 @@ def table():
     m = pd.read_csv(ROOT / "results/final_test_metrics.csv").set_index(["zone", "model"]).MAE
     o = pd.read_csv(ROOT / "results/official_forecast_comparison.csv"); o = o[o.period == "test"].set_index(["zone", "model"]).MAE
     f = pd.read_csv(ROOT / "results/future_test_metrics.csv").set_index(["zone", "k"]).MAE_model
-    rows = ["| Zone | Last week's load (simple baseline) | SMARD official day-ahead forecast | Our model, 24 h rolling | Our model, 7 days ahead | Our model, 21 days ahead |", "|---|---|---|---|---|---|"]
+    rows = ["| Zone | Last week's load (simple baseline) | SMARD official day-ahead forecast | My model, 24 h rolling | My model, 7 days ahead | My model, 21 days ahead |", "|---|---|---|---|---|---|"]
     for z in ZONES:
         rows.append(f"| {z} | {m[(z, 'B1_last_week')]:,.0f} | {o[(z, 'SMARD official day-ahead forecast (filter 411)')]:,.0f} | {m[(z, 'M2_mean_model')]:,.0f} | {f[(z, 7)]:,.0f} | {f[(z, 21)]:,.0f} |")
     return rows
@@ -40,7 +40,7 @@ def model_rows():
     return rows
 
 def future_rows():
-    """Multi-day models on the sealed test year (1, 7 and 21 days ahead): MAE of our model and, in brackets, of the best simple baseline at the same distance."""
+    """Multi-day models on the sealed test year (1, 7 and 21 days ahead): MAE of my model and, in brackets, of the best simple baseline at the same distance."""
     f = pd.read_csv(ROOT / "results/future_test_metrics.csv").set_index(["zone", "k"])
     rows = ["| Zone | 1 day ahead | 7 days ahead | 21 days ahead |", "|---|---|---|---|"]
     for z in ZONES:

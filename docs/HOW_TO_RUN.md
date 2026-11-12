@@ -57,7 +57,7 @@ scripts/refresh_snapshot.sh        # or: python scripts/refresh_snapshot.py
 ```
 It updates the SMARD load files (the old ones are copied to `data/raw/_old_load_<time>/`), downloads the current 16-day weather forecast (12 requests, with the retry logic for HTTP 429 answers), regenerates the snapshot and a new dated log in `results/prospective/` (older logs are kept), runs the tests, and stops with an error if any past-date map file changed. It runs no git commands. Review the result and commit it yourself. The steps are tested with mocked downloads in `tests/test_refresh_snapshot.py`.
 
-Note that a refresh uses the original (fixed) range method. The rolling recalibration of the ranges is applied afterwards with `python scripts/make_new_intervals.py`, which reads the dated log; we have not wired that into the refresh.
+Note that a refresh uses the original (fixed) range method. The rolling recalibration of the ranges is applied afterwards with `python scripts/make_new_intervals.py`, which reads the dated log; I have not wired that into the refresh.
 
 ## Set the public address once hosting is decided
 ```bash
@@ -66,9 +66,9 @@ python scripts/set_site_url.py ""                          # clears it again
 ```
 
 ## Browser checks (optional)
-`tests/test_layout_browser.py` uses headless Chrome (skipped if Chrome is absent). `scripts/check_site_browsers.py` runs the page in Chromium and WebKit with Playwright (not a project dependency; the install line is in the script's docstring) and writes `results/site_browser_check.json`. We could not run Firefox in our setup.
+`tests/test_layout_browser.py` uses headless Chrome (skipped if Chrome is absent). `scripts/check_site_browsers.py` runs the page in Chromium and WebKit with Playwright (not a project dependency; the install line is in the script's docstring) and writes `results/site_browser_check.json`. I could not run Firefox in my setup.
 
 ## Hosting
 The site is a static folder (`site/`) with relative links only, so it works on any static host. A GitHub Pages workflow is included.
 
-**GitHub Pages.** In the GitHub repository choose Settings -> Pages -> Build and deployment -> Source: "GitHub Actions" (no folder to pick). The workflow `.github/workflows/pages.yml` then publishes the `site/` folder on every push to `main` that changes it, or when started by hand from the Actions tab; the map appears at `https://<your-github-username>.github.io/<repository-name>/`. The "Deploy from a branch" option does not work here, because it only offers the repository root or a `/docs` folder, not `site/`. We wrote the workflow and tested the site locally under a subpath, but the workflow has not completed a deployment yet.
+**GitHub Pages.** In the GitHub repository choose Settings -> Pages -> Build and deployment -> Source: "GitHub Actions" (no folder to pick). The workflow `.github/workflows/pages.yml` then publishes the `site/` folder on every push to `main` that changes it, or when started by hand from the Actions tab; the map appears at `https://<your-github-username>.github.io/<repository-name>/`. The "Deploy from a branch" option does not work here, because it only offers the repository root or a `/docs` folder, not `site/`. I wrote the workflow and tested the site locally under a subpath, but the workflow has not completed a deployment yet.

@@ -124,9 +124,9 @@ def test_old_notices_are_gone_and_the_notes_block_has_its_keys():
 
 def test_rewritten_texts_are_single_templates_without_hard_coded_zone_or_state_names():
     en = json.load(open(SITE / "i18n/en.json"))
-    assert en["intervals_future"].replace("**", "") == "Ranges for future days use a newer method. We reset them using the most recent forecast errors. The window should be {weeks} weeks, but only {days} days of newer data were available, so it is shorter. On the tuning year, this method covered {v80} and {v95} of real values (for the 80% and 95% ranges). We have not tested it on new data yet. We will check it with the saved forecast described in the README. Past days still show the older ranges, so past and future ranges cannot be compared."
-    assert en["acc_intro"].replace("**", "").split("? ", 1)[1] == "Accuracy gets worse the further ahead we look. For {zone}, the average error on the test year was {a} for the 1-day model and {b} for the {L}-day model. Copying last week gives {c} and {d}. Days {o} to {L} are a low-confidence outlook."
-    assert "{v0} to {v1}" in en["acc_weather"] and en["acc_weather"].startswith("We only had old weather forecasts for up to 7 days ahead.")
+    assert en["intervals_future"].replace("**", "") == "Ranges for future days use a newer method. I reset them using the most recent forecast errors. The window should be {weeks} weeks, but only {days} days of newer data were available, so it is shorter. On the tuning year, this method covered {v80} and {v95} of real values (for the 80% and 95% ranges). I have not tested it on new data yet. I will check it with the saved forecast described in the README. Past days still show the older ranges, so past and future ranges cannot be compared."
+    assert en["acc_intro"].replace("**", "").split("? ", 1)[1] == "Accuracy gets worse the further ahead I look. For {zone}, the average error on the test year was {a} for the 1-day model and {b} for the {L}-day model. Copying last week gives {c} and {d}. Days {o} to {L} are a low-confidence outlook."
+    assert "{v0} to {v1}" in en["acc_weather"] and en["acc_weather"].startswith("I only had old weather forecasts for up to 7 days ahead.")
     zones = ("50Hertz", "Amprion", "TenneT", "TransnetBW")
     for l in ("en", "de", "ar"):
         d = json.load(open(SITE / f"i18n/{l}.json"))

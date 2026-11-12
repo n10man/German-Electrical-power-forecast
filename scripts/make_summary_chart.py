@@ -1,4 +1,4 @@
-"""README results chart: test-year MAE per zone for last-week baseline, SMARD official day-ahead forecast and our model.
+"""README results chart: test-year MAE per zone for last-week baseline, SMARD official day-ahead forecast and my model.
 Reads results/official_forecast_comparison.csv (logged numbers only). Writes docs/results_chart_light.png and docs/results_chart_dark.png.
 Palette = the validated reference palette slots 1-3 (validate_palette: all checks pass in both modes; the light-mode aqua contrast warning is
 covered by the value labels on every bar and by the table in the README)."""
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, Rectangle, Patch
 import pandas as pd
 ZONES = ["50Hertz", "Amprion", "TenneT", "TransnetBW"]
-SERIES = [("B1 last week (logged, F1)", "Same hour last week (baseline)", 3), ("SMARD official day-ahead forecast (filter 411)", "SMARD official day-ahead forecast", 2), ("our model (logged, F1)", "Our model (rolling 24-hour-ahead)", 1)]
+SERIES = [("B1 last week (logged, F1)", "Same hour last week (baseline)", 3), ("SMARD official day-ahead forecast (filter 411)", "SMARD official day-ahead forecast", 2), ("our model (logged, F1)", "My model (rolling 24-hour-ahead)", 1)]
 THEME = {"light": dict(surface="#fcfcfb", ink="#0b0b0b", ink2="#52514e", grid="#e6e5e1", cols={1: "#2a78d6", 2: "#eb6834", 3: "#1baf7a"}),
          "dark": dict(surface="#1a1a19", ink="#f0efec", ink2="#c3c2b7", grid="#34332f", cols={1: "#3987e5", 2: "#d95926", 3: "#199e70"})}
 R = pd.read_csv("results/official_forecast_comparison.csv"); R = R[R.period == "test"]
@@ -30,6 +30,6 @@ for mode, t in THEME.items():
     ax.set_title("Sealed test year (2025-10-25 to 2026-10-24): error by grid zone", loc="left", color=t["ink"], fontsize=12, fontweight="bold", pad=34)
     leg = ax.legend(handles=[Patch(facecolor=t["cols"][slot], label=label) for _, label, slot in SERIES], loc="lower left", bbox_to_anchor=(0, 1.0), ncol=3, frameon=False, fontsize=8.8, handlelength=1.1, handleheight=0.9, columnspacing=1.6, borderaxespad=0.2)
     for tx in leg.get_texts(): tx.set_color(t["ink"])
-    fig.text(0.012, 0.012, "Not like-for-like: the official forecast is a true day-ahead forecast; ours is rolling 24-hour-ahead, uses lag_24h and observed weather.", color=t["ink2"], fontsize=7.8)
+    fig.text(0.012, 0.012, "Not like-for-like: the official forecast is a true day-ahead forecast; mine is rolling 24-hour-ahead, uses lag_24h and observed weather.", color=t["ink2"], fontsize=7.8)
     fig.subplots_adjust(left=0.085, right=0.985, top=0.80, bottom=0.14); fig.savefig(f"docs/results_chart_{mode}.png", facecolor=t["surface"]); plt.close(fig)
 print("wrote docs/results_chart_light.png and docs/results_chart_dark.png")

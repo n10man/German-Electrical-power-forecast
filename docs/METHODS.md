@@ -6,7 +6,7 @@ This note explains how the forecasts and their uncertainty ranges are made, why 
 The model learns, from almost ten years of past data, how electricity use in each of Germany's four grid zones depends on the hour of the day, the weekday, holidays, the season, the load a few days ago and (for the first days only, and only where it helped) the weather forecast. A separate model is trained for each "distance into the future", so that a model for day 7 never sees anything that would not yet be known 7 days ahead. Next to the best guess it produces ranges (80% and 95%) that are meant to contain the real value that often. Those ranges turned out too narrow on a year of data held back for the final test (they contained 72.5% and 90.8%), because the usual guarantee behind them assumes data that behave the same way over time, and electricity demand does not. For future days the ranges are now recalibrated on recent errors; that fix has only been checked on the validation year, and the real check is the one-off forecast made on 2026-11-11 (see the README, *Prospective check*).
 
 ## 1. The forecasting problem and the no-leakage setup
-Let $y_t$ be the hourly load (MWh/h) of one zone at hour $t$. For a **forecast origin** $O$ (the last hour with a known load) we want $\hat y_t$ for $t = O+1,\dots,O+24\cdot 21$. Day $d$ is $(O+24(d-1),\,O+24d]$.
+Let $y_t$ be the hourly load (MWh/h) of one zone at hour $t$. For a **forecast origin** $O$ (the last hour with a known load) I want $\hat y_t$ for $t = O+1,\dots,O+24\cdot 21$. Day $d$ is $(O+24(d-1),\,O+24d]$.
 
 I use a **direct multi-horizon** scheme: one model $f_k$ per zone for $k\in\{1,2,3,5,7,10,14,16\}$ days (plus $k=21$ for a low-confidence outlook). Model $f_k$ predicts $y_t$ from
 
@@ -41,7 +41,7 @@ Take a calibration set of $n$ points not used for training, a score $s_i$ that m
 
 For **conformalized quantile regression** (Romano, Patterson and Candès 2019) with lower and upper quantile predictions $\hat q_{lo},\hat q_{hi}$ the score is $s_i=\max\{\hat q_{lo}(x_i)-y_i,\;y_i-\hat q_{hi}(x_i)\}$ and the interval is $[\hat q_{lo}(x)-\hat Q,\;\hat q_{hi}(x)+\hat Q]$. This is what the map has used: one offset $\hat Q$ per zone, horizon and band, calibrated on the whole validation year (`models_future/cqr_offsets_future.json`).
 
-## 5. Why it failed here, and what we saw
+## 5. Why it failed here, and what I saw
 Time series are not exchangeable: demand follows seasons, holidays, economic conditions and weather regimes, and a score distribution measured in one year need not describe the next. Calibrated on the validation year, the offsets gave about 80% and 94% coverage when scored on the other half of the same year (`results/horizon_coverage_val.csv`), but **72.5% and 90.8%** on the following, sealed year (zones: TenneT 66.9% and 87.1%, 50Hertz 78.9% and 94.4%; `site/data/meta.json`). So the nominal level held under exchangeability, which was true by construction in that check, and not under a time shift, which is the case that matters.
 
 ## 6. Recalibrating on recent errors (validation replay; future days only)

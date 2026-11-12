@@ -19,8 +19,8 @@ def test_headline_coverage_numbers_match_site_meta():
 
 def test_readme_structure_order_and_required_lines():
     heads = re.findall(r"^## (.+)$", README, re.M)
-    assert heads == ["Data and licences", "The problem we set out to solve", "What we built", "How the results were tested", "Results", "How sure are we?", "Stress tests", "Other models we tried", "The interactive map",
-                     "Prospective check (pending)", "Problems and mistakes we ran into", "Limitations", "Lessons for next time"], heads        # the problem section comes second; ends with Limitations, then Lessons
+    assert heads == ["Data and licences", "The problem I set out to solve", "What I built", "How the results were tested", "Results", "How sure am I?", "Stress tests", "Other models I tried", "The interactive map",
+                     "Prospective check (pending)", "Problems and mistakes I ran into", "Limitations", "Lessons for next time"], heads        # the problem section comes second; ends with Limitations, then Lessons
     assert README.startswith("# Germany electricity demand forecasting\n") and "In 60 seconds" not in README
     assert "\nLive map: https://germany-electricity-forecast.netlify.app\n" in README and "[link to be added]" not in README
     for d in ("docs/METHODS.md", "docs/DETAILED_RESULTS.md", "docs/HOW_TO_RUN.md", "results/EXPERIMENTS.md"): assert d in README.split("## Data and licences")[0], d
@@ -30,8 +30,8 @@ def test_readme_structure_order_and_required_lines():
 def test_required_credits_and_licence_lines_are_kept():
     for needle in ("Bundesnetzagentur \\| SMARD.de", "CC BY 4.0", "Weather data by [Open-Meteo.com](https://open-meteo.com/)", "non-commercial", "grey area", "dl-de/by-2-0", "https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf",
                    "`holidays` package", "MIT", "data/DATA_SOURCES.md", "Raw data is not committed"): assert needle in README, needle
-    for old in ("has not been compared with the TSOs", "striped", "UTC+8", "the owner's", "In 60 seconds", "See *The problem we set out to solve*", "Good to know"): assert old not in README, old
-    assert "problem we set out to solve" not in (ROOT / "docs/DETAILED_RESULTS.md").read_text().lower()
+    for old in ("has not been compared with the TSOs", "striped", "UTC+8", "the owner's", "In 60 seconds", "See *The problem I set out to solve*", "Good to know"): assert old not in README, old
+    assert "problem I set out to solve".lower() not in (ROOT / "docs/DETAILED_RESULTS.md").read_text().lower()
     assert "has not completed a deployment yet" in (ROOT / "docs/HOW_TO_RUN.md").read_text() and "billing" not in (ROOT / "docs/HOW_TO_RUN.md").read_text().lower()
 
 def test_privacy_sentence():
@@ -72,7 +72,7 @@ def test_jargon_free_readme_and_moved_items_are_in_detailed_results():
     assert "## 10. More limitations and small issues" in DETAILS
     for moved in ("Missing hours for 50Hertz", "HTTP 429", "Hessen and Frankfurt", "main()` guard", "Few examples for special days", "Observed weather in the headline numbers", "Browsers and translations"): assert moved in DETAILS, moved
     assert "Reuse notes" in (ROOT / "data/DATA_SOURCES.md").read_text()
-    assert "problem we set out to solve" not in README.split("## The problem we set out to solve")[0]       # no pointer to that section from anywhere above it
+    assert "problem I set out to solve" not in README.split("## The problem I set out to solve")[0]       # no pointer to that section from anywhere above it
     for line in T.interval_short_rows(): assert line in README
 
 def test_map_colours_named_in_readme_match_the_site():

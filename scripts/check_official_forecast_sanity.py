@@ -1,5 +1,5 @@
 """Post-hoc sanity check of the official forecast series (added AFTER seeing the O1 numbers; not part of the O1 rule).
-Question: is SMARD filter 411 per zone a forecast of the same quantity as our target (grid load, filter 410)? Uses only official series and actuals
+Question: is SMARD filter 411 per zone a forecast of the same quantity as my target (grid load, filter 410)? Uses only official series and actuals
 from site/data and data/raw; no model, no sealed file."""
 import sys, json, time; sys.path.insert(0, "src")
 import numpy as np, pandas as pd, requests

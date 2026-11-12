@@ -12,9 +12,9 @@
 - Other similar series that exist and were NOT used:
   - **4359 Residual load** (load minus wind/solar) — not total consumption.
   - **4387 Hydro pumped-storage consumption** — only pumping demand (~1 GW avg), not total load.
-  - (SMARD also offers a "grid load incl. pumped storage" variant; not downloaded. We use plain grid load.)
+  - (SMARD also offers a "grid load incl. pumped storage" variant; not downloaded. I use plain grid load.)
   - Generation and price series — irrelevant.
-- Why 410: the reference values we checked against (SMARD website, grid load, DE hourly: 60,003 / 59,180 / 56,841 MWh) are reproduced **exactly** by series 410 at **2022-06-01 16:00, 17:00, 18:00 UTC**. They were first noted as "2022-06-02 00:00-03:00 local"; that corresponds to UTC+8 (the browser timezone they were read in), i.e. 18:00-21:00 Berlin time, not Berlin midnight. Series 4359 and 4387 do not match.
+- Why 410: the reference values I checked against (SMARD website, grid load, DE hourly: 60,003 / 59,180 / 56,841 MWh) are reproduced **exactly** by series 410 at **2022-06-01 16:00, 17:00, 18:00 UTC**. They were first noted as "2022-06-02 00:00-03:00 local"; that corresponds to UTC+8 (the browser timezone they were read in), i.e. 18:00-21:00 Berlin time, not Berlin midnight. Series 4359 and 4387 do not match.
 - Timestamps: stored in UTC. Berlin local time is used only for calendar features. DST days: 23 h (2022-03-27) and 25 h (2022-10-30) local; tested.
 
 ## Weather — Open-Meteo Historical Weather API (archive-api.open-meteo.com)
@@ -27,7 +27,7 @@
 
 ## State shapes (Phase 7 map)
 - BKG (Bundesamt für Kartographie und Geodäsie) VG250, layer `vg250_lan` (land areas, gf=4), downloaded 2026-11-08 from the official WFS `https://sgx.geodatenzentrum.de/wfs_vg250` as GeoJSON (`scripts/download_states.py`); 16 features.
-- Licence: Datenlizenz Deutschland – Namensnennung 2.0 (https://www.govdata.de/dl-de/by-2-0), as stated in the service's own capabilities document. Required credit line (BKG's own wording): "© BKG (Jahr des letzten Datenbezugs) dl-de/by-2-0, Datenquellen: https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf", used with the year 2026 (download year). Our `site/data/states.geojson` is a simplified derivative (tiny islands dropped, coordinates rounded).
+- Licence: Datenlizenz Deutschland – Namensnennung 2.0 (https://www.govdata.de/dl-de/by-2-0), as stated in the service's own capabilities document. Required credit line (BKG's own wording): "© BKG (Jahr des letzten Datenbezugs) dl-de/by-2-0, Datenquellen: https://sg.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg_nuts.pdf", used with the year 2026 (download year). My `site/data/states.geojson` is a simplified derivative (tiny islands dropped, coordinates rounded).
 
 ## Grid-zone assignment of states (Phase 7 map)
 - SMARD "Control area": https://www.smard.de/page/en/wiki-article/5884/205642 (qualitative description of the four areas).
@@ -91,7 +91,7 @@ The Python `holidays` package (MIT licence, verified on 2026-11-12 from the inst
 - **Usage and an honest slip.** Open-Meteo counts a request as several calls when it asks for many days or variables. The archive download (72 requests of one year each, 40 variables) plus probes tripped the **per-minute and per-hour limits** (HTTP 429; the script waited and retried until it succeeded). I cannot see the server-side counter; by my estimate of the weighted calls, the day total stayed below 10,000, but it was not far from the 5,000-per-hour limit. In addition, an import side effect of my own script briefly started a re-download of the observed weather (about 4 requests) before I stopped it; it wrote nothing (`data/raw/weather.parquet` unchanged, dated 2026-11-08), and `scripts/download_weather.py` now has a `main()` guard. The current-forecast download itself was 12 small requests.
 
 ## Reuse notes (moved from the README on 2026-11-12)
-- We fetched SMARD data from the undocumented endpoints behind its charts, not from its download section, and SMARD says it is reviewing its data-use concept (see the SMARD flags above).
-- The MIT licence of our code does not change the data terms. Files in this repository that contain or come from these data (`site/data/`, the results tables) keep the credits and terms of their sources.
+- I fetched SMARD data from the undocumented endpoints behind its charts, not from its download section, and SMARD says it is reviewing its data-use concept (see the SMARD flags above).
+- The MIT licence of my code does not change the data terms. Files in this repository that contain or come from these data (`site/data/`, the results tables) keep the credits and terms of their sources.
 - This is a non-commercial portfolio project with no advertising or subscriptions. Anyone who re-runs the download scripts for a commercial purpose must check the terms first; Open-Meteo requires a paid plan for commercial use.
-- The terms pages were read on 2026-11-09. This is our reading of public terms, not legal advice.
+- The terms pages were read on 2026-11-09. This is my reading of public terms, not legal advice.

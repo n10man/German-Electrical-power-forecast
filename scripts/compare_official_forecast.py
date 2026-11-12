@@ -1,5 +1,5 @@
-"""O1: compare the official SMARD day-ahead 'Forecasted consumption' (filter 411) with the logged numbers of our model.
-Reporting only. Our model's metrics are COPIED from results/final_test_metrics.csv (test) and results/lag_ablation_val.csv (validation);
+"""O1: compare the official SMARD day-ahead 'Forecasted consumption' (filter 411) with the logged numbers of my model.
+Reporting only. My model's metrics are COPIED from results/final_test_metrics.csv (test) and results/lag_ablation_val.csv (validation);
 actuals and hours come from the committed map files site/data/{zone}.json. The sealed parquet file is never read."""
 import sys, json; sys.path.insert(0, "src")
 import numpy as np, pandas as pd
