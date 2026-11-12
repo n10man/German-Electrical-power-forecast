@@ -166,7 +166,7 @@ function updateMapLabels() {
 }
 function showTip(e, p) {   // two pieces: the state name (large, bold) and the rest on a second, smaller line
   const tip = $("tip"); tip.hidden = false; tip.textContent = "";
-  const a = document.createElement("span"), b = document.createElement("span"); a.className = "tipname"; b.className = "tiprest"; a.textContent = stateName(p); b.textContent = t("tip_rest", {zone: p.zone}); tip.appendChild(a); tip.appendChild(b);
+  const a = document.createElement("span"), b = document.createElement("span"); a.className = "tipname"; b.className = "tiprest"; a.textContent = stateName(p); b.innerHTML = tm("tip_rest", {zone: L(p.zone)}); tip.appendChild(a); tip.appendChild(b);   // the zone name inside the second line is isolated left-to-right, so Arabic and German sentences keep their order
   const w = tip.offsetWidth || 240, h = tip.offsetHeight || 60, rtl = LANGS[lang].dir === "rtl", x = rtl ? e.clientX - 14 - w : e.clientX + 14;
   let y = e.clientY + 18; if (y + h > innerHeight - 4) y = e.clientY - 14 - h;                         // flip above the pointer near the bottom edge
   tip.style.left = Math.max(4, Math.min(x, innerWidth - w - 4)) + "px"; tip.style.top = Math.max(4, Math.min(y, innerHeight - h - 4)) + "px";
