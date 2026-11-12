@@ -2,6 +2,8 @@
 
 This project forecasts how much electricity Germany's four grid zones use, hour by hour. We use grid-load data from SMARD (the German energy market data site), weather data from Open-Meteo and public holidays. Our models forecast hourly electricity use for past days and for future days up to 21 days ahead. This project is for testing and learning purposes. It is not a production system.
 
+Status: published on 12 November 2026. Everything in this README describes the project as it was on that date. The map covers dates up to 1 December 2026.
+
 Available in English, Deutsch and العربية. The translations are AI-assisted and not fully reviewed yet.
 
 Live map: [link to be added]
@@ -20,7 +22,7 @@ We took only data that is published for reuse, and we credit every source. Raw d
 | Our code | us | MIT, see [`LICENSE`](LICENSE) | |
 
 ## The problem we set out to solve
-We want to forecast the electricity use of each grid zone, hour by hour. Every input about past use must be at least 24 hours old when we make the forecast. We make a new forecast for every hour, so we call it a rolling 24-hour forecast. It is not a day-ahead forecast made once a day: at one fixed time each day, we would not yet know the use from 24 hours before for the later hours of the next day. 
+We want to forecast the electricity use of each grid zone, hour by hour. Every input about past use must be at least 24 hours old when we make the forecast. We make a new forecast for every hour, so we call it a rolling 24-hour forecast. It is not a day-ahead forecast made once a day: at one fixed time each day, we would not yet know the use from 24 hours before for the later hours of the next day. One shortcut: we use the weather that really happened at each hour, not a weather forecast; the stress tests show what wrong weather does.
 
 ## What we built
 1. We collected the hourly electricity use of four grid zones, the weather, and the public holidays.
@@ -137,6 +139,11 @@ We compared our LightGBM models with a ridge regression (a simple straight-line 
 ![Popup with More details open](docs/screenshots/readme_04.jpg)
 
 *"More details" shows the numbers behind the chart and all our warnings.*
+
+## Prospective check (pending)
+We made forecasts on 11 Nov 2026 for the next three weeks and saved them before the hours happened.
+Fingerprint of the saved file (SHA-256): `897be3dc27dda1d05a09cc2db677593c5bf52488166fd40360c663325f49cafe`, first committed in `35791f5ee8372a29edf7cfdef3316c0c37b9a1f6`.
+We will add the result here in December 2026, whatever it is.
 
 <!-- PROSPECTIVE:START -->
 *Pending: no results yet.*
