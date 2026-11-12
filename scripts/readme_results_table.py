@@ -54,10 +54,10 @@ def interval_summary_rows():
     return r[:2] + [l for l in r[2:] if l.split("|")[1].strip() in keep]
 
 def interval_short_rows():
-    """The README's 3-row table: plain labels, typical coverage and average width, from results/interval_val_summary.csv."""
-    S = pd.read_csv(ROOT / "results/interval_val_summary.csv").set_index("candidate")
+    """The README's 3-row table: plain labels, typical coverage (results/interval_val_summary.csv) and average width of the 80% range only (mean of `width` over the band-80 cells of results/interval_val_cells.csv)."""
+    S = pd.read_csv(ROOT / "results/interval_val_summary.csv").set_index("candidate"); C = pd.read_csv(ROOT / "results/interval_val_cells.csv"); W80 = C[C.band == 80].groupby("candidate").width.mean()
     labels = [("static", "Old method: one fixed setting (`static`)"), ("rolling_8w", "New method: reset on the last 8 weeks (`rolling_8w`)"), ("aci_g0.005", "Self-adjusting method, left out because the ranges got too wide (`aci_g0.005`)")]
-    rows = ["| Method | Typical share of real values inside the 80% and 95% ranges | Average width of the 80% range plus 95% range, in MWh/h |", "|---|---|---|"]
+    rows = ["| Method | Typical share of real values inside the 80% and 95% ranges | Average width of the 80% range, in MWh/h |", "|---|---|---|"]
     for k, lab in labels:
-        r = S.loc[k]; rows.append(f"| {lab} | {r.mean_coverage_80:.1f}% and {r.mean_coverage_95:.1f}% | {r.mean_width:,.0f} |")
+        r = S.loc[k]; rows.append(f"| {lab} | {r.mean_coverage_80:.1f}% and {r.mean_coverage_95:.1f}% | {W80[k]:,.0f} |")
     return rows

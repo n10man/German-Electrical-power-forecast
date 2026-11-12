@@ -98,13 +98,13 @@ Each forecast has a range. An 80% range should contain the real value about 80 t
 
 **What we tried.** For future days we tested setting the ranges again from only the latest weeks of errors, and a method that adjusts itself as it goes. We tested them on the tuning year only, with the rules written down first:
 
-| Method | Typical share of real values inside the 80% and 95% ranges | Average width of the 80% range plus 95% range, in MWh/h |
+| Method | Typical share of real values inside the 80% and 95% ranges | Average width of the 80% range, in MWh/h |
 |---|---|---|
-| Old method: one fixed setting (`static`) | 83.3% and 95.7% | 2,447 |
-| New method: reset on the last 8 weeks (`rolling_8w`) | 80.0% and 94.7% | 2,168 |
-| Self-adjusting method, left out because the ranges got too wide (`aci_g0.005`) | 79.9% and 94.9% | 2,805 |
+| Old method: one fixed setting (`static`) | 83.3% and 95.7% | 1,882 |
+| New method: reset on the last 8 weeks (`rolling_8w`) | 80.0% and 94.7% | 1,682 |
+| Self-adjusting method, left out because the ranges got too wide (`aci_g0.005`) | 79.9% and 94.9% | 2,208 |
 
-Resetting the ranges on the last 8 weeks kept the share close to the targets without making the ranges much wider, so we use it for **future days only**. The self-adjusting method came closest to the targets but made the ranges so wide that our rule left it out. Be careful with this: we checked it on the same year we chose it on; the old method looks too wide in this test, the opposite of what happened on the test year; and only the 16 days after the test year could be used to set the ranges, a shorter time than the 8 weeks we tested. **Past days on the map keep the old ranges**, so past and future ranges cannot be compared. Every row is in [docs/DETAILED_RESULTS.md](docs/DETAILED_RESULTS.md). The real test is the check described below.
+Resetting the ranges on the last 8 weeks kept the share close to the targets without making the ranges much wider, so we use it for **future days only**. The self-adjusting method came closest to the targets but made the ranges so wide that our rule left it out. Be careful with this: we checked it on the same year we chose it on; the old method covered more than its target in this test, the opposite of what happened on the test year; and only the 16 days after the test year could be used to set the ranges, a shorter time than the 8 weeks we tested. **Past days on the map keep the old ranges**, so past and future ranges cannot be compared. Every row is in [docs/DETAILED_RESULTS.md](docs/DETAILED_RESULTS.md). The real test is the check described below.
 
 ## Stress tests
 We pushed the model with changes to its inputs. All of these used only training and validation data.
@@ -121,7 +121,7 @@ We compared our LightGBM models with a ridge regression (a simple straight-line 
 - Hover over a region to light up its grid zone, and click it to see the forecast for that zone.
 - A date picker lets you choose any day from 2024-10-26 to 2026-12-01, and an hour or the full day.
 - The colours: each map colour is one grid zone (50Hertz is blue, Amprion is orange, TenneT is green and TransnetBW is pink). A state gets the colour of its main zone, and every forecast is for the zone, not for the state; five states are shared between two zones and show a warning. In the chart, the black line is what really happened, the orange line is our forecast, and the shaded bands are the likely range (darker 80%, lighter 95%).
-- The site is available in English, Arabic and Deutsch.
+- The site is available in English, Deutsch and العربية.
 - The site has no cookies, no tracking and makes no requests to other websites. (Your language choice is saved only in your own browser, and the host may keep standard server logs.)
 
 ![English desktop overview with the instructions panel](docs/screenshots/readme_01.jpg)
