@@ -35,7 +35,7 @@ def test_required_credits_and_licence_lines_are_kept():
     assert "has not completed a deployment yet" in (ROOT / "docs/HOW_TO_RUN.md").read_text() and "billing" not in (ROOT / "docs/HOW_TO_RUN.md").read_text().lower()
 
 def test_privacy_sentence():
-    for needle in ("no cookies", "no tracking", "no requests to other websites", "stored only in your own browser", "standard server logs"): assert needle in README, needle
+    for needle in ("no cookies", "no tracking", "no requests to other websites", "saved only in your own browser", "standard server logs"): assert needle in README, needle
 
 def test_headline_ranges_in_text_trace_to_files():
     import pandas as pd
