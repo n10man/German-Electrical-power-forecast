@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 250" role="img" aria-labelledby="t d">
+  <title id="t">How the project fits together</title>
+  <desc id="d">Data (SMARD grid load, Open-Meteo weather, public holidays) goes into features, then into models (one per grid zone and distance ahead), then into ranges (quantile models plus calibration), and finally onto the interactive map.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#777"/></marker>
+    <style>text{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;fill:#1d1d1b}.h{font-size:17px;font-weight:700}.s{font-size:13px}.n{font-size:12px;fill:#5d5d58}.b{fill:#f4f6f8;stroke:#777;stroke-width:1.5}</style>
+  </defs>
+  <rect x="4" y="30" width="170" height="150" rx="10" class="b"/>
+  <text x="89" y="56" text-anchor="middle" class="h">1. Data</text>
+  <text x="89" y="86" text-anchor="middle" class="s">SMARD grid load</text>
+  <text x="89" y="108" text-anchor="middle" class="s">Open-Meteo weather</text>
+  <text x="89" y="130" text-anchor="middle" class="s">Public holidays</text>
+  <text x="89" y="160" text-anchor="middle" class="n">hourly, per grid zone</text>
+  <rect x="204" y="30" width="170" height="150" rx="10" class="b"/>
+  <text x="289" y="56" text-anchor="middle" class="h">2. Features</text>
+  <text x="289" y="86" text-anchor="middle" class="s">Hour, weekday, season</text>
+  <text x="289" y="108" text-anchor="middle" class="s">Holidays</text>
+  <text x="289" y="130" text-anchor="middle" class="s">Load from days ago</text>
+  <text x="289" y="160" text-anchor="middle" class="n">only what is known in time</text>
+  <rect x="404" y="30" width="170" height="150" rx="10" class="b"/>
+  <text x="489" y="56" text-anchor="middle" class="h">3. Models</text>
+  <text x="489" y="86" text-anchor="middle" class="s">One per grid zone</text>
+  <text x="489" y="108" text-anchor="middle" class="s">and distance ahead</text>
+  <text x="489" y="130" text-anchor="middle" class="s">(1 to 21 days)</text>
+  <text x="489" y="160" text-anchor="middle" class="n">best guess per hour</text>
+  <rect x="604" y="30" width="170" height="150" rx="10" class="b"/>
+  <text x="689" y="56" text-anchor="middle" class="h">4. Ranges</text>
+  <text x="689" y="86" text-anchor="middle" class="s">Low and high guesses</text>
+  <text x="689" y="108" text-anchor="middle" class="s">plus a calibration</text>
+  <text x="689" y="130" text-anchor="middle" class="s">step</text>
+  <text x="689" y="160" text-anchor="middle" class="n">80% and 95% ranges</text>
+  <rect x="804" y="30" width="152" height="150" rx="10" class="b"/>
+  <text x="880" y="56" text-anchor="middle" class="h">5. Map</text>
+  <text x="880" y="86" text-anchor="middle" class="s">Click a state,</text>
+  <text x="880" y="108" text-anchor="middle" class="s">pick a date</text>
+  <text x="880" y="130" text-anchor="middle" class="s">in 3 languages</text>
+  <text x="880" y="160" text-anchor="middle" class="n">past and future days</text>
+  <g stroke="#777" stroke-width="2" fill="none" marker-end="url(#a)">
+    <path d="M174 105H202"/><path d="M374 105H402"/><path d="M574 105H602"/><path d="M774 105H802"/>
+  </g>
+  <text x="480" y="222" text-anchor="middle" class="n">Splits are by time only. The final test year stays sealed until the end.</text>
+</svg>

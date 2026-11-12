@@ -38,3 +38,17 @@ def model_rows():
     s = json.load(open(ROOT / "results/model_comparison_summary.json"))
     rows.append(f"| **Pooled (sum of 12 cells)** | | {s['pooled']['mae_lightgbm']:,.0f} | {s['pooled']['mae_ridge']:,.0f} | {s['pooled']['mae_mlp_mean']:,.0f} |")
     return rows
+
+def future_rows():
+    """Multi-day models on the sealed test year (1, 7 and 21 days ahead): MAE of our model and, in brackets, of the best simple baseline at the same distance."""
+    f = pd.read_csv(ROOT / "results/future_test_metrics.csv").set_index(["zone", "k"])
+    rows = ["| Zone | 1 day ahead | 7 days ahead | 21 days ahead |", "|---|---|---|---|"]
+    for z in ZONES:
+        cell = lambda k: f"{f.loc[(z, k), 'MAE_model']:,.0f} ({f.loc[(z, k), 'MAE_best_simple_baseline']:,.0f})"
+        rows.append(f"| {z} | {cell(1)} | {cell(7)} | {cell(21)} |")
+    return rows
+
+def interval_summary_rows():
+    """The short 3-row version for the README: static, the selected rolling method, and the best adaptive method (excluded by the rule). Lines identical to interval_rows()."""
+    r = interval_rows(); keep = {"static", "rolling_8w", "aci_g0.005"}
+    return r[:2] + [l for l in r[2:] if l.split("|")[1].strip() in keep]

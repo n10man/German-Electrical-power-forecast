@@ -12,9 +12,9 @@
 - Other similar series that exist and were NOT used:
   - **4359 Residual load** (load minus wind/solar) — not total consumption.
   - **4387 Hydro pumped-storage consumption** — only pumping demand (~1 GW avg), not total load.
-  - (SMARD also offers a "grid load incl. pumped storage" variant; not downloaded. The brief asks for plain grid load.)
+  - (SMARD also offers a "grid load incl. pumped storage" variant; not downloaded. We use plain grid load.)
   - Generation and price series — irrelevant.
-- Why 410: the owner's reference values (SMARD website, grid load, DE hourly: 60,003 / 59,180 / 56,841 MWh) are reproduced **exactly** by series 410 at **2022-06-01 16:00, 17:00, 18:00 UTC**. The brief labelled them "2022-06-02 00:00-03:00 local"; that corresponds to UTC+8 (the owner's browser timezone), i.e. 18:00-21:00 Berlin time, not Berlin midnight. Series 4359 and 4387 do not match.
+- Why 410: the reference values we checked against (SMARD website, grid load, DE hourly: 60,003 / 59,180 / 56,841 MWh) are reproduced **exactly** by series 410 at **2022-06-01 16:00, 17:00, 18:00 UTC**. They were first noted as "2022-06-02 00:00-03:00 local"; that corresponds to UTC+8 (the browser timezone they were read in), i.e. 18:00-21:00 Berlin time, not Berlin midnight. Series 4359 and 4387 do not match.
 - Timestamps: stored in UTC. Berlin local time is used only for calendar features. DST days: 23 h (2022-03-27) and 25 h (2022-10-30) local; tested.
 
 ## Weather — Open-Meteo Historical Weather API (archive-api.open-meteo.com)
@@ -78,7 +78,7 @@ Flags (unclear or restricted):
 Terms as stated by the service itself (see the "State shapes" section above): Datenlizenz Deutschland - Namensnennung 2.0, with BKG's own credit line. Not re-fetched beyond the capabilities document.
 
 ### Not covered
-The Python `holidays` package (MIT licence, as I recall; not checked), the Bundestag paper (cited, not redistributed), and the repository's own licence: the code is MIT-licensed (see `LICENSE`, copyright 2026 n10man); that does not change the data terms above, which stay with the data and anything derived from it.
+The Python `holidays` package (MIT licence, verified on 2026-11-12 from the installed package: version 0.108, licence expression MIT, licence file included in its distribution metadata), the Bundestag paper (cited, not redistributed), and the repository's own licence: the code is MIT-licensed (see `LICENSE`, copyright 2026 n10man); that does not change the data terms above, which stay with the data and anything derived from it.
 
 ## Future forecast (added 2026-11-11, branch feature/future-forecast)
 ### SMARD load, downloaded again
