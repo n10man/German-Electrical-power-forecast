@@ -6,7 +6,7 @@ Status: published on 12 November 2026. Everything in this README describes the p
 
 Available in English, Deutsch and العربية. The translations are AI-assisted and not fully reviewed yet.
 
-Live map: [link to be added]
+Live map: https://germany-electricity-forecast.netlify.app
 
 Docs: [docs/METHODS.md](docs/METHODS.md) · [docs/DETAILED_RESULTS.md](docs/DETAILED_RESULTS.md) · [docs/HOW_TO_RUN.md](docs/HOW_TO_RUN.md) · [results/EXPERIMENTS.md](results/EXPERIMENTS.md)
 
