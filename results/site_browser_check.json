@@ -5,20 +5,24 @@
   "chromium": {
    "tooltip_every_state_every_language": [],
    "no_focus_rectangle_after_mouse_click_and_close": [],
-   "keyboard_highlight_after_tab": []
+   "keyboard_highlight_after_tab": [],
+   "all_states_all_languages": [],
+   "runtime_language_switch": []
   },
   "webkit": {
    "tooltip_every_state_every_language": [],
    "no_focus_rectangle_after_mouse_click_and_close": [],
-   "keyboard_highlight_after_tab": []
+   "keyboard_highlight_after_tab": [],
+   "all_states_all_languages": [],
+   "runtime_language_switch": []
   }
  },
  "first_load_files_1440_en": {
   "/index.html?lang=en": 5593,
-  "/style.css": 12138,
+  "/style.css": 12256,
   "/today.js": 1314,
   "/config.js": 365,
-  "/app.js": 36914,
+  "/app.js": 37033,
   "/i18n/en.json": 11517,
   "/data/meta.json": 1028,
   "/data/states.geojson": 110233,
@@ -29,9 +33,9 @@
    "engine": "chromium",
    "size": "360x740",
    "lang": "en",
-   "load_ms": 575,
+   "load_ms": 576,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 360,
     "clientW": 360,
@@ -89,7 +93,7 @@
    "lang": "de",
    "load_ms": 549,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 360,
     "clientW": 360,
@@ -145,9 +149,9 @@
    "engine": "chromium",
    "size": "360x740",
    "lang": "ar",
-   "load_ms": 552,
+   "load_ms": 551,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 360,
     "clientW": 360,
@@ -203,9 +207,9 @@
    "engine": "chromium",
    "size": "390x844",
    "lang": "en",
-   "load_ms": 548,
+   "load_ms": 540,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -261,9 +265,9 @@
    "engine": "chromium",
    "size": "390x844",
    "lang": "de",
-   "load_ms": 550,
+   "load_ms": 548,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -319,9 +323,9 @@
    "engine": "chromium",
    "size": "390x844",
    "lang": "ar",
-   "load_ms": 551,
+   "load_ms": 546,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -377,9 +381,9 @@
    "engine": "chromium",
    "size": "768x1024",
    "lang": "en",
-   "load_ms": 552,
+   "load_ms": 549,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 768,
     "clientW": 768,
@@ -451,9 +455,9 @@
    "engine": "chromium",
    "size": "768x1024",
    "lang": "de",
-   "load_ms": 552,
+   "load_ms": 549,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 768,
     "clientW": 768,
@@ -525,9 +529,9 @@
    "engine": "chromium",
    "size": "768x1024",
    "lang": "ar",
-   "load_ms": 550,
+   "load_ms": 546,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 768,
     "clientW": 768,
@@ -601,7 +605,7 @@
    "lang": "en",
    "load_ms": 547,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 1024,
     "clientW": 1024,
@@ -703,9 +707,9 @@
    "engine": "chromium",
    "size": "1024x768",
    "lang": "de",
-   "load_ms": 547,
+   "load_ms": 549,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 1024,
     "clientW": 1024,
@@ -807,9 +811,9 @@
    "engine": "chromium",
    "size": "1024x768",
    "lang": "ar",
-   "load_ms": 552,
+   "load_ms": 547,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 1024,
     "clientW": 1024,
@@ -911,9 +915,9 @@
    "engine": "chromium",
    "size": "1440x900",
    "lang": "en",
-   "load_ms": 550,
+   "load_ms": 548,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 1440,
     "clientW": 1440,
@@ -1015,9 +1019,9 @@
    "engine": "chromium",
    "size": "1440x900",
    "lang": "de",
-   "load_ms": 551,
+   "load_ms": 549,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 1440,
     "clientW": 1440,
@@ -1119,9 +1123,9 @@
    "engine": "chromium",
    "size": "1440x900",
    "lang": "ar",
-   "load_ms": 551,
+   "load_ms": 552,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 1440,
     "clientW": 1440,
@@ -1223,9 +1227,9 @@
    "engine": "chromium",
    "size": "1920x1080",
    "lang": "en",
-   "load_ms": 549,
+   "load_ms": 550,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 1920,
     "clientW": 1920,
@@ -1327,9 +1331,9 @@
    "engine": "chromium",
    "size": "1920x1080",
    "lang": "de",
-   "load_ms": 552,
+   "load_ms": 550,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 1920,
     "clientW": 1920,
@@ -1431,9 +1435,9 @@
    "engine": "chromium",
    "size": "1920x1080",
    "lang": "ar",
-   "load_ms": 553,
+   "load_ms": 550,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 1920,
     "clientW": 1920,
@@ -1535,9 +1539,9 @@
    "engine": "chromium",
    "size": "844x390 landscape",
    "lang": "en",
-   "load_ms": 549,
+   "load_ms": 548,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 844,
     "clientW": 844,
@@ -1609,9 +1613,9 @@
    "engine": "chromium",
    "size": "844x390 landscape",
    "lang": "de",
-   "load_ms": 550,
+   "load_ms": 551,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 844,
     "clientW": 844,
@@ -1683,9 +1687,9 @@
    "engine": "chromium",
    "size": "844x390 landscape",
    "lang": "ar",
-   "load_ms": 553,
+   "load_ms": 538,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 844,
     "clientW": 844,
@@ -1757,9 +1761,9 @@
    "engine": "chromium",
    "size": "667x375 landscape",
    "lang": "en",
-   "load_ms": 551,
+   "load_ms": 545,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 667,
     "clientW": 667,
@@ -1815,9 +1819,9 @@
    "engine": "chromium",
    "size": "667x375 landscape",
    "lang": "de",
-   "load_ms": 550,
+   "load_ms": 549,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 667,
     "clientW": 667,
@@ -1873,9 +1877,9 @@
    "engine": "chromium",
    "size": "667x375 landscape",
    "lang": "ar",
-   "load_ms": 551,
+   "load_ms": 549,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 667,
     "clientW": 667,
@@ -1931,9 +1935,9 @@
    "engine": "chromium",
    "size": "390x844 portrait-tall",
    "lang": "en",
-   "load_ms": 551,
+   "load_ms": 546,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -1989,9 +1993,9 @@
    "engine": "chromium",
    "size": "390x844 portrait-tall",
    "lang": "de",
-   "load_ms": 549,
+   "load_ms": 543,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -2047,9 +2051,9 @@
    "engine": "chromium",
    "size": "390x844 portrait-tall",
    "lang": "ar",
-   "load_ms": 553,
+   "load_ms": 548,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -2105,299 +2109,299 @@
    "engine": "webkit",
    "size": "360x740",
    "lang": "en",
+   "load_ms": 553,
+   "initial_requests": 9,
+   "initial_bytes": 194878,
+   "closed": {
+    "scrollW": 360,
+    "clientW": 360,
+    "scrollH": 1583,
+    "clientH": 740,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px"
+    ],
+    "minChartFont": null
+   },
+   "hover": {
+    "overlayCreatedByTouch": 0
+   },
+   "tapOpensPopup": true,
+   "open": {
+    "scrollW": 360,
+    "clientW": 360,
+    "scrollH": 1583,
+    "clientH": 740,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px",
+     "LABEL:12.8px",
+     "badge:12.8px"
+    ],
+    "minChartFont": 11.92
+   },
+   "dialog": {
+    "open": true,
+    "left": 18,
+    "right": 342,
+    "top": 29.59375,
+    "bottom": 710.390625,
+    "vw": 360,
+    "vh": 740,
+    "dlgScrollW": 322,
+    "dlgClientW": 322,
+    "closeW": 44,
+    "closeH": 44,
+    "closeVisibleAfterScroll": true
+   },
+   "zoneBytes": 1362046,
+   "offsite_requests": [],
+   "errors": [],
+   "problems": []
+  },
+  {
+   "engine": "webkit",
+   "size": "360x740",
+   "lang": "de",
+   "load_ms": 544,
+   "initial_requests": 9,
+   "initial_bytes": 196997,
+   "closed": {
+    "scrollW": 360,
+    "clientW": 360,
+    "scrollH": 1807,
+    "clientH": 740,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px"
+    ],
+    "minChartFont": null
+   },
+   "hover": {
+    "overlayCreatedByTouch": 0
+   },
+   "tapOpensPopup": true,
+   "open": {
+    "scrollW": 360,
+    "clientW": 360,
+    "scrollH": 1807,
+    "clientH": 740,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px",
+     "LABEL:12.8px",
+     "badge:12.8px"
+    ],
+    "minChartFont": 11.92
+   },
+   "dialog": {
+    "open": true,
+    "left": 18,
+    "right": 342,
+    "top": 29.59375,
+    "bottom": 710.390625,
+    "vw": 360,
+    "vh": 740,
+    "dlgScrollW": 322,
+    "dlgClientW": 322,
+    "closeW": 44,
+    "closeH": 44,
+    "closeVisibleAfterScroll": true
+   },
+   "zoneBytes": 1362046,
+   "offsite_requests": [],
+   "errors": [],
+   "problems": []
+  },
+  {
+   "engine": "webkit",
+   "size": "360x740",
+   "lang": "ar",
+   "load_ms": 549,
+   "initial_requests": 9,
+   "initial_bytes": 200293,
+   "closed": {
+    "scrollW": 360,
+    "clientW": 360,
+    "scrollH": 1464,
+    "clientH": 740,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px"
+    ],
+    "minChartFont": null
+   },
+   "hover": {
+    "overlayCreatedByTouch": 0
+   },
+   "tapOpensPopup": true,
+   "open": {
+    "scrollW": 360,
+    "clientW": 360,
+    "scrollH": 1464,
+    "clientH": 740,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px",
+     "LABEL:12.8px",
+     "badge:12.8px"
+    ],
+    "minChartFont": 11.92
+   },
+   "dialog": {
+    "open": true,
+    "left": 18,
+    "right": 342,
+    "top": 29.59375,
+    "bottom": 710.390625,
+    "vw": 360,
+    "vh": 740,
+    "dlgScrollW": 322,
+    "dlgClientW": 322,
+    "closeW": 44,
+    "closeH": 44,
+    "closeVisibleAfterScroll": true
+   },
+   "zoneBytes": 1362046,
+   "offsite_requests": [],
+   "errors": [],
+   "problems": []
+  },
+  {
+   "engine": "webkit",
+   "size": "390x844",
+   "lang": "en",
+   "load_ms": 542,
+   "initial_requests": 9,
+   "initial_bytes": 194878,
+   "closed": {
+    "scrollW": 390,
+    "clientW": 390,
+    "scrollH": 1520,
+    "clientH": 844,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px"
+    ],
+    "minChartFont": null
+   },
+   "hover": {
+    "overlayCreatedByTouch": 0
+   },
+   "tapOpensPopup": true,
+   "open": {
+    "scrollW": 390,
+    "clientW": 390,
+    "scrollH": 1520,
+    "clientH": 844,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px",
+     "LABEL:12.8px",
+     "badge:12.8px"
+    ],
+    "minChartFont": 12
+   },
+   "dialog": {
+    "open": true,
+    "left": 18,
+    "right": 372,
+    "top": 33.765625,
+    "bottom": 810.234375,
+    "vw": 390,
+    "vh": 844,
+    "dlgScrollW": 352,
+    "dlgClientW": 352,
+    "closeW": 44,
+    "closeH": 44,
+    "closeVisibleAfterScroll": true
+   },
+   "zoneBytes": 1362046,
+   "offsite_requests": [],
+   "errors": [],
+   "problems": []
+  },
+  {
+   "engine": "webkit",
+   "size": "390x844",
+   "lang": "de",
+   "load_ms": 544,
+   "initial_requests": 9,
+   "initial_bytes": 196997,
+   "closed": {
+    "scrollW": 390,
+    "clientW": 390,
+    "scrollH": 1779,
+    "clientH": 844,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px"
+    ],
+    "minChartFont": null
+   },
+   "hover": {
+    "overlayCreatedByTouch": 0
+   },
+   "tapOpensPopup": true,
+   "open": {
+    "scrollW": 390,
+    "clientW": 390,
+    "scrollH": 1779,
+    "clientH": 844,
+    "smallTargets": [],
+    "smallFont": [],
+    "bodyFont": 15,
+    "smallText": [
+     "disTitle:13.6px",
+     "LABEL:12.8px",
+     "badge:12.8px"
+    ],
+    "minChartFont": 12
+   },
+   "dialog": {
+    "open": true,
+    "left": 18,
+    "right": 372,
+    "top": 33.765625,
+    "bottom": 810.234375,
+    "vw": 390,
+    "vh": 844,
+    "dlgScrollW": 352,
+    "dlgClientW": 352,
+    "closeW": 44,
+    "closeH": 44,
+    "closeVisibleAfterScroll": true
+   },
+   "zoneBytes": 1362046,
+   "offsite_requests": [],
+   "errors": [],
+   "problems": []
+  },
+  {
+   "engine": "webkit",
+   "size": "390x844",
+   "lang": "ar",
    "load_ms": 558,
    "initial_requests": 9,
-   "initial_bytes": 194641,
-   "closed": {
-    "scrollW": 360,
-    "clientW": 360,
-    "scrollH": 1583,
-    "clientH": 740,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px"
-    ],
-    "minChartFont": null
-   },
-   "hover": {
-    "overlayCreatedByTouch": 0
-   },
-   "tapOpensPopup": true,
-   "open": {
-    "scrollW": 360,
-    "clientW": 360,
-    "scrollH": 1583,
-    "clientH": 740,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px",
-     "LABEL:12.8px",
-     "badge:12.8px"
-    ],
-    "minChartFont": 11.92
-   },
-   "dialog": {
-    "open": true,
-    "left": 18,
-    "right": 342,
-    "top": 29.59375,
-    "bottom": 710.390625,
-    "vw": 360,
-    "vh": 740,
-    "dlgScrollW": 322,
-    "dlgClientW": 322,
-    "closeW": 44,
-    "closeH": 44,
-    "closeVisibleAfterScroll": true
-   },
-   "zoneBytes": 1362046,
-   "offsite_requests": [],
-   "errors": [],
-   "problems": []
-  },
-  {
-   "engine": "webkit",
-   "size": "360x740",
-   "lang": "de",
-   "load_ms": 553,
-   "initial_requests": 9,
-   "initial_bytes": 196760,
-   "closed": {
-    "scrollW": 360,
-    "clientW": 360,
-    "scrollH": 1807,
-    "clientH": 740,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px"
-    ],
-    "minChartFont": null
-   },
-   "hover": {
-    "overlayCreatedByTouch": 0
-   },
-   "tapOpensPopup": true,
-   "open": {
-    "scrollW": 360,
-    "clientW": 360,
-    "scrollH": 1807,
-    "clientH": 740,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px",
-     "LABEL:12.8px",
-     "badge:12.8px"
-    ],
-    "minChartFont": 11.92
-   },
-   "dialog": {
-    "open": true,
-    "left": 18,
-    "right": 342,
-    "top": 29.59375,
-    "bottom": 710.390625,
-    "vw": 360,
-    "vh": 740,
-    "dlgScrollW": 322,
-    "dlgClientW": 322,
-    "closeW": 44,
-    "closeH": 44,
-    "closeVisibleAfterScroll": true
-   },
-   "zoneBytes": 1362046,
-   "offsite_requests": [],
-   "errors": [],
-   "problems": []
-  },
-  {
-   "engine": "webkit",
-   "size": "360x740",
-   "lang": "ar",
-   "load_ms": 570,
-   "initial_requests": 9,
-   "initial_bytes": 200056,
-   "closed": {
-    "scrollW": 360,
-    "clientW": 360,
-    "scrollH": 1464,
-    "clientH": 740,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px"
-    ],
-    "minChartFont": null
-   },
-   "hover": {
-    "overlayCreatedByTouch": 0
-   },
-   "tapOpensPopup": true,
-   "open": {
-    "scrollW": 360,
-    "clientW": 360,
-    "scrollH": 1464,
-    "clientH": 740,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px",
-     "LABEL:12.8px",
-     "badge:12.8px"
-    ],
-    "minChartFont": 11.92
-   },
-   "dialog": {
-    "open": true,
-    "left": 18,
-    "right": 342,
-    "top": 29.59375,
-    "bottom": 710.390625,
-    "vw": 360,
-    "vh": 740,
-    "dlgScrollW": 322,
-    "dlgClientW": 322,
-    "closeW": 44,
-    "closeH": 44,
-    "closeVisibleAfterScroll": true
-   },
-   "zoneBytes": 1362046,
-   "offsite_requests": [],
-   "errors": [],
-   "problems": []
-  },
-  {
-   "engine": "webkit",
-   "size": "390x844",
-   "lang": "en",
-   "load_ms": 555,
-   "initial_requests": 9,
-   "initial_bytes": 194641,
-   "closed": {
-    "scrollW": 390,
-    "clientW": 390,
-    "scrollH": 1520,
-    "clientH": 844,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px"
-    ],
-    "minChartFont": null
-   },
-   "hover": {
-    "overlayCreatedByTouch": 0
-   },
-   "tapOpensPopup": true,
-   "open": {
-    "scrollW": 390,
-    "clientW": 390,
-    "scrollH": 1520,
-    "clientH": 844,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px",
-     "LABEL:12.8px",
-     "badge:12.8px"
-    ],
-    "minChartFont": 12
-   },
-   "dialog": {
-    "open": true,
-    "left": 18,
-    "right": 372,
-    "top": 33.765625,
-    "bottom": 810.234375,
-    "vw": 390,
-    "vh": 844,
-    "dlgScrollW": 352,
-    "dlgClientW": 352,
-    "closeW": 44,
-    "closeH": 44,
-    "closeVisibleAfterScroll": true
-   },
-   "zoneBytes": 1362046,
-   "offsite_requests": [],
-   "errors": [],
-   "problems": []
-  },
-  {
-   "engine": "webkit",
-   "size": "390x844",
-   "lang": "de",
-   "load_ms": 557,
-   "initial_requests": 9,
-   "initial_bytes": 196760,
-   "closed": {
-    "scrollW": 390,
-    "clientW": 390,
-    "scrollH": 1779,
-    "clientH": 844,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px"
-    ],
-    "minChartFont": null
-   },
-   "hover": {
-    "overlayCreatedByTouch": 0
-   },
-   "tapOpensPopup": true,
-   "open": {
-    "scrollW": 390,
-    "clientW": 390,
-    "scrollH": 1779,
-    "clientH": 844,
-    "smallTargets": [],
-    "smallFont": [],
-    "bodyFont": 15,
-    "smallText": [
-     "disTitle:13.6px",
-     "LABEL:12.8px",
-     "badge:12.8px"
-    ],
-    "minChartFont": 12
-   },
-   "dialog": {
-    "open": true,
-    "left": 18,
-    "right": 372,
-    "top": 33.765625,
-    "bottom": 810.234375,
-    "vw": 390,
-    "vh": 844,
-    "dlgScrollW": 352,
-    "dlgClientW": 352,
-    "closeW": 44,
-    "closeH": 44,
-    "closeVisibleAfterScroll": true
-   },
-   "zoneBytes": 1362046,
-   "offsite_requests": [],
-   "errors": [],
-   "problems": []
-  },
-  {
-   "engine": "webkit",
-   "size": "390x844",
-   "lang": "ar",
-   "load_ms": 570,
-   "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -2453,9 +2457,9 @@
    "engine": "webkit",
    "size": "768x1024",
    "lang": "en",
-   "load_ms": 554,
+   "load_ms": 545,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 768,
     "clientW": 768,
@@ -2527,9 +2531,9 @@
    "engine": "webkit",
    "size": "768x1024",
    "lang": "de",
-   "load_ms": 556,
+   "load_ms": 546,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 768,
     "clientW": 768,
@@ -2601,9 +2605,9 @@
    "engine": "webkit",
    "size": "768x1024",
    "lang": "ar",
-   "load_ms": 572,
+   "load_ms": 562,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 768,
     "clientW": 768,
@@ -2675,9 +2679,9 @@
    "engine": "webkit",
    "size": "1024x768",
    "lang": "en",
-   "load_ms": 552,
+   "load_ms": 546,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 1024,
     "clientW": 1024,
@@ -2779,9 +2783,9 @@
    "engine": "webkit",
    "size": "1024x768",
    "lang": "de",
-   "load_ms": 555,
+   "load_ms": 549,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 1024,
     "clientW": 1024,
@@ -2883,9 +2887,9 @@
    "engine": "webkit",
    "size": "1024x768",
    "lang": "ar",
-   "load_ms": 570,
+   "load_ms": 562,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 1024,
     "clientW": 1024,
@@ -2987,9 +2991,9 @@
    "engine": "webkit",
    "size": "1440x900",
    "lang": "en",
-   "load_ms": 552,
+   "load_ms": 555,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 1440,
     "clientW": 1440,
@@ -3091,9 +3095,9 @@
    "engine": "webkit",
    "size": "1440x900",
    "lang": "de",
-   "load_ms": 557,
+   "load_ms": 545,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 1440,
     "clientW": 1440,
@@ -3195,9 +3199,9 @@
    "engine": "webkit",
    "size": "1440x900",
    "lang": "ar",
-   "load_ms": 569,
+   "load_ms": 562,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 1440,
     "clientW": 1440,
@@ -3299,9 +3303,9 @@
    "engine": "webkit",
    "size": "1920x1080",
    "lang": "en",
-   "load_ms": 551,
+   "load_ms": 545,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 1920,
     "clientW": 1920,
@@ -3403,9 +3407,9 @@
    "engine": "webkit",
    "size": "1920x1080",
    "lang": "de",
-   "load_ms": 554,
+   "load_ms": 547,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 1920,
     "clientW": 1920,
@@ -3507,9 +3511,9 @@
    "engine": "webkit",
    "size": "1920x1080",
    "lang": "ar",
-   "load_ms": 570,
+   "load_ms": 562,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 1920,
     "clientW": 1920,
@@ -3611,9 +3615,9 @@
    "engine": "webkit",
    "size": "844x390 landscape",
    "lang": "en",
-   "load_ms": 553,
+   "load_ms": 544,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 844,
     "clientW": 844,
@@ -3685,9 +3689,9 @@
    "engine": "webkit",
    "size": "844x390 landscape",
    "lang": "de",
-   "load_ms": 552,
+   "load_ms": 543,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 844,
     "clientW": 844,
@@ -3759,9 +3763,9 @@
    "engine": "webkit",
    "size": "844x390 landscape",
    "lang": "ar",
-   "load_ms": 566,
+   "load_ms": 557,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 844,
     "clientW": 844,
@@ -3833,9 +3837,9 @@
    "engine": "webkit",
    "size": "667x375 landscape",
    "lang": "en",
-   "load_ms": 551,
+   "load_ms": 541,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 667,
     "clientW": 667,
@@ -3891,9 +3895,9 @@
    "engine": "webkit",
    "size": "667x375 landscape",
    "lang": "de",
-   "load_ms": 551,
+   "load_ms": 544,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 667,
     "clientW": 667,
@@ -3949,9 +3953,9 @@
    "engine": "webkit",
    "size": "667x375 landscape",
    "lang": "ar",
-   "load_ms": 567,
+   "load_ms": 556,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 667,
     "clientW": 667,
@@ -4007,9 +4011,9 @@
    "engine": "webkit",
    "size": "390x844 portrait-tall",
    "lang": "en",
-   "load_ms": 553,
+   "load_ms": 541,
    "initial_requests": 9,
-   "initial_bytes": 194641,
+   "initial_bytes": 194878,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -4065,9 +4069,9 @@
    "engine": "webkit",
    "size": "390x844 portrait-tall",
    "lang": "de",
-   "load_ms": 553,
+   "load_ms": 542,
    "initial_requests": 9,
-   "initial_bytes": 196760,
+   "initial_bytes": 196997,
    "closed": {
     "scrollW": 390,
     "clientW": 390,
@@ -4123,9 +4127,9 @@
    "engine": "webkit",
    "size": "390x844 portrait-tall",
    "lang": "ar",
-   "load_ms": 571,
+   "load_ms": 562,
    "initial_requests": 9,
-   "initial_bytes": 200056,
+   "initial_bytes": 200293,
    "closed": {
     "scrollW": 390,
     "clientW": 390,

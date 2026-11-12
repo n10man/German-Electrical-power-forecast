@@ -101,3 +101,12 @@ def test_no_network_requests_beyond_own_files():
     for u in re.findall(r"""fetch\(\s*[`'"]([^`'"]+)""", code): assert not u.startswith(("http", "//")), u
     # remote URLs in the code are only attribution links (shown as <a href>), never fetched
     assert "getJSON(`i18n/${l}.json`)" in code
+
+
+def test_every_state_has_a_non_empty_name_in_every_language():
+    import json
+    ids = [f["properties"]["id"] for f in json.load(open(SITE / "data/states.geojson"))["features"]]
+    assert len(ids) == 16
+    for l in ("en", "de", "ar"):
+        for i in ids: assert M[l].get("state_" + i, "").strip(), (l, i)
+    for i in ids: assert len({M[l]["state_" + i] for l in ("en", "de", "ar")}) >= 2        # the names really are translated

@@ -65,3 +65,74 @@ def keyboard_problems(browser, base):
     return bad
 
 ALL = {"tooltip_every_state_every_language": tooltip_problems, "no_focus_rectangle_after_mouse_click_and_close": focus_after_click_problems, "keyboard_highlight_after_tab": keyboard_problems}
+
+# ---------------- every state x every language (and after switching language at runtime) ----------------
+import json as _json
+from pathlib import Path as _Path
+_ROOT = _Path(__file__).resolve().parents[1]
+NAMES = {l: _json.load(open(_ROOT / f"site/i18n/{l}.json")) for l in LANGS}
+STATE_JS = """() => { const t = document.getElementById('tip'), r = t.getBoundingClientRect(), c = getComputedStyle(t), n = t.querySelector('.tipname'), L = document.getElementById('hoverLayer'), hv = L.querySelectorAll('.hv'), d = document.documentElement;
+  const zones = [...new Set([...document.querySelectorAll('#map>path.hl')].map(x => x.dataset.zone))];
+  return {tipVisible: !t.hidden && r.width > 10 && r.height > 10 && c.visibility === 'visible' && c.opacity === '1' && c.display !== 'none', tipInside: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight,
+          name: n ? n.textContent : '', namePx: n ? parseFloat(getComputedStyle(n).fontSize) : 0, nameWeight: n ? getComputedStyle(n).fontWeight : '', nameClipped: n ? n.scrollWidth > n.clientWidth + 1 : true,
+          overlays: hv.length, layerPaths: L.querySelectorAll('path').length, zones: zones.length, noScroll: d.scrollWidth <= d.clientWidth && d.scrollHeight <= innerHeight + 1, rtl: d.dir}; }"""
+ALIGN_JS = """(sid) => { const el = document.querySelector('#map>path[data-id=' + sid + ']'), hv = document.querySelector('#hoverLayer .hv'); if (!hv) return false; const a = el.getBoundingClientRect(), b = hv.getBoundingClientRect(), ctm = document.getElementById('map').getScreenCTM();
+  const m = /translate\\(([-\\d.]+)px(?:, ([-\\d.]+)px)?\\) scale\\(([\\d.]+)\\)/.exec(hv.style.transform); if (!m) return false; const dx = +m[1] * ctm.a, dy = +(m[2] || 0) * ctm.d, s = +m[3];
+  return Math.abs(a.left + a.width / 2 + dx - (b.left + b.width / 2)) < 1.5 && Math.abs(a.top + a.height / 2 + dy - (b.top + b.height / 2)) < 1.5 && Math.abs(b.width / a.width - s) < 0.03; }"""
+
+def _one_state(p, lang, sid, tag):
+    bad = []; exp = NAMES[lang]["state_" + sid]
+    pt = p.evaluate(INSIDE_JS, sid)
+    if not pt: return [f"{tag} {sid}: no point inside the state"]
+    p.mouse.move(2, 2); p.mouse.move(pt[0], pt[1], steps=4); p.wait_for_timeout(260); h = p.evaluate(STATE_JS)
+    if not h["tipVisible"]: bad.append(f"{tag} {sid}: tooltip not visible")
+    else:
+        if h["name"] != exp: bad.append(f"{tag} {sid}: tooltip name {h['name']!r} != {exp!r}")
+        if not h["tipInside"]: bad.append(f"{tag} {sid}: tooltip outside the viewport")
+        if h["namePx"] < 20 or h["nameWeight"] not in ("700", "bold"): bad.append(f"{tag} {sid}: name {h['namePx']}px weight {h['nameWeight']}")
+        if h["nameClipped"]: bad.append(f"{tag} {sid}: name clipped")
+    if h["overlays"] != 1 or h["layerPaths"] != 3: bad.append(f"{tag} {sid}: expected exactly one highlighted/zoomed state, got {h['overlays']}")
+    if h["zones"] != 1: bad.append(f"{tag} {sid}: {h['zones']} zones lit")
+    if not h["noScroll"]: bad.append(f"{tag} {sid}: scrollbars appeared")
+    if not p.evaluate(ALIGN_JS, sid): bad.append(f"{tag} {sid}: zoomed copy is not centred on the state")
+    p.mouse.click(pt[0], pt[1])
+    try: p.wait_for_selector("#popup[open]", timeout=4000)
+    except Exception: bad.append(f"{tag} {sid}: popup did not open"); return bad
+    if p.inner_text("#pTitle") != exp: bad.append(f"{tag} {sid}: popup title {p.inner_text('#pTitle')!r}")
+    p.mouse.move(4, 4); p.click("#popup .close"); p.wait_for_timeout(150); p.mouse.move(2, 2); p.wait_for_timeout(100)
+    if p.evaluate(OUTLINES_JS): bad.append(f"{tag} {sid}: focus rectangle after mouse use {p.evaluate(OUTLINES_JS)}")
+    if p.evaluate("document.getElementById('hoverLayer').children.length"): bad.append(f"{tag} {sid}: highlight left after the pointer was away")
+    return bad
+
+def _keyboard(p, lang, tag):
+    bad = []; seen = set(); p.mouse.move(2, 2)
+    for _ in range(40):
+        p.keyboard.press("Tab")
+        k = p.evaluate("(() => { const a = document.activeElement; return a.matches('#map>path') ? {id: a.dataset.id, mode: document.documentElement.dataset.input, layer: document.getElementById('hoverLayer').querySelectorAll('.hv').length, tip: !document.getElementById('tip').hidden, name: (document.querySelector('#tip .tipname') || {}).textContent} : null; })()")
+        if k:
+            if k["id"] in seen: break
+            seen.add(k["id"]); p.wait_for_timeout(60)
+            if k["mode"] != "keyboard" or k["layer"] != 1 or not k["tip"] or k["name"] != NAMES[lang]["state_" + k["id"]]: bad.append(f"{tag} Tab on {k['id']}: {k}")
+            if p.evaluate(OUTLINES_JS): bad.append(f"{tag} Tab on {k['id']}: rectangular outline")
+    if len(seen) != 16: bad.append(f"{tag}: Tab reached {len(seen)} of 16 states")
+    return bad
+
+def all_states_problems(browser, base):
+    bad = []
+    for lang in LANGS:
+        p = browser.new_page(viewport={"width": 1440, "height": 900}); p.goto(f"{base}/index.html?lang={lang}"); p.wait_for_selector("#map>path")
+        for sid in p.evaluate("[...document.querySelectorAll('#map>path')].map(x => x.dataset.id)"): bad += _one_state(p, lang, sid, f"[{lang}]")
+        bad += _keyboard(p, lang, f"[{lang}]"); p.close()
+    return bad
+
+def runtime_switch_problems(browser, base):
+    """en -> de -> ar -> en without reloading: hover, tooltip, click and keyboard keep working in every language."""
+    bad = []; p = browser.new_page(viewport={"width": 1440, "height": 900}); p.goto(f"{base}/index.html?lang=en"); p.wait_for_selector("#map>path")
+    for lang in ["en", "de", "ar", "en"]:
+        p.click(f"#langs button[data-lang={lang}]"); p.wait_for_timeout(300)
+        if p.evaluate("document.documentElement.lang") != lang: bad.append(f"switch to {lang} failed")
+        for sid in ("BY", "BE", "HB", "MV", "SH", "NW"): bad += _one_state(p, lang, sid, f"[switch->{lang}]")
+        bad += _keyboard(p, lang, f"[switch->{lang}]")
+    p.close(); return bad
+
+ALL2 = {"all_states_all_languages": all_states_problems, "runtime_language_switch": runtime_switch_problems}

@@ -1,6 +1,6 @@
 """Browser checks (headless Chrome): the 'Today' logic with a fake clock, and page / dialog layout at 1440x900, 1920x1080 and 390x844.
 Skipped when no Chrome/Chromium is installed. The page is served over a local http server on a free port; nothing leaves the machine."""
-import functools, http.server, json, re, shutil, subprocess, threading
+import functools, http.server, json, re, shutil, subprocess, sys, threading
 from pathlib import Path
 import pytest
 
@@ -78,3 +78,25 @@ def test_hover_layer_in_real_browser(server):
         assert not r["bannerToggle"] and r["bannerText"].count("\n") == 0 and "UTC" in r["bannerText"], (tag, r["bannerText"])      # one permanent line, no More/Less button
         assert heads[tag] in r["licHeading"] and "UTC" in r["licSnap"] and ("17" in r["licSnap"]), (tag, r["licHeading"], r["licSnap"][-400:])   # the long text now lives in the licences dialog
     assert {r["dir"] for r in res} == {"ltr", "rtl"}
+
+# ---- every state x every language in real WebKit and Chromium (Playwright; skipped when it is not installed) ----
+@pytest.fixture(scope="module")
+def engines_base():
+    class Quiet(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *a, **k): pass
+    srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(ROOT / "site"))); threading.Thread(target=srv.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{srv.server_address[1]}"; srv.shutdown()
+
+@pytest.mark.parametrize("engine", ["webkit", "chromium"])
+@pytest.mark.parametrize("name", ["all_states_all_languages", "runtime_language_switch"])
+def test_hover_tooltip_click_keyboard_all_states_all_languages(engines_base, engine, name):
+    """3 languages x 16 states: exactly one highlighted and zoomed state (centred on it), visible translated tooltip inside the viewport (name >= 20 px bold, not clipped),
+    click opens the popup, no focus rectangle after mouse use, Tab shows the keyboard highlight; also after switching language at runtime (en -> de -> ar -> en)."""
+    sync_api = pytest.importorskip("playwright.sync_api", reason="Playwright not installed")
+    sys.path.insert(0, str(ROOT / "scripts")); import site_engine_checks as C
+    with sync_api.sync_playwright() as pw:
+        try: browser = getattr(pw, engine).launch()
+        except Exception as e: pytest.skip(f"{engine} cannot be launched here: {str(e)[:80]}")
+        try: problems = C.ALL2[name](browser, engines_base)
+        finally: browser.close()
+    assert not problems, problems[:6]

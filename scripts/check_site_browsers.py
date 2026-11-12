@@ -123,7 +123,7 @@ if __name__ == "__main__":
     engine_checks = {}
     with sync_playwright() as pw:
         for eng in a.engines.split(","):
-            br = getattr(pw, eng).launch(); srv2, base2 = serve(); engine_checks[eng] = {name: fn(br, base2) for name, fn in EC.ALL.items()}; br.close(); srv2.shutdown()
+            br = getattr(pw, eng).launch(); srv2, base2 = serve(); engine_checks[eng] = {name: fn(br, base2) for name, fn in {**EC.ALL, **EC.ALL2}.items()}; br.close(); srv2.shutdown()
     for eng, d in engine_checks.items():
         for name, probs in d.items():
             if probs: problems += 1; print(eng, name, "->", probs[:3])
