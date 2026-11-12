@@ -43,5 +43,5 @@ def test_recorded_engine_checks_are_clean():
     r = json.load(open(ROOT / "results/site_browser_check.json"))["engine_checks"]
     assert set(r) >= {"chromium", "webkit"}
     for eng, d in r.items():
-        assert set(d) == {"tooltip_every_state_every_language", "no_focus_rectangle_after_mouse_click_and_close", "keyboard_highlight_after_tab", "all_states_all_languages", "runtime_language_switch"}
+        assert set(d) == {"tooltip_every_state_every_language", "no_focus_rectangle_after_mouse_click_and_close", "keyboard_highlight_after_tab", "all_states_all_languages", "runtime_language_switch", "notes_block", "rewritten_texts_all_zones_states_languages", "previous_next_day_buttons"}
         assert all(v == [] for v in d.values()), (eng, d)

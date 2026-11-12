@@ -110,3 +110,30 @@ def test_every_state_has_a_non_empty_name_in_every_language():
     for l in ("en", "de", "ar"):
         for i in ids: assert M[l].get("state_" + i, "").strip(), (l, i)
     for i in ids: assert len({M[l]["state_" + i] for l in ("en", "de", "ar")}) >= 2        # the names really are translated
+
+
+def test_old_notices_are_gone_and_the_notes_block_has_its_keys():
+    for l in ("en", "de", "ar"):
+        d = json.load(open(SITE / f"i18n/{l}.json"))
+        for k in ("disclaimer_title", "disclaimer_1", "disclaimer_2", "disclaimer_3", "disclaimer_4", "how_zones", "snapshot_short"): assert k not in d, (l, k)
+        for k in ("notes_title", "notes_1", "notes_2", "notes_details", "notes_3", "notes_4", "notes_5", "notes_snapshot", "day_prev", "day_next"): assert d[k].strip(), (l, k)
+    html = (SITE / "index.html").read_text(); css = (SITE / "style.css").read_text()
+    for gone in ('class="disclaimer"', 'id="snapshot"', "how_zones", "disclaimer_"): assert gone not in html, gone
+    for gone in (".disclaimer", ".snapshot{", ".howto .note"): assert gone not in css, gone
+    assert "disclaimer_" not in (SITE / "app.js").read_text() and "snapshot_short" not in (SITE / "app.js").read_text()
+
+def test_rewritten_texts_are_single_templates_without_hard_coded_zone_or_state_names():
+    en = json.load(open(SITE / "i18n/en.json"))
+    assert en["intervals_future"].replace("**", "") == "Ranges for future days use a newer method. We reset them using the most recent forecast errors. The window should be {weeks} weeks, but only {days} days of newer data were available, so it is shorter. On the tuning year, this method covered {v80} and {v95} of real values (for the 80% and 95% ranges). We have not tested it on new data yet. We will check it with the saved forecast described in the README. Past days still show the older ranges, so past and future ranges cannot be compared."
+    assert en["acc_intro"].replace("**", "").split("? ", 1)[1] == "Accuracy gets worse the further ahead we look. For {zone}, the average error on the test year was {a} for the 1-day model and {b} for the {L}-day model. Copying last week gives {c} and {d}. Days {o} to {L} are a low-confidence outlook."
+    assert "{v0} to {v1}" in en["acc_weather"] and en["acc_weather"].startswith("We only had old weather forecasts for up to 7 days ahead.")
+    zones = ("50Hertz", "Amprion", "TenneT", "TransnetBW")
+    for l in ("en", "de", "ar"):
+        d = json.load(open(SITE / f"i18n/{l}.json"))
+        for k in ("intervals_future", "acc_weather", "acc_intro", "split_stmt", "zone_stmt"):
+            assert not any(z in d[k] for z in zones), (l, k)
+            assert not any(d["state_" + s] in d[k] for s in ("BY", "BE", "NW", "SN")), (l, k)
+        for k in ("intervals_future", "acc_weather", "acc_intro"): assert "{" in d[k], (l, k)
+        assert re.search(r"[٠-٩]", " ".join(d[k] for k in ("intervals_future", "acc_weather", "acc_intro", "notes_snapshot"))) is None     # Latin digits only
+    js = (SITE / "app.js").read_text()
+    for k in ("intervals_future", "acc_weather", "acc_intro"): assert js.count(f'"{k}"') == 1, k                                      # each text is built in exactly one place

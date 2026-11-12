@@ -31,7 +31,6 @@
     </div>
   </div>
   <p class="sub" id="intro"></p>
-  <p id="snapshot" class="snapshot" hidden></p>
   <p id="ended" class="ended" role="status" hidden></p>
 </header>
 <main>
@@ -40,7 +39,6 @@
       <svg id="map" role="group" data-i18n-aria="map_aria"></svg>
       <div class="mapfoot">
         <ul id="legend" class="legend"></ul>
-        <p class="attrib"><a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a> <span data-i18n="attrib_suffix"></span></p>
       </div>
     </section>
     <aside class="howto" id="howto">
@@ -52,21 +50,23 @@
         <li data-i18n="how_4"></li>
         <li data-i18n="how_5"></li>
       </ol>
-      <p class="note" data-i18n="how_zones"></p>
+      <section class="notes" id="notes" aria-labelledby="notesTitle">
+        <h2 id="notesTitle" data-i18n="notes_title"></h2>
+        <ul>
+          <li data-i18n="notes_1"></li>
+          <li id="notesRanges"></li>
+          <li data-i18n="notes_3"></li>
+          <li data-i18n="notes_4"></li>
+          <li data-i18n="notes_5"></li>
+          <li id="notesSnapshot" hidden></li>
+        </ul>
+        <p class="notesfoot"><span id="privacyLine" data-i18n="privacy_line"></span> <a id="repoLink" href="https://github.com/n10man/German-Electrical-power-forecast" data-i18n="code_link"></a></p>
+        <p class="attrib"><a href="https://open-meteo.com/">Weather data by Open-Meteo.com</a> <span data-i18n="attrib_suffix"></span></p>
+      </section>
     </aside>
   </div>
   <p id="loaderr" class="err" hidden></p>
-  <section class="disclaimer" aria-labelledby="disTitle">
-    <h2 id="disTitle" data-i18n="disclaimer_title"></h2>
-    <ul>
-      <li data-i18n="disclaimer_1"></li>
-      <li data-i18n="disclaimer_2"></li>
-      <li data-i18n="disclaimer_3"></li>
-      <li data-i18n="disclaimer_4"></li>
-    </ul>
-  </section>
 </main>
-<footer class="foot"><span id="privacyLine" data-i18n="privacy_line"></span> <a id="repoLink" href="https://github.com/n10man/German-Electrical-power-forecast" data-i18n="code_link"></a></footer>
 
 <div id="tip" class="tip" role="presentation" hidden></div>
 
@@ -76,7 +76,13 @@
   <p id="zoneStmt" class="stmt"></p>
   <p id="splitStmt" class="splitwarn" hidden></p>
   <div class="controls">
-    <label><span data-i18n="label_date"></span> <input type="date" id="date"></label>
+    <div class="field datefield"><label for="date" data-i18n="label_date"></label>
+      <div class="daterow">
+        <button type="button" id="prevDay" class="daybtn" data-i18n-aria="day_prev" data-i18n-title="day_prev"><span class="arrow arrow-prev" aria-hidden="true"></span></button>
+        <input type="date" id="date">
+        <button type="button" id="nextDay" class="daybtn" data-i18n-aria="day_next" data-i18n-title="day_next"><span class="arrow arrow-next" aria-hidden="true"></span></button>
+      </div>
+    </div>
     <span class="jump"><button type="button" id="jumpLatest" data-i18n="jump_latest" data-i18n-title="tip_latest"></button><button type="button" id="jumpToday" data-i18n="jump_today" data-i18n-title="tip_today" hidden></button></span>
     <label><span data-i18n="label_hour"></span> <select id="hour"></select></label>
   </div>

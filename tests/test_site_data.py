@@ -81,7 +81,7 @@ def test_site_files_reference_existing_assets():
     for ref in re.findall(r'(?:src|href)="([^"#]+\.(?:js|css))"', html): assert (SITE / ref).exists(), ref
     assert not re.search(r"https?://[^\"' ]+\.(?:js|png|json)\b", html + js)          # no external scripts/tiles
     assert "api_key" not in js.lower() and "apikey" not in js.lower()
-    for needle in ("Bundesnetzagentur | SMARD.de", "Weather data by Open-Meteo.com", "dl-de/by-2-0", "not the state", "Unseen test period", "Validation period (used for tuning and calibration)", "Backtest using observed weather, not a live forecast."):
+    for needle in ("Bundesnetzagentur | SMARD.de", "Weather data by Open-Meteo.com", "dl-de/by-2-0", "not the state", "Test period", "Tuning period (used for tuning and calibration)", "Backtest using observed weather, not a live forecast."):
         assert needle in js or needle in html, needle
 
 def test_site_is_deployable_under_a_subpath_and_has_a_pages_workflow():

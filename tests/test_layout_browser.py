@@ -75,7 +75,7 @@ def test_hover_layer_in_real_browser(server):
         for t in r["tip"]:                                                                                           # tooltip: big bold name, smaller second line, inside the viewport, no scrollbars
             assert t["namePx"] >= 20 and t["nameWeight"] in ("700", "bold") and t["restPx"] < t["namePx"] and t["inside"] and t["noScroll"] and t["pe"] == "none", (tag, t)
             assert t["bg"] == "rgb(17, 17, 17)" and t["fg"] == "rgb(255, 255, 255)" and t["name"] and t["rest"], (tag, t)
-        assert not r["bannerToggle"] and r["bannerText"].count("\n") == 0 and "UTC" in r["bannerText"], (tag, r["bannerText"])      # one permanent line, no More/Less button
+        assert not r["bannerToggle"] and r["bannerText"].count("\n") == 0 and "UTC" in r["bannerText"], (tag, r["bannerText"])      # the old banner is gone; the dates are one line in the Notes block
         assert heads[tag] in r["licHeading"] and "UTC" in r["licSnap"] and ("17" in r["licSnap"]), (tag, r["licHeading"], r["licSnap"][-400:])   # the long text now lives in the licences dialog
     assert {r["dir"] for r in res} == {"ltr", "rtl"}
 
@@ -98,5 +98,20 @@ def test_hover_tooltip_click_keyboard_all_states_all_languages(engines_base, eng
         try: browser = getattr(pw, engine).launch()
         except Exception as e: pytest.skip(f"{engine} cannot be launched here: {str(e)[:80]}")
         try: problems = C.ALL2[name](browser, engines_base)
+        finally: browser.close()
+    assert not problems, problems[:6]
+
+
+@pytest.mark.parametrize("engine", ["webkit", "chromium"])
+@pytest.mark.parametrize("name", ["notes_block", "rewritten_texts_all_zones_states_languages", "previous_next_day_buttons"])
+def test_notes_block_rewritten_texts_and_day_buttons(engines_base, engine, name):
+    """One plain Notes block (white, no orange/beige, ranges note + snapshot dates from future_meta.json, old banners gone, 360 px fine); the three rewritten texts for all 4 zones and 16 states
+    in en/de/ar with the numbers from the data files; previous/next day across month, year and DST days, limits from the data, mirrored arrows in Arabic, 44 px targets, no overflow at 360 px."""
+    sync_api = pytest.importorskip("playwright.sync_api", reason="Playwright not installed")
+    sys.path.insert(0, str(ROOT / "scripts")); import site_engine_checks as C
+    with sync_api.sync_playwright() as pw:
+        try: browser = getattr(pw, engine).launch()
+        except Exception as e: pytest.skip(f"{engine} cannot be launched here: {str(e)[:80]}")
+        try: problems = C.ALL3[name](browser, engines_base)
         finally: browser.close()
     assert not problems, problems[:6]

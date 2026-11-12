@@ -45,8 +45,8 @@ async function frame(w, h, lang) {
         (r.tip = r.tip || []).push({name: nm.textContent, rest: rest.textContent, namePx: parseFloat(win.getComputedStyle(nm).fontSize), nameWeight: win.getComputedStyle(nm).fontWeight, restPx: parseFloat(win.getComputedStyle(rest).fontSize),
           inside: tr.left >= 0 && tr.top >= 0 && tr.right <= win.innerWidth && tr.bottom <= win.innerHeight, bg: win.getComputedStyle(tip).backgroundColor, fg: win.getComputedStyle(tip).color, noScroll: noScroll(), pe: win.getComputedStyle(tip).pointerEvents});
       }
-      // banner without a toggle; the long snapshot text is in the licences dialog
-      r.bannerToggle = !!doc.querySelector("#snapshot button, #snapToggle, #snapFull"); r.bannerText = doc.getElementById("snapshot").textContent;
+      // the old snapshot banner is gone; its dates are one line in the Notes block, the long text is in the licences dialog
+      r.bannerToggle = !!doc.getElementById("snapshot"); r.bannerText = doc.getElementById("notesSnapshot").textContent;
       doc.getElementById("licBtn").click(); await sleep(150); const lb = doc.getElementById("licBody");
       r.licHeading = [...lb.querySelectorAll("h3")].map(h => h.textContent).join("|"); r.licSnap = lb.innerText;
       out.push(r); f.remove();

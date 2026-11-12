@@ -19,12 +19,11 @@ h1{font-size:1.3rem;margin:0;min-width:0}.topctl{display:flex;flex-wrap:wrap;ali
 #map,#map:focus,#map:focus-visible,#map *,#map *:focus,#map *:focus-visible,#map path:focus,#map path:focus-visible,.mapwrap:focus,.mapwrap:focus-visible,#hoverLayer,#hoverLayer *{outline:none!important;-webkit-tap-highlight-color:transparent}
 dialog:focus,dialog:focus-visible{outline:none}
 .sub{margin:4px 0;color:var(--muted);font-size:.9rem}
-.snapshot{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:4px 10px;font-size:.85rem;margin:4px 0}
 .ended{background:var(--orbg);color:var(--ortx);border:2px solid var(--orline);border-radius:6px;padding:4px 10px;margin:4px 0;font-size:.9rem;font-weight:600}
 .layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.9fr) minmax(240px,1fr);gap:12px;align-items:stretch}
 .mapwrap,.howto{position:relative;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;min-width:0;min-height:0}
 .mapwrap{display:flex;flex-direction:column}
-.howto{padding:10px 14px;overflow:auto}.howto h2{font-size:1rem;margin:0 0 .4rem}.howto ol{margin:0;padding-inline-start:1.2rem;font-size:.9rem}.howto li{margin:.35rem 0}.howto .note{font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:.5rem;margin:.6rem 0 0}
+.howto{padding:10px 14px;overflow:auto}.howto h2{font-size:1rem;margin:0 0 .4rem}.howto ol{margin:0;padding-inline-start:1.2rem;font-size:.9rem}.howto li{margin:.35rem 0}
 #map{width:100%;height:auto;max-height:70vh;max-height:70svh;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:block;min-height:0;flex:1 1 auto}
 #map>path{stroke:var(--bg);stroke-width:.6;vector-effect:non-scaling-stroke;cursor:pointer;transition:opacity .1s,filter .1s}
 #map.hovering>path:not(.hl){opacity:.4}
@@ -34,8 +33,6 @@ dialog:focus,dialog:focus-visible{outline:none}
 .attrib{margin:0;font-size:.8rem}.attrib a{color:inherit}
 .tip{position:fixed;pointer-events:none;background:#111;color:#fff;border:1px solid rgba(255,255,255,.4);padding:7px 12px;border-radius:8px;z-index:5;max-width:min(340px,calc(100vw - 8px));box-shadow:0 3px 10px rgba(0,0,0,.35);line-height:1.25}.tip .tipname{display:block;font-size:1.3rem;font-weight:700;overflow-wrap:anywhere;hyphens:manual;unicode-bidi:plaintext;text-align:start}.tip .tiprest{display:block;font-size:.85rem;font-weight:400;margin-top:2px;overflow-wrap:anywhere;text-align:start}
 .err{color:var(--err);font-weight:600}
-.disclaimer{margin-top:8px;background:var(--orbg);color:var(--ortx);border:2px solid var(--orline);border-radius:8px;padding:4px 12px;font-size:.8rem;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 12px}
-.disclaimer h2{font-size:.85rem;margin:0}.disclaimer ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:0 14px;min-width:0;flex:1}.disclaimer li::before{content:"•";margin-inline-end:5px}
 /* centred modal dialogs */
 dialog{position:fixed;inset:0;margin:auto;width:min(92vw,760px);max-height:88vh;max-height:88dvh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;overflow-y:auto;overflow-x:hidden;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
 dialog::backdrop{background:rgba(0,0,0,.55)}
@@ -59,7 +56,7 @@ dialog h2{margin:.1rem 0 .2rem;margin-inline-end:2rem;font-size:1.25rem}
 #date.unavailable{opacity:.55;border-style:dashed}dialog.is-future{border:2px dashed var(--fc)}.fcnote{font-size:.85rem;margin:.4rem 0}.fcnote p{margin:.3rem 0}.warnline{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:5px 9px}
 .acc{border-collapse:collapse;font-size:.78rem;width:100%;table-layout:fixed}.acc th,.acc td{text-align:start;padding:3px 5px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere;hyphens:auto}
 @media (min-width:761px) and (min-height:620px){body{height:100vh;height:100dvh;overflow-y:auto}.layout{overflow:hidden}#map{max-height:none;height:100%;flex:1 1 0}}
-@media (max-width:760px){.layout{grid-template-columns:minmax(0,1fr)}h1{font-size:1.1rem}#map{max-height:none}.disclaimer{display:block}.disclaimer ul{display:block}.disclaimer li{margin:.1rem 0}}
+@media (max-width:760px){.layout{grid-template-columns:minmax(0,1fr)}h1{font-size:1.1rem}#map{max-height:none}}
 
 /* ---- touch, phones, safe areas ---- */
 button,summary,select,input,#map path{touch-action:manipulation}
@@ -77,7 +74,7 @@ button{-webkit-tap-highlight-color:transparent}
 dialog form{position:sticky;top:0;z-index:2;height:0;overflow:visible}
 @media (max-width:760px){
   body{font-size:15px}
-  .small,.stmt,.splitwarn,.cov,.backtest{font-size:14px}.acc{font-size:14px}.chartkey,.legend,.attrib,.disclaimer,.snapshot,.howto .note{font-size:14px}
+  .small,.stmt,.splitwarn,.cov,.backtest{font-size:14px}.acc{font-size:14px}.chartkey,.legend,.attrib,.notes{font-size:14px}
   dialog{width:min(96vw,760px);padding:12px;max-height:92vh;max-height:92dvh}
   .topbar{gap:4px 10px}.topctl{width:100%;justify-content:space-between}
   .layout{overflow:visible}
@@ -89,8 +86,6 @@ dialog form{position:sticky;top:0;z-index:2;height:0;overflow:visible}
   body{height:auto;min-height:100svh}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
-.foot{width:100%;max-width:1700px;margin-inline:auto;padding:4px max(14px,env(safe-area-inset-left),env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom));font-size:14px;color:var(--muted)}.foot a{color:inherit;display:inline-block;padding:2px 0}
-@media (pointer:coarse),(max-width:760px){.foot a{min-height:44px;line-height:44px;padding:0}}
 /* native select ignores min-height in some engines (WebKit): draw our own box and arrow (inline data URI, no request) */
 .controls select{-webkit-appearance:none;appearance:none;min-height:44px;padding-inline-end:30px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23777' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:calc(100% - 10px) center}
 [dir=rtl] .controls select{background-position:10px center}
@@ -102,3 +97,22 @@ dialog form{position:sticky;top:0;z-index:2;height:0;overflow:visible}
 #hoverLayer .hv{transform-box:fill-box;transform-origin:center;transition:transform .12s ease-out}
 .licbody h3{font-size:1rem;margin:1rem 0 .2rem}
 @media (prefers-reduced-motion:reduce){#hoverLayer .hv{transition:none;transform:none!important}}
+
+/* ---- one plain "Notes" block (page background, dark text, no colour) ---- */
+.notes{margin-top:.9rem;background:var(--card);color:var(--fg);font-size:.85rem}
+.notes h2{font-size:1rem;margin:0 0 .3rem}
+.notes ul{margin:0;padding-inline-start:1.1rem}.notes li{margin:.25rem 0}
+.notes .notesfoot,.notes .attrib{margin:.5rem 0 0;font-size:.8rem;color:var(--fg)}.notes a{color:inherit}
+.inlinelink{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+.notes .inlinelink,.notes a{display:inline-block;padding:2px 0}
+@media (pointer:coarse),(max-width:760px){.notes .inlinelink,.notes a{min-height:44px;line-height:44px;padding:0}}
+/* date field with previous / next day buttons */
+.controls .field{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);min-width:0}
+.daterow{display:flex;align-items:stretch;gap:6px;min-width:0}
+.daterow input{min-width:0;flex:1 1 auto}
+.daybtn{font:inherit;font-size:1.3rem;line-height:1;min-width:44px;min-height:44px;padding:0 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.daybtn:disabled{opacity:.45;cursor:not-allowed}
+.daybtn .arrow{display:inline-block}
+[dir=rtl] .daybtn .arrow{transform:scaleX(-1)}
+.daterow input{min-height:44px}
+.arrow-prev::before{content:"\2039"}.arrow-next::before{content:"\203A"}
