@@ -19,6 +19,9 @@ We took only data that is published for reuse, and we credit every source. Raw d
 | Public holidays | Python `holidays` package (version 0.108) | MIT (checked in the installed package) | Used per German state; the zone value is the share of its states on a holiday |
 | Our code | us | MIT, see [`LICENSE`](LICENSE) | |
 
+## The problem we set out to solve
+We want to forecast the electricity use of each grid zone, hour by hour. Every input about past use must be at least 24 hours old when we make the forecast. We make a new forecast for every hour, so we call it a rolling 24-hour forecast. It is not a day-ahead forecast made once a day: at one fixed time each day, we would not yet know the use from 24 hours before for the later hours of the next day. 
+
 ## What we built
 1. We collected the hourly electricity use of four grid zones, the weather, and the public holidays.
 2. We trained a computer model for each zone and each forecast distance. It learns the usual patterns: time of day, weekday, season, holidays and recent use.
@@ -135,11 +138,6 @@ We compared our LightGBM models with a ridge regression (a simple straight-line 
 
 *"More details" shows the numbers behind the chart and all our warnings.*
 
-## Prospective check (pending)
-We made forecasts on 11 Nov 2026 for the next three weeks and saved them before the hours happened.
-Fingerprint of the saved file (SHA-256): `897be3dc27dda1d05a09cc2db677593c5bf52488166fd40360c663325f49cafe`, first committed in `35791f5ee8372a29edf7cfdef3316c0c37b9a1f6`.
-We will add the result here in December 2026, whatever it is.
-
 <!-- PROSPECTIVE:START -->
 *Pending: no results yet.*
 <!-- PROSPECTIVE:END -->
@@ -151,8 +149,6 @@ We will add the result here in December 2026, whatever it is.
 - **Comparing with SMARD is not a fair fight.** That is a problem because it makes our model look better than it would in the same job. It happened because our model sees the use from 24 hours earlier and the real weather.
 - **The models are two years old.** That is a problem because patterns change. It happened because we trained them once, before October 2024, and locked them before testing.
 
-## The problem we set out to solve
-We want to forecast the electricity use of each grid zone, hour by hour. Every input about past use must be at least 24 hours old when we make the forecast. We make a new forecast for every hour, so we call it a rolling 24-hour forecast. It is not a day-ahead forecast made once a day: at one fixed time each day, we would not yet know the use from 24 hours before for the later hours of the next day. One shortcut: we use the weather that really happened at each hour, not a weather forecast. The stress tests above show what wrong weather does.
 
 ## Limitations
 - **Rolling forecast, real weather.** Our main model is a rolling 24-hour forecast, not a true day-ahead one, and it uses the weather that really happened. So its numbers are better than a real day-ahead forecast would be: without the 24-hour-old use our error grew by 8.7%, and by 18.1% without the 24-hour-old and 48-hour-old use.
